@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, QrCode, Coins, Check, FileText } from 'lucide-react';
+import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, QrCode, Coins, Check, FileText, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
@@ -12,6 +12,9 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
   const [paymentMethod, setPaymentMethod] = useState('CASH'); // 'CASH', 'QRIS', 'CARD'
   const [cashAmount, setCashAmount] = useState('');
   
+  // State Mobile Cart
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
+
   // State Diskon
   const [discountType, setDiscountType] = useState('PERCENT'); // 'PERCENT', 'NOMINAL'
   const [discountValue, setDiscountValue] = useState('');
@@ -274,8 +277,24 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
         </div>
       </div>
 
+      {/* FLOATING CART BAR (MOBILE ONLY) */}
+      {cart.length > 0 && !mobileCartOpen && (
+        <div className="mobile-cart-bar" onClick={() => setMobileCartOpen(true)}>
+          <div className="mobile-cart-bar-left">
+            <ShoppingCart size={20} />
+            <span className="mobile-cart-badge">{cart.reduce((s, i) => s + i.quantity, 0)}</span>
+          </div>
+          <span className="mobile-cart-bar-total">{formatRupiah(cartTotal)}</span>
+          <span className="mobile-cart-bar-btn">Lihat Keranjang →</span>
+        </div>
+      )}
+
       {/* KANAN: KERANJANG KASIR */}
-      <div className="cart-section glass-panel">
+      <div className={`cart-section glass-panel ${mobileCartOpen ? 'mobile-cart-open' : ''}`}>
+        {/* Mobile close button */}
+        <button className="mobile-cart-close" onClick={() => setMobileCartOpen(false)}>
+          <X size={20} />
+        </button>
         <div className="cart-header">
           <ShoppingCart size={22} className="cart-icon" />
           <h2>Keranjang Belanja</h2>
@@ -1311,6 +1330,14 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
           100% { transform: scale(1); opacity: 0.8; }
         }
 
+        /* ===== MOBILE CART BAR & CLOSE BUTTON (hidden on desktop) ===== */
+        .mobile-cart-bar {
+          display: none;
+        }
+        .mobile-cart-close {
+          display: none;
+        }
+
         /* ===== TABLET (max-width: 992px) ===== */
         @media (max-width: 992px) {
           .pos-container {
@@ -1328,7 +1355,7 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
             max-height: 50vh;
           }
           .product-grid {
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
             gap: 12px;
           }
           .product-card {
@@ -1342,83 +1369,202 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
           }
         }
 
-        /* ===== MOBILE (max-width: 576px) ===== */
-        @media (max-width: 576px) {
+        /* ===== MOBILE (max-width: 768px) ===== */
+        @media (max-width: 768px) {
           .pos-container {
             flex-direction: column;
             height: auto;
-            gap: 12px;
+            gap: 0;
+            padding-bottom: 70px;
           }
           .menu-section {
             flex: none;
             height: auto;
           }
+
+          /* === HIDE CART, SHOW AS OVERLAY === */
           .cart-section {
-            flex: none;
-            height: auto;
-            max-height: none;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 900;
+            flex-direction: column;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            background: #ffffff !important;
+            overflow-y: auto;
+            animation: slide-up 0.3s ease-out;
           }
+          .cart-section.mobile-cart-open {
+            display: flex;
+          }
+          @keyframes slide-up {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+
+          /* === MOBILE CLOSE BUTTON === */
+          .mobile-cart-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-muted);
+            z-index: 10;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+          }
+
+          /* === FLOATING CART BAR === */
+          .mobile-cart-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            bottom: 68px;
+            left: 12px;
+            right: 12px;
+            z-index: 800;
+            background: var(--primary);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+            cursor: pointer;
+            animation: fade-in-up 0.25s ease-out;
+          }
+          @keyframes fade-in-up {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          .mobile-cart-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+          }
+          .mobile-cart-badge {
+            background: #fff;
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .mobile-cart-bar-total {
+            font-weight: 700;
+            font-size: 15px;
+          }
+          .mobile-cart-bar-btn {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.9;
+          }
+
+          /* === COMPACT HEADER === */
           .pos-header {
-            padding: 12px;
-            gap: 12px;
+            padding: 10px;
+            gap: 10px;
           }
           .search-bar input {
             padding: 10px 14px 10px 40px;
             font-size: 14px;
+            border-radius: 10px;
           }
           .category-tabs {
             gap: 6px;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .category-tabs::-webkit-scrollbar {
+            display: none;
           }
           .category-tab {
             padding: 6px 12px;
-            font-size: 12px;
+            font-size: 11px;
+            border-radius: 16px;
           }
+
+          /* === COMPACT 2-COLUMN PRODUCT GRID === */
           .product-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            padding: 0 4px 80px 4px;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px;
+            padding: 0 2px 24px 2px;
           }
           .product-card {
-            height: 200px;
-            padding: 10px;
+            height: auto !important;
+            min-height: 0;
+            padding: 8px;
+            border-radius: 12px !important;
+            border-left-width: 3px;
           }
           .product-card-image-wrapper {
-            height: 80px;
+            height: 75px;
+            border-radius: 6px;
           }
-          .product-name {
-            font-size: 12px;
-            line-height: 1.2;
-          }
-          .product-desc {
-            font-size: 10px;
-            -webkit-line-clamp: 1;
-            margin-bottom: 6px;
-          }
-          .product-price {
-            font-size: 13px;
-          }
-          .product-stock {
-            font-size: 9px;
-          }
-          .product-footer {
-            gap: 4px;
+          .product-card-image-wrapper::after {
+            border-radius: 6px;
           }
           .product-details {
             margin-top: 6px;
           }
-          .card-badge {
-            font-size: 8px;
-            padding: 2px 6px;
+          .product-name {
+            font-size: 12px;
+            line-height: 1.25;
+            margin-bottom: 2px;
           }
+          .product-desc {
+            display: none;
+          }
+          .product-footer {
+            gap: 2px;
+          }
+          .product-price {
+            font-size: 12px;
+          }
+          .product-stock {
+            font-size: 9px;
+            padding: 1px 4px;
+          }
+          .card-badge {
+            font-size: 7px;
+            padding: 2px 5px;
+            top: 4px;
+            right: 4px;
+          }
+          .selected-indicator {
+            bottom: 6px;
+            right: 6px;
+            padding: 1px 6px;
+            font-size: 10px;
+            border-radius: 6px;
+          }
+
+          /* === COMPACT CART (inside overlay) === */
           .cart-header {
-            padding: 14px;
+            padding: 16px;
+            padding-right: 56px;
           }
           .cart-header h2 {
-            font-size: 14px;
+            font-size: 16px;
           }
           .cart-items-container {
-            padding: 10px;
+            padding: 12px;
             gap: 8px;
           }
           .cart-item {
@@ -1431,30 +1577,41 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
             padding: 14px;
           }
           .btn-checkout {
-            padding: 12px;
-            font-size: 13px;
+            padding: 14px;
+            font-size: 14px;
+            border-radius: 12px;
+          }
+
+          /* === CHECKOUT MODAL MOBILE === */
+          .checkout-overlay {
+            padding: 8px;
           }
           .checkout-container {
             max-width: 100%;
             padding: 16px;
             border-radius: 16px !important;
-            max-height: 90vh;
+            max-height: 92vh;
             overflow-y: auto;
           }
           .checkout-header h2 {
             font-size: 16px;
+          }
+          .amount-summary {
+            padding: 12px;
+            margin-bottom: 14px;
           }
           .amount-summary .value {
             font-size: 22px;
           }
           .payment-methods {
             gap: 8px;
+            margin-bottom: 14px;
           }
           .method-tab {
-            padding: 10px 8px;
+            padding: 10px 6px;
           }
           .method-tab span {
-            font-size: 11px;
+            font-size: 10px;
           }
           .quick-cash-grid {
             grid-template-columns: repeat(3, 1fr);
@@ -1466,39 +1623,59 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
           }
           .cash-input {
             font-size: 16px;
+            padding: 10px 14px 10px 38px;
+          }
+          .change-summary {
+            padding: 10px 12px;
           }
           .checkout-footer {
-            margin-top: 16px;
+            margin-top: 14px;
+            gap: 8px;
+          }
+          .btn-cancel, .btn-complete {
+            padding: 12px;
+            font-size: 13px;
+          }
+
+          /* === GENERAL MOBILE === */
+          .out-of-stock-overlay {
+            border-radius: 12px;
+            font-size: 13px;
+          }
+          .empty-search {
+            padding: 24px !important;
+            font-size: 13px;
           }
         }
 
         /* ===== SMALL MOBILE (max-width: 380px) ===== */
         @media (max-width: 380px) {
-          .product-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-          }
           .product-card {
-            height: 185px;
-            padding: 8px;
+            padding: 6px;
           }
           .product-card-image-wrapper {
-            height: 70px;
+            height: 65px;
           }
           .product-name {
             font-size: 11px;
           }
-          .product-desc {
+          .product-price {
+            font-size: 11px;
+          }
+          .card-badge {
             display: none;
           }
-          .product-price {
-            font-size: 12px;
+          .mobile-cart-bar {
+            bottom: 68px;
+            left: 8px;
+            right: 8px;
+            padding: 10px 14px;
           }
-          .product-footer {
-            flex-wrap: wrap;
+          .mobile-cart-bar-total {
+            font-size: 14px;
           }
-          .payment-methods {
-            grid-template-columns: 1fr 1fr 1fr;
+          .mobile-cart-bar-btn {
+            font-size: 11px;
           }
         }
       `}</style>
