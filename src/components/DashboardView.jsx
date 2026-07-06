@@ -340,9 +340,9 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
               alignItems: 'center',
               gap: '8px',
               cursor: 'pointer',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)'
+              background: 'var(--primary)',
+              borderColor: 'var(--primary)',
+              color: '#ffffff'
             }}
           >
             <Printer size={16} />
