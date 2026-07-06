@@ -40,6 +40,10 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
 
   const [isEodModalOpen, setIsEodModalOpen] = useState(false);
 
+  const handlePrintEod = () => {
+    setIsEodModalOpen(true);
+  };
+
   // Filter transaksi hari ini
   const todayOrders = useMemo(() => {
     const todayStr = new Date().toISOString().slice(0, 10);
