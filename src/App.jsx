@@ -278,7 +278,7 @@ function App() {
               <input 
                 type="text" 
                 name="username" 
-                placeholder="Masukkan username kasir (cindy / kasir)" 
+                placeholder="Masukkan username..." 
                 required 
                 className="login-input" 
               />
@@ -289,7 +289,7 @@ function App() {
               <input 
                 type="password" 
                 name="password" 
-                placeholder="Masukkan password kasir (123)" 
+                placeholder="Masukkan password..." 
                 required 
                 className="login-input" 
               />
