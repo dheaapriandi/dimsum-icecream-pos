@@ -1,0 +1,21 @@
+{
+  "short_name": "Kedai AA POS",
+  "name": "POS Kasir Kedai AA",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "display": "standalone",
+  "orientation": "portrait"
+}
