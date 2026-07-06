@@ -151,8 +151,8 @@ function App() {
     return (
       <div className="loading-screen">
         <div className="loading-logo-container">
-          <Sparkles className="loading-spinner" size={48} />
-          <h2>Dimsum & Ice AA</h2>
+          <img src="/logo.png" alt="Logo Kedai AA" className="loading-logo-img" />
+          <h2>Kedai AA</h2>
           <p>Memuat sistem kasir...</p>
         </div>
         <style>{`
@@ -170,9 +170,11 @@ function App() {
             align-items: center;
             gap: 12px;
           }
-          .loading-spinner {
-            color: #f97316;
-            animation: spin 1.5s infinite linear;
+          .loading-logo-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            animation: pulse-logo 2s infinite ease-in-out;
           }
           .loading-logo-container h2 {
             font-size: 24px;
@@ -185,9 +187,10 @@ function App() {
             font-size: 13px;
             color: #64748b;
           }
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+          @keyframes pulse-logo {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.9; }
           }
         `}</style>
       </div>

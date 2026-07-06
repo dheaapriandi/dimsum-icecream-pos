@@ -54,7 +54,7 @@ const ReceiptModal = ({ order, onClose }) => {
           {/* BAGIAN STRUK YANG AKAN DICETAK (ID: receipt-print) */}
           <div id="receipt-print" className="receipt-preview-container">
             <div className="receipt-header">
-              <div className="receipt-title">DIMSUM & ICE CREAM AA</div>
+              <div className="receipt-title">KEDAI AA</div>
               <div className="receipt-subtitle">Kedai Dimsum AA & Ice Cream Nyemil</div>
               <div className="receipt-subtitle">FB: Cindy Apriandi</div>
               <div className="receipt-subtitle">Telp: 0813-1567-5013</div>
@@ -138,7 +138,7 @@ const ReceiptModal = ({ order, onClose }) => {
             <div className="receipt-footer">
               <p>Terima Kasih</p>
               <p>Atas Kunjungan Anda!</p>
-              <p className="powered-by">Sistem POS oleh Dimsum & Ice AA</p>
+              <p className="powered-by">Sistem POS oleh Kedai AA</p>
             </div>
           </div>
         </div>

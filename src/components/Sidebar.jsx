@@ -13,10 +13,10 @@ const Sidebar = ({ activeView, setActiveView }) => {
     <div className="sidebar-container">
       <div className="sidebar-brand">
         <div className="brand-icon">
-          <Sparkles className="logo-sparkle" size={24} />
+          <img src="/logo.png" alt="Logo Kedai AA" className="logo-img" />
         </div>
         <div className="brand-text">
-          <h1 className="brand-name">Dimsum & Ice AA</h1>
+          <h1 className="brand-name">Kedai AA</h1>
           <span className="brand-tagline">Kasir POS Pintar v1.0</span>
         </div>
       </div>
@@ -77,16 +77,20 @@ const Sidebar = ({ activeView, setActiveView }) => {
           width: 42px;
           height: 42px;
           border-radius: 12px;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+          background: white;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 10px rgba(249, 115, 22, 0.15);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          border: 1px solid var(--border-color);
+          overflow: hidden;
+          padding: 2px;
         }
 
-        .logo-sparkle {
-          color: white;
-          animation: spin-pulse 3s infinite linear;
+        .logo-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
         }
 
         .brand-text {

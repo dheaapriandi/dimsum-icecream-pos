@@ -1,6 +1,6 @@
-# 🥟🍦 POS Kasir Dimsum & Es Krim - Pintar POS
+# 🥟🍦 POS Kedai AA - Kasir POS Pintar
 
-Aplikasi kasir Point of Sale (POS) premium yang didesain khusus untuk usaha kuliner Dim Sum dan Es Krim. Dibuat menggunakan React (Vite) dengan styling Glassmorphism Dark Mode yang menawan, terintegrasi dengan Supabase untuk cloud database, dan siap di-deploy ke Vercel serta di-print menggunakan printer thermal 58mm (seperti EPPOS EPX588).
+Aplikasi kasir Point of Sale (POS) premium yang didesain khusus untuk usaha kuliner Kedai Dimsum AA & Ice Cream Nyemil. Dibuat menggunakan React (Vite) dengan styling Light Mode yang menawan, terintegrasi dengan Supabase untuk cloud database, dan siap di-deploy ke Vercel serta di-print menggunakan printer thermal 58mm (seperti EPPOS EPX588).
 
 ---
 
