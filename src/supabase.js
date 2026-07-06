@@ -149,30 +149,102 @@ export const db = {
 
   // --- Transaksi / Orders ---
   async getOrders() {
+    let products = [];
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-      if (!error) return data;
+      try {
+        const { data: prods } = await supabase.from('products').select('*');
+        products = prods || [];
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      products = JSON.parse(localStorage.getItem('pos_products')) || [];
+    }
+
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*, order_items(*)')
+        .order('created_at', { ascending: false });
+
+      if (!error) {
+        return data.map(order => ({
+          ...order,
+          items: (order.order_items || []).map(item => {
+            const prod = products.find(p => p.id === item.product_id);
+            return {
+              ...item,
+              product_name: prod ? prod.name : `Produk #${item.product_id}`
+            };
+          })
+        }));
+      }
       console.error('Supabase error fetching orders, falling back to localStorage:', error);
     }
-    return JSON.parse(localStorage.getItem('pos_orders'));
+    
+    const orders = JSON.parse(localStorage.getItem('pos_orders')) || [];
+    const allItems = JSON.parse(localStorage.getItem('pos_order_items')) || [];
+    
+    return orders.map(order => {
+      const items = allItems.filter(item => item.order_id === order.id);
+      return {
+        ...order,
+        items: items.map(item => {
+          const prod = products.find(p => p.id === item.product_id);
+          return {
+            ...item,
+            product_name: prod ? prod.name : `Produk #${item.product_id}`
+          };
+        })
+      };
+    });
   },
 
   async getOrderDetails(orderId) {
+    let products = [];
+    if (isSupabaseConfigured) {
+      try {
+        const { data: prods } = await supabase.from('products').select('*');
+        products = prods || [];
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      products = JSON.parse(localStorage.getItem('pos_products')) || [];
+    }
+
     if (isSupabaseConfigured) {
       const { data: order, error: orderErr } = await supabase.from('orders').select('*').eq('id', orderId).single();
       const { data: items, error: itemsErr } = await supabase.from('order_items').select('*').eq('order_id', orderId);
       if (!orderErr && !itemsErr) {
-        return { ...order, items };
+        const itemsWithNames = (items || []).map(item => {
+          const prod = products.find(p => p.id === item.product_id);
+          return {
+            ...item,
+            product_name: prod ? prod.name : `Produk #${item.product_id}`
+          };
+        });
+        return { ...order, items: itemsWithNames };
       }
       console.error('Supabase error fetching order details:', orderErr || itemsErr);
     }
-    const orders = JSON.parse(localStorage.getItem('pos_orders'));
+    
+    const orders = JSON.parse(localStorage.getItem('pos_orders')) || [];
     const order = orders.find(o => o.id === orderId);
     if (!order) return null;
 
-    const allItems = JSON.parse(localStorage.getItem('pos_order_items'));
+    const allItems = JSON.parse(localStorage.getItem('pos_order_items')) || [];
     const items = allItems.filter(item => item.order_id === orderId);
-    return { ...order, items };
+    
+    const itemsWithNames = items.map(item => {
+      const prod = products.find(p => p.id === item.product_id);
+      return {
+        ...item,
+        product_name: prod ? prod.name : `Produk #${item.product_id}`
+      };
+    });
+    
+    return { ...order, items: itemsWithNames };
   },
 
   async createOrder(orderData, items) {
