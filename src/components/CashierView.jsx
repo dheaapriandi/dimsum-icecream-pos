@@ -646,12 +646,11 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
 
         .product-card-image-wrapper {
           position: relative;
-          width: calc(100% + 32px);
-          margin-left: -16px;
-          margin-top: -16px;
+          width: 100%;
           height: 110px;
           overflow: hidden;
-          border-bottom: 1px solid var(--border-color);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
         }
 
         .product-card-image {
@@ -678,8 +677,8 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
 
         .card-badge {
           position: absolute;
-          top: 12px;
-          right: 12px;
+          top: 8px;
+          right: 8px;
           font-size: 10px;
           font-weight: 700;
           color: white;
