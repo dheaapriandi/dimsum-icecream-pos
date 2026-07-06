@@ -78,5 +78,10 @@ INSERT INTO products (id, name, description, price, category_id, stock, active, 
 ('prod-ic-small', 'Small Cup (1 Scoop)', '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', 3000, 'cat-2', 100, TRUE, 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=400&auto=format&fit=crop&q=60'),
 ('prod-ic-medium', 'Medium Cup (2 Scoop)', '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', 5000, 'cat-2', 100, TRUE, 'https://images.unsplash.com/photo-1560008511-11c63416e52d?w=400&auto=format&fit=crop&q=60'),
 ('prod-ic-large', 'Large Cup (3 Scoop)', '3 Scoop Es Krim + Roti + Susu + (Full Topping).', 10000, 'cat-2', 80, TRUE, 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&auto=format&fit=crop&q=60'),
--- Minuman / Tambahan (Kategori Dimsum AA)
 ('prod-ds-esteh', 'Es Teh', 'Es teh manis segar pelepas dahaga.', 2500, 'cat-1', 200, TRUE, 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60');
+
+-- 8. Nonaktifkan RLS (Row Level Security) agar client/Vite POS dapat membaca & menulis data secara bebas
+ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE products DISABLE ROW LEVEL SECURITY;
+ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items DISABLE ROW LEVEL SECURITY;
