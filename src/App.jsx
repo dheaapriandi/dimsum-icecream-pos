@@ -161,7 +161,7 @@ function App() {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #090d16;
+            background: #f8fafc;
           }
           .loading-logo-container {
             text-align: center;
@@ -177,7 +177,7 @@ function App() {
           .loading-logo-container h2 {
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
+            background: linear-gradient(to right, #0f172a, #64748b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
           }
@@ -237,7 +237,7 @@ function App() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          background: rgba(255, 255, 255, 0.02);
+          background: rgba(0, 0, 0, 0.02);
           border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 10px 16px;
@@ -273,7 +273,7 @@ function App() {
         }
 
         .setup-tip code {
-          background: rgba(255,255,255,0.06);
+          background: rgba(0, 0, 0, 0.04);
           padding: 2px 6px;
           border-radius: 4px;
           color: var(--text-primary);

@@ -52,7 +52,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
       <style>{`
         .sidebar-container {
           width: var(--sidebar-width);
-          background: rgba(15, 23, 42, 0.95);
+          background: rgba(255, 255, 255, 0.9);
           backdrop-filter: blur(10px);
           border-right: 1px solid var(--border-color);
           height: 100vh;
@@ -81,7 +81,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+          box-shadow: 0 4px 10px rgba(249, 115, 22, 0.15);
         }
 
         .logo-sparkle {
@@ -98,7 +98,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
           font-size: 16px;
           font-weight: 700;
           letter-spacing: 0.5px;
-          background: linear-gradient(to right, #ffffff, #e2e8f0);
+          background: linear-gradient(to right, #0f172a, #334155);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -134,12 +134,12 @@ const Sidebar = ({ activeView, setActiveView }) => {
         }
 
         .menu-item:hover {
-          background: rgba(255, 255, 255, 0.03);
+          background: rgba(0, 0, 0, 0.02);
           color: var(--text-primary);
         }
 
         .menu-item.active {
-          background: rgba(249, 115, 22, 0.1);
+          background: rgba(249, 115, 22, 0.08);
           color: var(--primary);
           font-weight: 600;
         }
@@ -149,7 +149,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
         }
 
         .menu-item:hover .menu-icon {
-          transform: scale(1.15);
+          transform: scale(1.1);
         }
 
         .active-indicator {
@@ -160,7 +160,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
           width: 4px;
           background-color: var(--primary);
           border-radius: 4px 0 0 4px;
-          box-shadow: -2px 0 8px var(--primary);
+          box-shadow: -1px 0 6px rgba(249, 115, 22, 0.4);
         }
 
         .sidebar-footer {
@@ -172,10 +172,10 @@ const Sidebar = ({ activeView, setActiveView }) => {
           display: flex;
           align-items: center;
           gap: 12px;
-          background: rgba(255, 255, 255, 0.02);
+          background: rgba(0, 0, 0, 0.02);
           padding: 10px 14px;
           border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(0, 0, 0, 0.03);
         }
 
         .avatar {
@@ -188,7 +188,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid rgba(249, 115, 22, 0.2);
+          border: 1px solid rgba(249, 115, 22, 0.15);
         }
 
         .info {
@@ -209,7 +209,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
 
         @keyframes spin-pulse {
           0% { transform: rotate(0deg) scale(1); }
-          50% { transform: rotate(180deg) scale(1.1); }
+          50% { transform: rotate(180deg) scale(1.05); }
           100% { transform: rotate(360deg) scale(1); }
         }
 
@@ -243,7 +243,8 @@ const Sidebar = ({ activeView, setActiveView }) => {
             border-right: none;
             border-top: 1px solid var(--border-color);
             padding: 0;
-            background: rgba(15, 23, 42, 0.98);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
           }
           .sidebar-brand, .sidebar-footer {
             display: none;

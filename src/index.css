@@ -1,26 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-main: #090d16;
-  --bg-surface: rgba(22, 28, 45, 0.7);
-  --bg-surface-hover: rgba(30, 41, 59, 0.8);
-  --border-color: rgba(255, 255, 255, 0.08);
+  --bg-main: #f8fafc;
+  --bg-surface: rgba(255, 255, 255, 0.85);
+  --bg-surface-hover: rgba(241, 245, 249, 0.95);
+  --border-color: rgba(0, 0, 0, 0.06);
   
   --primary: #f97316; /* Dim Sum Orange */
   --primary-hover: #ea580c;
   --secondary: #ec4899; /* Ice Cream Pink */
   --secondary-hover: #db2777;
-  --accent: #06b6d4; /* Ice Cream Cyan */
-  --accent-hover: #0891b2;
+  --accent: #0891b2; /* Ice Cream Cyan */
+  --accent-hover: #0e7490;
   --yellow: #eab308;
   
-  --text-primary: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-primary: #0f172a; /* Dark charcoal */
+  --text-muted: #64748b; /* Muted Slate */
   --text-dark: #0f172a;
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 12px -1px rgba(0, 0, 0, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
   
   --font-sans: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
   --sidebar-width: 260px;
@@ -39,8 +39,8 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.05) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.03) 0px, transparent 50%);
 }
 
 button, input, select, textarea {
@@ -53,24 +53,30 @@ button, input, select, textarea {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
 }
 
-/* Glassmorphism Surface */
+/* Glassmorphism Surface (Light Version) */
 .glass-panel {
   background: var(--bg-surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.glass-panel:hover {
   box-shadow: var(--shadow-lg);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 /* Layout App */
@@ -109,11 +115,11 @@ button, input, select, textarea {
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
 }
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.3);
 }
 .btn-primary:active {
   transform: translateY(0);
@@ -125,11 +131,11 @@ button, input, select, textarea {
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
 }
 .btn-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.3);
 }
 
 /* Grid Views */
@@ -191,7 +197,7 @@ button, input, select, textarea {
   max-width: 320px;
   margin: 0 auto;
   border: 1px dashed #ccc;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
   border-radius: 4px;
 }
 
