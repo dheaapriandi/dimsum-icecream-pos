@@ -82,6 +82,50 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     return { totalOrders, totalRevenue, totalDiscount, payments, topProducts };
   }, [todayOrders, products]);
 
+  const [chartPeriod, setChartPeriod] = useState('DAILY'); // 'DAILY', 'MONTHLY'
+
+  // Hitung tren harian (7 hari terakhir)
+  const dailyTrend = useMemo(() => {
+    const result = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      
+      const dailyRevenue = orders
+        .filter(o => o.created_at.slice(0, 10) === dateStr && o.status !== 'CANCELLED')
+        .reduce((sum, o) => sum + o.total_amount, 0);
+        
+      result.push({
+        label: d.toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit' }),
+        revenue: dailyRevenue,
+        rawDate: dateStr
+      });
+    }
+    return result;
+  }, [orders]);
+
+  // Hitung tren bulanan (6 bulan terakhir)
+  const monthlyTrend = useMemo(() => {
+    const result = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const yearMonthStr = d.toISOString().slice(0, 7); // YYYY-MM
+      
+      const monthlyRevenue = orders
+        .filter(o => o.created_at.slice(0, 7) === yearMonthStr && o.status !== 'CANCELLED')
+        .reduce((sum, o) => sum + o.total_amount, 0);
+        
+      result.push({
+        label: d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }),
+        revenue: monthlyRevenue,
+        rawMonth: yearMonthStr
+      });
+    }
+    return result;
+  }, [orders]);
+
   // Hitung metrik penjualan
   const stats = useMemo(() => {
     const totalOrders = orders.length;
@@ -229,6 +273,139 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
             <span className="value">{formatRupiah(stats.avgOrderValue)}</span>
           </div>
         </div>
+      </div>
+
+      {/* TREN PENJUALAN (HARIAN / BULANAN) */}
+      <div className="dashboard-card glass-panel trend-card" style={{ padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={{ margin: 0 }}>Tren Grafik Penjualan</h3>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>Analisis grafik pendapatan usaha Kedai AA</p>
+          </div>
+          <div className="chart-tabs" style={{ display: 'flex', background: 'rgba(0,0,0,0.03)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            <button 
+              onClick={() => setChartPeriod('DAILY')}
+              className={`chart-tab-btn ${chartPeriod === 'DAILY' ? 'active' : ''}`}
+              style={{
+                padding: '6px 12px',
+                border: 'none',
+                background: chartPeriod === 'DAILY' ? 'var(--primary)' : 'transparent',
+                color: chartPeriod === 'DAILY' ? '#ffffff' : 'var(--text-muted)',
+                fontSize: '12px',
+                fontWeight: 600,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              Harian (7 Hari)
+            </button>
+            <button 
+              onClick={() => setChartPeriod('MONTHLY')}
+              className={`chart-tab-btn ${chartPeriod === 'MONTHLY' ? 'active' : ''}`}
+              style={{
+                padding: '6px 12px',
+                border: 'none',
+                background: chartPeriod === 'MONTHLY' ? 'var(--primary)' : 'transparent',
+                color: chartPeriod === 'MONTHLY' ? '#ffffff' : 'var(--text-muted)',
+                fontSize: '12px',
+                fontWeight: 600,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              Bulanan (6 Bulan)
+            </button>
+          </div>
+        </div>
+
+        {/* Visual Bar Chart */}
+        <div className="chart-visual-container" style={{ display: 'flex', height: '240px', gap: '20px', alignItems: 'flex-end', paddingTop: '20px', borderBottom: '2px solid var(--border-color)', position: 'relative' }}>
+          {/* Grid lines */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: '20%', borderTop: '1px dashed var(--border-color)', opacity: 0.3 }}></div>
+          <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', borderTop: '1px dashed var(--border-color)', opacity: 0.3 }}></div>
+          <div style={{ position: 'absolute', left: 0, right: 0, top: '80%', borderTop: '1px dashed var(--border-color)', opacity: 0.3 }}></div>
+
+          {(chartPeriod === 'DAILY' ? dailyTrend : monthlyTrend).map((item, index) => {
+            const currentData = chartPeriod === 'DAILY' ? dailyTrend : monthlyTrend;
+            const maxVal = Math.max(...currentData.map(d => d.revenue), 1);
+            const heightPercent = (item.revenue / maxVal) * 80 + 5; // Min 5% height for visual trace if > 0
+            const heightStyle = item.revenue === 0 ? '0%' : `${heightPercent}%`;
+
+            return (
+              <div 
+                key={index} 
+                className="chart-column-group"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  height: '100%',
+                  justifyContent: 'flex-end',
+                  position: 'relative'
+                }}
+              >
+                {/* Hover value label */}
+                <div 
+                  className="chart-bar-tooltip"
+                  style={{
+                    position: 'absolute',
+                    bottom: `calc(${heightStyle} + 10px)`,
+                    background: 'var(--text-primary)',
+                    color: 'var(--bg-surface)',
+                    padding: '4px 8px',
+                    borderRadius: '6px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    whiteSpace: 'nowrap',
+                    boxShadow: 'var(--shadow-sm)',
+                    opacity: 0,
+                    pointerEvents: 'none',
+                    transition: 'opacity 0.2s, bottom 0.2s',
+                    zIndex: 10
+                  }}
+                >
+                  {formatRupiah(item.revenue)}
+                </div>
+
+                {/* Vertical Bar */}
+                <div 
+                  className="chart-bar-column"
+                  style={{
+                    width: '70%',
+                    maxWidth: '45px',
+                    height: heightStyle,
+                    background: 'linear-gradient(180deg, var(--primary) 0%, rgba(249, 115, 22, 0.4) 100%)',
+                    borderTopLeftRadius: '6px',
+                    borderTopRightRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                />
+
+                {/* X-axis Label (offset below chart) */}
+                <div 
+                  style={{
+                    position: 'absolute',
+                    bottom: '-28px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: 'var(--text-muted)',
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {item.label}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Padding bottom helper to offset X-axis labels */}
+        <div style={{ height: '24px' }}></div>
       </div>
 
       <div className="dashboard-charts-grid">
