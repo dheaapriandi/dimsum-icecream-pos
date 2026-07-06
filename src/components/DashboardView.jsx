@@ -1,6 +1,38 @@
 import React, { useMemo, useState } from 'react';
 import { TrendingUp, ShoppingBag, Receipt, DollarSign, Printer, ArrowUpRight, Edit, Trash2, X, Check } from 'lucide-react';
 
+// Helper to get date string in Asia/Jakarta (GMT+7) timezone
+const getJakartaYMD = (dateInput) => {
+  const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  if (!d || isNaN(d.getTime())) return '';
+  const formatter = new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  const parts = formatter.formatToParts(d);
+  const day = parts.find(p => p.type === 'day').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const year = parts.find(p => p.type === 'year').value;
+  return `${year}-${month}-${day}`;
+};
+
+// Helper to get year-month string in Asia/Jakarta (GMT+7) timezone
+const getJakartaYM = (dateInput) => {
+  const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  if (!d || isNaN(d.getTime())) return '';
+  const formatter = new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit'
+  });
+  const parts = formatter.formatToParts(d);
+  const month = parts.find(p => p.type === 'month').value;
+  const year = parts.find(p => p.type === 'year').value;
+  return `${year}-${month}`;
+};
+
 const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDeleteOrder }) => {
   const [editingOrder, setEditingOrder] = useState(null);
   const [editPaymentMethod, setEditPaymentMethod] = useState('CASH');
@@ -46,8 +78,8 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
 
   // Filter transaksi hari ini
   const todayOrders = useMemo(() => {
-    const todayStr = new Date().toISOString().slice(0, 10);
-    return orders.filter(o => o.created_at.slice(0, 10) === todayStr && o.status !== 'CANCELLED');
+    const todayStr = getJakartaYMD(new Date());
+    return orders.filter(o => getJakartaYMD(o.created_at) === todayStr && o.status !== 'CANCELLED');
   }, [orders]);
 
   const todayStats = useMemo(() => {
@@ -90,14 +122,14 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().slice(0, 10);
+      const dateStr = getJakartaYMD(d);
       
       const dailyRevenue = orders
-        .filter(o => o.created_at.slice(0, 10) === dateStr && o.status !== 'CANCELLED')
+        .filter(o => getJakartaYMD(o.created_at) === dateStr && o.status !== 'CANCELLED')
         .reduce((sum, o) => sum + o.total_amount, 0);
         
       result.push({
-        label: d.toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit' }),
+        label: d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'short', day: '2-digit' }),
         revenue: dailyRevenue,
         rawDate: dateStr
       });
@@ -111,14 +143,14 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     for (let i = 29; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().slice(0, 10);
+      const dateStr = getJakartaYMD(d);
       
       const dailyRevenue = orders
-        .filter(o => o.created_at.slice(0, 10) === dateStr && o.status !== 'CANCELLED')
+        .filter(o => getJakartaYMD(o.created_at) === dateStr && o.status !== 'CANCELLED')
         .reduce((sum, o) => sum + o.total_amount, 0);
         
       result.push({
-        label: d.toLocaleDateString('id-ID', { day: '2-digit' }), // Tampilkan tanggal saja agar muat
+        label: d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit' }), // Tampilkan tanggal saja agar muat
         revenue: dailyRevenue,
         rawDate: dateStr
       });
@@ -132,14 +164,14 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
       d.setMonth(d.getMonth() - i);
-      const yearMonthStr = d.toISOString().slice(0, 7); // YYYY-MM
+      const yearMonthStr = getJakartaYM(d);
       
       const monthlyRevenue = orders
-        .filter(o => o.created_at.slice(0, 7) === yearMonthStr && o.status !== 'CANCELLED')
+        .filter(o => getJakartaYM(o.created_at) === yearMonthStr && o.status !== 'CANCELLED')
         .reduce((sum, o) => sum + o.total_amount, 0);
         
       result.push({
-        label: d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }),
+        label: d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', month: 'short', year: '2-digit' }),
         revenue: monthlyRevenue,
         rawMonth: yearMonthStr
       });
@@ -703,10 +735,10 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                   <div className="receipt-subtitle" style={{ fontWeight: 'bold', fontSize: '12px' }}>END OF DAY (EOD) REPORT</div>
                   <div className="receipt-subtitle" style={{ fontSize: '11px', marginTop: '8px' }}>--------------------------------</div>
                   <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px' }}>
-                    Tanggal: {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    Tanggal: {new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: '2-digit', year: 'numeric' })}
                   </div>
                   <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px' }}>
-                    Waktu Cetak: {new Date().toLocaleTimeString('id-ID')}
+                    Waktu Cetak: {new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}
                   </div>
                   <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px' }}>
                     Kasir: Kasir Utama
