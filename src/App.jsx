@@ -152,7 +152,7 @@ function App() {
       <div className="loading-screen">
         <div className="loading-logo-container">
           <Sparkles className="loading-spinner" size={48} />
-          <h2>Dimsum & Ice</h2>
+          <h2>Dimsum & Ice AA</h2>
           <p>Memuat sistem kasir...</p>
         </div>
         <style>{`

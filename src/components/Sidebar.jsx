@@ -16,8 +16,8 @@ const Sidebar = ({ activeView, setActiveView }) => {
           <Sparkles className="logo-sparkle" size={24} />
         </div>
         <div className="brand-text">
-          <h1 className="brand-name">Dimsum & Ice</h1>
-          <span className="brand-tagline">Kasir Pintar v1.0</span>
+          <h1 className="brand-name">Dimsum & Ice AA</h1>
+          <span className="brand-tagline">Kasir POS Pintar v1.0</span>
         </div>
       </div>
 

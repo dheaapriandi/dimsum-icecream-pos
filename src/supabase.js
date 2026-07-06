@@ -18,40 +18,43 @@ export const supabase = isSupabaseConfigured
 // ==========================================
 
 const DEFAULT_CATEGORIES = [
-  { id: 'cat-1', name: 'Dim Sum', slug: 'dim-sum', icon: 'Utensils', color: '#f97316' },
-  { id: 'cat-2', name: 'Es Krim', slug: 'es-krim', icon: 'IceCream', color: '#ec4899' },
-  { id: 'cat-3', name: 'Minuman', slug: 'minuman', icon: 'Coffee', color: '#06b6d4' },
-  { id: 'cat-4', name: 'Camilan', slug: 'camilan', icon: 'Cookie', color: '#eab308' }
+  { id: 'cat-1', name: 'Dimsum AA', slug: 'dimsum-aa', icon: 'Utensils', color: '#f97316' },
+  { id: 'cat-2', name: 'Ice Cream Nyemil', slug: 'ice-cream-nyemil', icon: 'IceCream', color: '#ec4899' }
 ];
 
 const DEFAULT_PRODUCTS = [
-  { id: 'prod-1', name: 'Siomay Ayam (isi 4)', description: 'Siomay ayam kukus lembut disajikan dengan saus sambal.', price: 15000, category_id: 'cat-1', stock: 50, active: true, image_url: '' },
-  { id: 'prod-2', name: 'Hakau Udang (isi 3)', description: 'Hakau udang transparan isi udang utuh segar.', price: 18000, category_id: 'cat-1', stock: 30, active: true, image_url: '' },
-  { id: 'prod-3', name: 'Lumpia Kulit Tahu (isi 3)', description: 'Lumpia udang dibalut kulit tahu renyah.', price: 16000, category_id: 'cat-1', stock: 25, active: true, image_url: '' },
-  { id: 'prod-4', name: 'Bakpao Telur Asin (isi 2)', description: 'Bakpao kukus hangat dengan isian saus telur asin meleleh.', price: 14000, category_id: 'cat-1', stock: 20, active: true, image_url: '' },
-  { id: 'prod-5', name: 'Cone Es Krim Vanilla', description: 'Cone renyah dengan es krim vanilla lembut.', price: 8000, category_id: 'cat-2', stock: 100, active: true, image_url: '' },
-  { id: 'prod-6', name: 'Cone Es Krim Cokelat', description: 'Cone renyah dengan es krim cokelat belgian pekat.', price: 8000, category_id: 'cat-2', stock: 100, active: true, image_url: '' },
-  { id: 'prod-7', name: 'Sundae Strawberry', description: 'Es krim vanilla cup dengan selai strawberry segar dan potongan buah.', price: 12000, category_id: 'cat-2', stock: 45, active: true, image_url: '' },
-  { id: 'prod-8', name: 'Sundae Matcha Oreo', description: 'Es krim matcha khas jepang dengan taburan remahan oreo.', price: 14000, category_id: 'cat-2', stock: 40, active: true, image_url: '' },
-  { id: 'prod-9', name: 'Es Teh Manis', description: 'Teh melati dingin yang manis menyegarkan.', price: 5000, category_id: 'cat-3', stock: 200, active: true, image_url: '' },
-  { id: 'prod-10', name: 'Teh Tarik Jelly', description: 'Teh tarik dingin dengan topping grass jelly.', price: 10000, category_id: 'cat-3', stock: 50, active: true, image_url: '' },
-  { id: 'prod-11', name: 'Es Krim Matcha Latte', description: 'Minuman matcha dingin dengan topping satu scoop es krim matcha.', price: 15000, category_id: 'cat-3', stock: 35, active: true, image_url: '' },
-  { id: 'prod-12', name: 'French Fries', description: 'Kentang goreng renyah disajikan dengan saus tomat.', price: 12000, category_id: 'cat-4', stock: 40, active: true, image_url: '' }
+  // Dimsum Original
+  { id: 'prod-ds-orig-1', name: 'Dimsum Original Satuan', description: '1 Pcs dimsum kukus original khas Kedai Dimsum AA.', price: 2000, category_id: 'cat-1', stock: 150, active: true, image_url: '' },
+  { id: 'prod-ds-orig-5', name: 'Dimsum Original 1 Porsi (Isi 5)', description: '5 Pcs dimsum kukus original khas Kedai Dimsum AA.', price: 10000, category_id: 'cat-1', stock: 60, active: true, image_url: '' },
+  
+  // Dimsum Mentai
+  { id: 'prod-ds-mentai-4', name: 'Dimsum Mentai Isi 4', description: '4 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', price: 15000, category_id: 'cat-1', stock: 40, active: true, image_url: '' },
+  { id: 'prod-ds-mentai-6', name: 'Dimsum Mentai Isi 6', description: '6 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', price: 23000, category_id: 'cat-1', stock: 30, active: true, image_url: '' },
+  
+  // Dimsum Goreng
+  { id: 'prod-ds-goreng-keju-3', name: 'Dimsum Goreng Keju Lumer (Isi 3)', description: '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', price: 10000, category_id: 'cat-1', stock: 45, active: true, image_url: '' },
+  { id: 'prod-ds-goreng-mentai-keju-4', name: 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', description: '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', price: 17000, category_id: 'cat-1', stock: 30, active: true, image_url: '' },
+  
+  // Ice Cream Nyemil
+  { id: 'prod-ic-small', name: 'Small Cup (1 Scoop)', description: '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', price: 3000, category_id: 'cat-2', stock: 100, active: true, image_url: '' },
+  { id: 'prod-ic-medium', name: 'Medium Cup (2 Scoop)', description: '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', price: 5000, category_id: 'cat-2', stock: 100, active: true, image_url: '' },
+  { id: 'prod-ic-large', name: 'Large Cup (3 Scoop)', description: '3 Scoop Es Krim + Roti + Susu + (Full Topping).', price: 10000, category_id: 'cat-2', stock: 80, active: true, image_url: '' }
 ];
 
 // Helper inisialisasi localStorage
 const initLocalDb = () => {
-  if (!localStorage.getItem('pos_categories')) {
+  const currentProducts = localStorage.getItem('pos_products');
+  // Reset database jika kosong atau terdeteksi mengandung data demo lama "Siomay Ayam"
+  if (!currentProducts || currentProducts.includes('Siomay Ayam')) {
     localStorage.setItem('pos_categories', JSON.stringify(DEFAULT_CATEGORIES));
-  }
-  if (!localStorage.getItem('pos_products')) {
     localStorage.setItem('pos_products', JSON.stringify(DEFAULT_PRODUCTS));
-  }
-  if (!localStorage.getItem('pos_orders')) {
     localStorage.setItem('pos_orders', JSON.stringify([]));
-  }
-  if (!localStorage.getItem('pos_order_items')) {
     localStorage.setItem('pos_order_items', JSON.stringify([]));
+  } else {
+    // Jika sudah ada tapi ingin memastikan kategori baru terupdate
+    if (!localStorage.getItem('pos_categories')) {
+      localStorage.setItem('pos_categories', JSON.stringify(DEFAULT_CATEGORIES));
+    }
   }
 };
 
