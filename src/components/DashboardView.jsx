@@ -1019,6 +1019,131 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
           background: rgba(239, 68, 68, 0.1) !important;
         }
 
+        /* Tampilan Preview Struk / EOD Laporan */
+        .receipt-preview-container {
+          background-color: #ffffff !important;
+          color: #000000 !important;
+          font-family: 'Courier New', Courier, monospace;
+          padding: 16px;
+          width: 100%;
+          max-width: 320px;
+          margin: 0 auto;
+          border: 1px dashed #ccc;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          border-radius: 4px;
+          text-shadow: none !important;
+        }
+
+        .receipt-scroll-area {
+          width: 100%;
+          max-height: 400px;
+          overflow-y: auto;
+          margin-bottom: 20px;
+          padding: 4px;
+          border-radius: 8px;
+          background: rgba(0, 0, 0, 0.05);
+        }
+
+        .receipt-header {
+          text-align: center;
+          margin-bottom: 12px;
+        }
+
+        .receipt-logo-bw {
+          width: 55px;
+          height: 55px;
+          object-fit: contain;
+          margin: 6px auto;
+          display: block;
+          filter: grayscale(100%) contrast(200%);
+        }
+
+        .receipt-title {
+          font-size: 14px;
+          font-weight: bold;
+          letter-spacing: 1px;
+          margin-bottom: 2px;
+          color: #000000 !important;
+        }
+
+        .receipt-subtitle {
+          font-size: 10px;
+          color: #333333 !important;
+          margin-bottom: 1px;
+        }
+
+        .receipt-divider {
+          border-top: 1px dashed #000;
+          margin: 8px 0;
+        }
+
+        .receipt-info-section {
+          font-size: 11px;
+          color: #000000 !important;
+        }
+
+        .receipt-info-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 2px;
+          color: #000000 !important;
+        }
+
+        .receipt-footer {
+          text-align: center;
+          font-size: 10px;
+          line-height: 1.4;
+          margin-top: 12px;
+          color: #000000 !important;
+        }
+
+        @media print {
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+          body * {
+            visibility: hidden;
+          }
+          #receipt-print, #receipt-print * {
+            visibility: visible;
+          }
+          #receipt-print {
+            position: absolute !important;
+            left: 0;
+            top: 0;
+            width: 58mm !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+          .edit-modal-overlay {
+            background: transparent !important;
+            position: absolute !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: block !important;
+          }
+          .edit-modal-container {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: transparent !important;
+            max-width: none !important;
+            width: auto !important;
+          }
+          .receipt-scroll-area {
+            overflow-y: visible !important;
+            max-height: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+        }
+
         @media (max-width: 768px) {
           .stats-cards-grid {
             grid-template-columns: 1fr;
