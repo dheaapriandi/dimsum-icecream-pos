@@ -103,6 +103,7 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
   // Logika Pembayaran
   const handleOpenCheckout = () => {
     if (cart.length === 0) return;
+    setMobileCartOpen(false);
     setIsCheckoutModalOpen(true);
     setCashAmount('');
   };
