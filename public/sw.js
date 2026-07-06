@@ -34,8 +34,15 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - Cache-first or Network-first fallback
 self.addEventListener('fetch', (event) => {
-  // Only cache standard GET requests (skip chrome extensions or API calls to supabase)
-  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+  // Hanya proses request GET dari origin yang sama dan abaikan modul dev Vite
+  if (
+    event.request.method !== 'GET' || 
+    !event.request.url.startsWith(self.location.origin) ||
+    event.request.url.includes('/@id/') ||
+    event.request.url.includes('/@vite/') ||
+    event.request.url.includes('/node_modules/') ||
+    event.request.url.includes('hot-update')
+  ) {
     return;
   }
 
