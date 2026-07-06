@@ -227,8 +227,16 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
                 className={`product-card glass-panel ${isOutOfStock ? 'out-of-stock' : ''} ${inCart ? 'selected' : ''}`}
                 style={{ '--card-accent': cat?.color || '#f97316' }}
               >
-                <div className="card-badge" style={{ backgroundColor: cat?.color || '#f97316' }}>
-                  {cat?.name}
+                {/* Gambar Produk */}
+                <div className="product-card-image-wrapper">
+                  <img 
+                    src={prod.image_url || 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&auto=format&fit=crop&q=60'} 
+                    alt={prod.name} 
+                    className="product-card-image" 
+                  />
+                  <div className="card-badge" style={{ backgroundColor: cat?.color || '#f97316' }}>
+                    {cat?.name}
+                  </div>
                 </div>
                 
                 <div className="product-details">
@@ -630,9 +638,31 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          height: 180px;
+          height: 230px;
           transition: all 0.2s ease;
           border-left: 4px solid var(--card-accent);
+          overflow: hidden;
+        }
+
+        .product-card-image-wrapper {
+          position: relative;
+          width: calc(100% + 32px);
+          margin-left: -16px;
+          margin-top: -16px;
+          height: 110px;
+          overflow: hidden;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-card-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-card-image {
+          transform: scale(1.06);
         }
 
         .product-card:hover {
@@ -655,14 +685,15 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
           color: white;
           padding: 3px 8px;
           border-radius: 20px;
+          z-index: 5;
         }
 
         .product-details {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          height: 100%;
-          margin-top: 18px;
+          flex: 1;
+          margin-top: 10px;
         }
 
         .product-name {
