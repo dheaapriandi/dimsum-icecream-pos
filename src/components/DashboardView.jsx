@@ -378,7 +378,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
       <div className="stats-cards-grid">
         <div className="stat-card glass-panel">
           <div className="stat-icon rev">
-            <DollarSign size={20} />
+            <span style={{ fontWeight: 'bold', fontSize: '15px', letterSpacing: '-0.5px' }}>Rp</span>
           </div>
           <div className="stat-info">
             <span className="label">Total Pendapatan</span>
@@ -398,7 +398,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
 
         <div className="stat-card glass-panel">
           <div className="stat-icon avg">
-            <Receipt size={20} />
+            <span style={{ fontWeight: 'bold', fontSize: '15px', letterSpacing: '-0.5px' }}>Rp</span>
           </div>
           <div className="stat-info">
             <span className="label">Rata-rata Transaksi</span>
