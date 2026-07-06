@@ -17,8 +17,8 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
     return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }, [cart]);
   
-  const cartTax = Math.round(cartSubtotal * 0.1);
-  const cartTotal = cartSubtotal + cartTax;
+  const cartTax = 0; // PPN dihapus
+  const cartTotal = cartSubtotal;
 
   // Filter Produk berdasarkan kategori dan pencarian
   const filteredProducts = useMemo(() => {
@@ -302,14 +302,6 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
         {/* HITUNGAN TOTAL & CHECKOUT */}
         {cart.length > 0 && (
           <div className="cart-summary">
-            <div className="summary-row">
-              <span>Subtotal</span>
-              <span>{formatRupiah(cartSubtotal)}</span>
-            </div>
-            <div className="summary-row">
-              <span>PPN Pajak (10%)</span>
-              <span>{formatRupiah(cartTax)}</span>
-            </div>
             <div className="summary-row total">
               <span>Total Bayar</span>
               <span>{formatRupiah(cartTotal)}</span>
