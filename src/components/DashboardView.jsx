@@ -1610,12 +1610,61 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
           }
         }
 
-        @media (max-width: 768px) {
+        /* ===== TABLET (max-width: 992px) ===== */
+        @media (max-width: 992px) {
           .stats-cards-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
           }
           .dashboard-charts-grid {
             grid-template-columns: 1fr;
+          }
+        }
+
+        /* ===== MOBILE (max-width: 576px) ===== */
+        @media (max-width: 576px) {
+          .stats-cards-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+          .stat-card {
+            padding: 14px;
+          }
+          .stat-icon {
+            width: 40px;
+            height: 40px;
+          }
+          .stat-info .value {
+            font-size: 16px;
+          }
+          .stat-info .label {
+            font-size: 11px;
+          }
+          .dashboard-header {
+            padding: 12px 16px;
+          }
+          .dashboard-header h2 {
+            font-size: 16px;
+          }
+          .dashboard-card {
+            padding: 14px;
+          }
+          .dashboard-card h3 {
+            font-size: 13px;
+          }
+          .dashboard-charts-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+          .transactions-table th, .transactions-table td {
+            padding: 10px 12px;
+            font-size: 11px;
+          }
+          .table-header {
+            padding: 14px;
+          }
+          .edit-modal-container {
+            width: 95%;
           }
         }
       `}</style>
