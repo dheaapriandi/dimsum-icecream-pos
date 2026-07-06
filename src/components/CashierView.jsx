@@ -719,7 +719,10 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
           display: flex;
           flex-direction: column;
           gap: 8px;
-          background: rgba(0, 0, 0, 0.1);
+          background: #ffffff;
+          border: 1px solid var(--border-color);
+          border-radius: 12px;
+          box-shadow: var(--shadow-sm);
         }
 
         .cart-item-info {
@@ -735,7 +738,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
 
         .item-notes-input {
           width: 100%;
-          background: rgba(255,255,255,0.02);
+          background: #f8fafc;
           border: 1px solid var(--border-color);
           border-radius: 6px;
           padding: 6px 10px;
@@ -774,7 +777,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
           display: flex;
           align-items: center;
           gap: 10px;
-          background: rgba(255, 255, 255, 0.03);
+          background: #f8fafc;
           border: 1px solid var(--border-color);
           border-radius: 8px;
           padding: 2px;
@@ -817,7 +820,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
         }
 
         .empty-cart-icon {
-          color: rgba(255,255,255,0.03);
+          color: var(--border-color);
           margin-bottom: 12px;
         }
 
@@ -834,7 +837,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
         .cart-summary {
           padding: 20px;
           border-top: 1px solid var(--border-color);
-          background: rgba(9, 13, 22, 0.4);
+          background: rgba(0, 0, 0, 0.01);
           display: flex;
           flex-direction: column;
           gap: 12px;
