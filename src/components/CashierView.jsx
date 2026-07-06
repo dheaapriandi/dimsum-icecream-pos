@@ -649,8 +649,20 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
           width: 100%;
           height: 110px;
           overflow: hidden;
+          border-radius: 8px;
+        }
+
+        .product-card-image-wrapper::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           border: 1px solid var(--border-color);
           border-radius: 8px;
+          pointer-events: none;
+          z-index: 2;
         }
 
         .product-card-image {
