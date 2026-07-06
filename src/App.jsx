@@ -46,7 +46,7 @@ function App() {
   // Polling data otomatis setiap 5 detik untuk sinkronisasi dapur & laporan
   useEffect(() => {
     let interval = null;
-    if (currentView === 'kitchen' || currentView === 'dashboard') {
+    if (activeView === 'kitchen' || activeView === 'dashboard') {
       interval = setInterval(() => {
         loadData();
       }, 5000);
@@ -54,7 +54,7 @@ function App() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [currentView]);
+  }, [activeView]);
 
   // Callback Transaksi baru
   const handleCreateOrder = async (orderData, items) => {
