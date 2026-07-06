@@ -12,13 +12,28 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
   const [paymentMethod, setPaymentMethod] = useState('CASH'); // 'CASH', 'QRIS', 'CARD'
   const [cashAmount, setCashAmount] = useState('');
   
+  // State Diskon
+  const [discountType, setDiscountType] = useState('PERCENT'); // 'PERCENT', 'NOMINAL'
+  const [discountValue, setDiscountValue] = useState('');
+  const [isDiscountApplied, setIsDiscountApplied] = useState(false);
+
   // Hitung Nilai Keranjang
   const cartSubtotal = useMemo(() => {
     return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }, [cart]);
   
   const cartTax = 0; // PPN dihapus
-  const cartTotal = cartSubtotal;
+  
+  const cartDiscount = useMemo(() => {
+    if (!isDiscountApplied || !discountValue) return 0;
+    const val = parseFloat(discountValue) || 0;
+    if (discountType === 'PERCENT') {
+      return Math.round(cartSubtotal * (val / 100));
+    }
+    return val;
+  }, [isDiscountApplied, discountType, discountValue, cartSubtotal]);
+
+  const cartTotal = Math.max(0, cartSubtotal - cartDiscount);
 
   // Filter Produk berdasarkan kategori dan pencarian
   const filteredProducts = useMemo(() => {
@@ -78,6 +93,8 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
 
   const clearCart = () => {
     setCart([]);
+    setIsDiscountApplied(false);
+    setDiscountValue('');
   };
 
   // Logika Pembayaran
@@ -107,7 +124,8 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
     if (!isPaymentValid) return;
 
     const orderData = {
-      total_amount: cartSubtotal, // Simpan subtotal dasar, pajak dihitung dinamis atau total_amount = total final. Sesuai schema: total_amount = subtotal.
+      total_amount: cartTotal, // Final net amount after discount
+      discount_amount: cartDiscount, // Discount amount saved separately
       payment_method: paymentMethod,
       cashier_name: 'Kasir Utama'
     };
@@ -137,6 +155,8 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
 
       // Reset POS
       setCart([]);
+      setIsDiscountApplied(false);
+      setDiscountValue('');
       setIsCheckoutModalOpen(false);
     } catch (err) {
       alert('Gagal memproses transaksi: ' + err.message);
@@ -302,6 +322,81 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
         {/* HITUNGAN TOTAL & CHECKOUT */}
         {cart.length > 0 && (
           <div className="cart-summary">
+            {/* Input Diskon */}
+            <div className="discount-section" style={{
+              paddingBottom: '12px',
+              borderBottom: '1px solid var(--border-color)',
+              marginBottom: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Diskon / Promo</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>
+                  <input 
+                    type="checkbox" 
+                    checked={isDiscountApplied} 
+                    onChange={(e) => setIsDiscountApplied(e.target.checked)} 
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <span>Aktifkan</span>
+                </label>
+              </div>
+              
+              {isDiscountApplied && (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <select 
+                    value={discountType} 
+                    onChange={(e) => setDiscountType(e.target.value)}
+                    style={{
+                      padding: '6px 8px',
+                      background: '#ffffff',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      outline: 'none',
+                      color: 'var(--text-primary)'
+                    }}
+                  >
+                    <option value="PERCENT">%</option>
+                    <option value="NOMINAL">Rp</option>
+                  </select>
+                  <input 
+                    type="number" 
+                    min="0"
+                    placeholder={discountType === 'PERCENT' ? 'Persen (misal: 10)' : 'Nominal (misal: 5000)'}
+                    value={discountValue}
+                    onChange={(e) => setDiscountValue(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '6px 10px',
+                      background: '#ffffff',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      outline: 'none',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Subtotal & Diskon Row (jika ada diskon) */}
+            {cartDiscount > 0 && (
+              <>
+                <div className="summary-row" style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span>Subtotal</span>
+                  <span>{formatRupiah(cartSubtotal)}</span>
+                </div>
+                <div className="summary-row" style={{ fontSize: '13px', color: '#ef4444', display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span>Potongan Diskon</span>
+                  <span>-{formatRupiah(cartDiscount)}</span>
+                </div>
+              </>
+            )}
+
             <div className="summary-row total">
               <span>Total Bayar</span>
               <span>{formatRupiah(cartTotal)}</span>

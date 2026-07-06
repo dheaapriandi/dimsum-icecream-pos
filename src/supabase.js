@@ -300,6 +300,7 @@ export const db = {
       payment_method: orderData.payment_method,
       cashier_name: orderData.cashier_name || 'Kasir Utama',
       status: 'COMPLETED',
+      discount_amount: orderData.discount_amount || 0,
       created_at: new Date().toISOString()
     };
 

@@ -38,6 +38,7 @@ CREATE TABLE orders (
   payment_method VARCHAR(20) NOT NULL, -- 'CASH', 'QRIS', 'CARD'
   cashier_name VARCHAR(50) DEFAULT 'Kasir Utama',
   status VARCHAR(20) DEFAULT 'COMPLETED', -- 'PENDING', 'COMPLETED', 'CANCELLED'
+  discount_amount NUMERIC(10, 2) DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 

@@ -22,9 +22,10 @@ const ReceiptModal = ({ order, onClose }) => {
   };
 
   // Hitung detail struk
-  const subtotal = order.total_amount;
+  const total = order.total_amount;
+  const discount = order.discount_amount || 0;
+  const subtotal = total + discount; // Gross total sebelum diskon
   const tax = 0; // PPN dihapus
-  const total = subtotal;
   const paymentMethodText = {
     'CASH': 'TUNAI',
     'QRIS': 'QRIS / E-WALLET',
@@ -106,6 +107,19 @@ const ReceiptModal = ({ order, onClose }) => {
             <div className="receipt-divider"></div>
 
             <div className="receipt-total-section">
+              {discount > 0 && (
+                <>
+                  <div className="receipt-info-row">
+                    <span>Subtotal:</span>
+                    <span>{formatRupiah(subtotal)}</span>
+                  </div>
+                  <div className="receipt-info-row">
+                    <span>Diskon:</span>
+                    <span>-{formatRupiah(discount)}</span>
+                  </div>
+                  <div className="receipt-divider"></div>
+                </>
+              )}
               <div className="receipt-info-row grand-total">
                 <span>TOTAL:</span>
                 <span>{formatRupiah(total)}</span>
