@@ -96,6 +96,28 @@ function App() {
     }
   };
 
+  // Callback Edit Transaksi
+  const handleUpdateOrder = async (id, updates) => {
+    try {
+      await db.updateOrder(id, updates);
+      await loadData();
+    } catch (err) {
+      console.error('Gagal memperbarui transaksi:', err);
+      throw err;
+    }
+  };
+
+  // Callback Hapus Transaksi
+  const handleDeleteOrder = async (id) => {
+    try {
+      await db.deleteOrder(id);
+      await loadData();
+    } catch (err) {
+      console.error('Gagal menghapus transaksi:', err);
+      throw err;
+    }
+  };
+
   // Callback Cetak Ulang Struk
   const handleReprintReceipt = async (orderId) => {
     try {
@@ -130,6 +152,8 @@ function App() {
             orders={orders} 
             products={products}
             onReprintReceipt={handleReprintReceipt}
+            onUpdateOrder={handleUpdateOrder}
+            onDeleteOrder={handleDeleteOrder}
           />
         );
       case 'inventory':

@@ -329,5 +329,65 @@ export const db = {
     localStorage.setItem('pos_products', JSON.stringify(products));
 
     return { ...newOrder, items: newItems };
+  },
+
+  async updateOrder(orderId, updates) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('orders').update(updates).eq('id', orderId).select();
+      if (error) throw error;
+      return data[0];
+    }
+
+    const orders = JSON.parse(localStorage.getItem('pos_orders')) || [];
+    const index = orders.findIndex(o => o.id === orderId);
+    if (index !== -1) {
+      orders[index] = { ...orders[index], ...updates };
+      localStorage.setItem('pos_orders', JSON.stringify(orders));
+      return orders[index];
+    }
+    throw new Error('Order not found');
+  },
+
+  async deleteOrder(orderId) {
+    if (isSupabaseConfigured) {
+      // Dapatkan items untuk restorasi stok
+      const { data: items } = await supabase.from('order_items').select('*').eq('order_id', orderId);
+      if (items) {
+        for (const item of items) {
+          const { data: prod } = await supabase.from('products').select('stock').eq('id', item.product_id).single();
+          if (prod) {
+            const newStock = prod.stock + item.quantity;
+            await supabase.from('products').update({ stock: newStock }).eq('id', item.product_id);
+          }
+        }
+      }
+      
+      const { error } = await supabase.from('orders').delete().eq('id', orderId);
+      if (error) throw error;
+      return true;
+    }
+
+    // LocalStorage Fallback
+    const orders = JSON.parse(localStorage.getItem('pos_orders')) || [];
+    const allItems = JSON.parse(localStorage.getItem('pos_order_items')) || [];
+    const products = JSON.parse(localStorage.getItem('pos_products')) || [];
+
+    const orderItems = allItems.filter(item => item.order_id === orderId);
+    
+    // Kembalikan stok
+    orderItems.forEach(item => {
+      const prodIndex = products.findIndex(p => p.id === item.product_id);
+      if (prodIndex !== -1) {
+        products[prodIndex].stock += item.quantity;
+      }
+    });
+
+    const filteredOrders = orders.filter(o => o.id !== orderId);
+    const filteredItems = allItems.filter(item => item.order_id !== orderId);
+
+    localStorage.setItem('pos_orders', JSON.stringify(filteredOrders));
+    localStorage.setItem('pos_order_items', JSON.stringify(filteredItems));
+    localStorage.setItem('pos_products', JSON.stringify(products));
+    return true;
   }
 };
