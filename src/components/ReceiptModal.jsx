@@ -55,6 +55,7 @@ const ReceiptModal = ({ order, onClose }) => {
           <div id="receipt-print" className="receipt-preview-container">
             <div className="receipt-header">
               <div className="receipt-title">KEDAI AA</div>
+              <img src="/logo.png" alt="Logo Kedai AA" className="receipt-logo-bw" />
               <div className="receipt-subtitle">Kedai Dimsum AA & Ice Cream Nyemil</div>
               <div className="receipt-subtitle">FB: Cindy Apriandi</div>
               <div className="receipt-subtitle">Telp: 0813-1567-5013</div>
@@ -230,6 +231,15 @@ const ReceiptModal = ({ order, onClose }) => {
         .receipt-header {
           text-align: center;
           margin-bottom: 12px;
+        }
+
+        .receipt-logo-bw {
+          width: 55px;
+          height: 55px;
+          object-fit: contain;
+          margin: 6px auto;
+          display: block;
+          filter: grayscale(100%) contrast(200%);
         }
 
         .receipt-title {
