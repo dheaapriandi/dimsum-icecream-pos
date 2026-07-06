@@ -71,10 +71,64 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
   };
 
   const [isEodModalOpen, setIsEodModalOpen] = useState(false);
+  const [isEomModalOpen, setIsEomModalOpen] = useState(false);
+  const [selectedEomMonth, setSelectedEomMonth] = useState('');
 
   const handlePrintEod = () => {
     setIsEodModalOpen(true);
   };
+
+  // List 6 bulan terakhir untuk pilihan Laporan Bulanan
+  const availableMonths = useMemo(() => {
+    const list = [];
+    for (let i = 0; i < 6; i++) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      list.push({
+        value: getJakartaYM(d),
+        label: d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+      });
+    }
+    return list;
+  }, []);
+
+  // Hitung metrik bulanan untuk pilihan bulan yang disorot
+  const monthStats = useMemo(() => {
+    if (!selectedEomMonth) return null;
+    
+    const monthOrders = orders.filter(o => getJakartaYM(o.created_at) === selectedEomMonth && o.status !== 'CANCELLED');
+    
+    const totalOrders = monthOrders.length;
+    const totalRevenue = monthOrders.reduce((sum, o) => sum + o.total_amount, 0);
+    const totalDiscount = monthOrders.reduce((sum, o) => sum + (o.discount_amount || 0), 0);
+    
+    const payments = monthOrders.reduce((acc, o) => {
+      acc[o.payment_method] = (acc[o.payment_method] || 0) + o.total_amount;
+      return acc;
+    }, { CASH: 0, QRIS: 0, CARD: 0 });
+    
+    const counts = {};
+    monthOrders.forEach(order => {
+      if (order.items) {
+        order.items.forEach(item => {
+          counts[item.product_id] = (counts[item.product_id] || 0) + item.quantity;
+        });
+      }
+    });
+    
+    const topProducts = Object.entries(counts)
+      .map(([id, qty]) => {
+        const prod = products.find(p => p.id === id);
+        return {
+          name: prod ? prod.name : `Produk #${id}`,
+          qty
+        };
+      })
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 5);
+      
+    return { totalOrders, totalRevenue, totalDiscount, payments, topProducts };
+  }, [selectedEomMonth, orders, products]);
 
   // Filter transaksi hari ini
   const todayOrders = useMemo(() => {
@@ -273,26 +327,51 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
           <TrendingUp className="header-icon" size={24} />
           <h2>Laporan Analisis Penjualan</h2>
         </div>
-        <button 
-          onClick={handlePrintEod} 
-          className="btn-action-print"
-          style={{
-            padding: '10px 16px',
-            borderRadius: '10px',
-            fontSize: '13px',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            background: 'var(--primary)',
-            borderColor: 'var(--primary)',
-            color: '#ffffff'
-          }}
-        >
-          <Printer size={16} />
-          <span>Cetak Laporan Harian (EOD)</span>
-        </button>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <button 
+            onClick={handlePrintEod} 
+            className="btn-action-print"
+            style={{
+              padding: '10px 16px',
+              borderRadius: '10px',
+              fontSize: '13px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)'
+            }}
+          >
+            <Printer size={16} />
+            <span>Cetak Laporan Harian (EOD)</span>
+          </button>
+          <button 
+            onClick={() => {
+              setSelectedEomMonth(getJakartaYM(new Date()));
+              setIsEomModalOpen(true);
+            }} 
+            className="btn-action-print"
+            style={{
+              padding: '10px 16px',
+              borderRadius: '10px',
+              fontSize: '13px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              background: 'var(--primary)',
+              borderColor: 'var(--primary)',
+              color: '#ffffff'
+            }}
+          >
+            <Printer size={16} />
+            <span>Cetak Laporan Bulanan (EOM)</span>
+          </button>
+        </div>
       </div>
 
       {/* METRIK KARTU RINGKASAN */}
@@ -819,6 +898,138 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                 onClick={() => {
                   window.print();
                   setIsEodModalOpen(false);
+                }}
+              >
+                <Printer size={16} />
+                <span>Cetak Laporan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EOM REPORT PRINT PREVIEW */}
+      {isEomModalOpen && monthStats && (
+        <div className="edit-modal-overlay">
+          <div className="edit-modal-container glass-panel" style={{ maxWidth: '360px' }}>
+            <div className="edit-modal-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>Preview Laporan Bulanan (EOM)</h3>
+                <button className="btn-close-modal" onClick={() => setIsEomModalOpen(false)}>
+                  <X size={20} />
+                </button>
+              </div>
+              
+              {/* Selector Month */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>Pilih Bulan Laporan:</label>
+                <select
+                  value={selectedEomMonth}
+                  onChange={(e) => setSelectedEomMonth(e.target.value)}
+                  className="modal-input"
+                  style={{ padding: '6px 10px', fontSize: '13px' }}
+                >
+                  {availableMonths.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            <div className="receipt-scroll-area" style={{ maxHeight: '350px', padding: '10px' }}>
+              {/* PRINT AREA (id="receipt-print" untuk thermal layout) */}
+              <div id="receipt-print" className="receipt-preview-container" style={{ maxWidth: '100%', border: 'none', boxShadow: 'none', padding: '10px' }}>
+                <div className="receipt-header">
+                  <div className="receipt-title">KEDAI AA</div>
+                  <img src="/logo.png" alt="Logo Kedai AA" className="receipt-logo-bw" />
+                  <div className="receipt-subtitle" style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '6px' }}>LAPORAN PENJUALAN BULANAN</div>
+                  <div className="receipt-subtitle" style={{ fontWeight: 'bold', fontSize: '12px' }}>END OF MONTH (EOM) REPORT</div>
+                  <div className="receipt-subtitle" style={{ fontSize: '11px', marginTop: '8px' }}>--------------------------------</div>
+                  <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px', fontWeight: 'bold' }}>
+                    Bulan: {availableMonths.find(m => m.value === selectedEomMonth)?.label || selectedEomMonth}
+                  </div>
+                  <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px' }}>
+                    Waktu Cetak: {new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                  </div>
+                  <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px' }}>
+                    Kasir: Kasir Utama
+                  </div>
+                </div>
+
+                <div className="receipt-divider" style={{ borderTop: '1px dashed #000', margin: '8px 0' }}></div>
+
+                <div className="receipt-info-section" style={{ fontSize: '11px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                    <span>TOTAL TRANSAKSI:</span>
+                    <span>{monthStats.totalOrders} Pesanan</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Omzet Kotor:</span>
+                    <span>{formatRupiah(monthStats.totalRevenue + monthStats.totalDiscount)}</span>
+                  </div>
+                  {monthStats.totalDiscount > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ef4444' }}>
+                      <span>Total Diskon:</span>
+                      <span>-{formatRupiah(monthStats.totalDiscount)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '12px', borderTop: '1px solid #000', paddingTop: '4px', marginTop: '2px' }}>
+                    <span>PENDAPATAN BERSIH:</span>
+                    <span>{formatRupiah(monthStats.totalRevenue)}</span>
+                  </div>
+                </div>
+
+                <div className="receipt-divider" style={{ borderTop: '1px dashed #000', margin: '8px 0' }}></div>
+
+                <div className="receipt-info-section" style={{ fontSize: '11px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>RINCIAN PEMBAYARAN:</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <span>TUNAI (CASH):</span>
+                    <span>{formatRupiah(monthStats.payments.CASH)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <span>QRIS / E-WALLET:</span>
+                    <span>{formatRupiah(monthStats.payments.QRIS)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>KARTU DEBIT/KREDIT:</span>
+                    <span>{formatRupiah(monthStats.payments.CARD)}</span>
+                  </div>
+                </div>
+
+                <div className="receipt-divider" style={{ borderTop: '1px dashed #000', margin: '8px 0' }}></div>
+
+                <div className="receipt-info-section" style={{ fontSize: '11px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>5 MENU TERLARIS BULAN INI:</div>
+                  {monthStats.topProducts.map((p, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                      <span>{i+1}. {p.name}</span>
+                      <span>{p.qty} Porsi</span>
+                    </div>
+                  ))}
+                  {monthStats.topProducts.length === 0 && (
+                    <div style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>Belum ada data penjualan bulan ini.</div>
+                  )}
+                </div>
+
+                <div className="receipt-divider" style={{ borderTop: '1px dashed #000', margin: '8px 0' }}></div>
+
+                <div className="receipt-footer" style={{ textAlign: 'center', fontSize: '10px', marginTop: '10px' }}>
+                  <div>Laporan Bulanan Kedai AA</div>
+                  <div>Terima Kasih atas Kerja Kerasnya!</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="edit-modal-footer">
+              <button className="btn-cancel" onClick={() => setIsEomModalOpen(false)}>
+                Tutup
+              </button>
+              <button 
+                className="btn-save btn-primary" 
+                onClick={() => {
+                  window.print();
+                  setIsEomModalOpen(false);
                 }}
               >
                 <Printer size={16} />
