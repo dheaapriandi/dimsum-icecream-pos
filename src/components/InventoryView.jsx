@@ -364,7 +364,7 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
         .inventory-filters-card .search-bar input {
           width: 100%;
           padding: 10px 14px 10px 42px;
-          background: rgba(0, 0, 0, 0.2);
+          background: #ffffff;
           border: 1px solid var(--border-color);
           border-radius: 8px;
           color: var(--text-primary);
@@ -383,7 +383,7 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
         .category-select {
           width: 100%;
           padding: 10px 12px;
-          background: rgba(0, 0, 0, 0.2);
+          background: #ffffff;
           border: 1px solid var(--border-color);
           border-radius: 8px;
           color: var(--text-primary);
@@ -583,7 +583,7 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
         .form-group textarea {
           width: 100%;
           padding: 10px 12px;
-          background: rgba(0, 0, 0, 0.2);
+          background: #ffffff;
           border: 1px solid var(--border-color);
           border-radius: 8px;
           color: var(--text-primary);

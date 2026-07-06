@@ -482,7 +482,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
         .search-bar input {
           width: 100%;
           padding: 12px 14px 12px 46px;
-          background: rgba(0, 0, 0, 0.2);
+          background: #ffffff;
           border: 1px solid var(--border-color);
           border-radius: 12px;
           color: var(--text-primary);
@@ -1008,7 +1008,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
         .cash-input {
           width: 100%;
           padding: 12px 14px 12px 38px;
-          background: rgba(0,0,0,0.2);
+          background: #ffffff;
           border: 1px solid var(--border-color);
           border-radius: 10px;
           color: var(--text-primary);
@@ -1030,7 +1030,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
 
         .quick-cash-btn {
           padding: 8px;
-          background: rgba(255,255,255,0.03);
+          background: #ffffff;
           border: 1px solid var(--border-color);
           border-radius: 8px;
           color: var(--text-primary);
@@ -1061,7 +1061,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
           justify-content: space-between;
           align-items: center;
           padding: 12px 16px;
-          background: rgba(0,0,0,0.15);
+          background: rgba(0,0,0,0.03);
           border-radius: 10px;
           margin-top: 10px;
         }
