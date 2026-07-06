@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, QrCode, Coins, Check, FileText } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-const CashierView = ({ products, categories, onCreateOrder }) => {
+const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [cart, setCart] = useState([]);
@@ -127,7 +127,7 @@ const CashierView = ({ products, categories, onCreateOrder }) => {
       total_amount: cartTotal, // Final net amount after discount
       discount_amount: cartDiscount, // Discount amount saved separately
       payment_method: paymentMethod,
-      cashier_name: 'Kasir Utama'
+      cashier_name: currentUser ? currentUser.name : 'Kasir Utama'
     };
 
     const orderItems = cart.map(item => ({

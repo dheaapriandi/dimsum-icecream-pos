@@ -17,6 +17,11 @@ export const supabase = isSupabaseConfigured
 // (Digunakan jika Supabase belum dikonfigurasi)
 // ==========================================
 
+const DEFAULT_USERS = [
+  { id: 'user-1', name: 'Cindy Apriandi', username: 'cindy', password: '123', role: 'admin' },
+  { id: 'user-2', name: 'Staff Kasir', username: 'kasir', password: '123', role: 'cashier' }
+];
+
 const DEFAULT_CATEGORIES = [
   { id: 'cat-1', name: 'Dimsum AA', slug: 'dimsum-aa', icon: 'Utensils', color: '#f97316' },
   { id: 'cat-2', name: 'Ice Cream Nyemil', slug: 'ice-cream-nyemil', icon: 'IceCream', color: '#ec4899' }
@@ -53,10 +58,14 @@ const initLocalDb = () => {
     localStorage.setItem('pos_products', JSON.stringify(DEFAULT_PRODUCTS));
     localStorage.setItem('pos_orders', JSON.stringify([]));
     localStorage.setItem('pos_order_items', JSON.stringify([]));
+    localStorage.setItem('pos_users', JSON.stringify(DEFAULT_USERS));
   } else {
     // Jika sudah ada tapi ingin memastikan kategori baru terupdate
     if (!localStorage.getItem('pos_categories')) {
       localStorage.setItem('pos_categories', JSON.stringify(DEFAULT_CATEGORIES));
+    }
+    if (!localStorage.getItem('pos_users')) {
+      localStorage.setItem('pos_users', JSON.stringify(DEFAULT_USERS));
     }
   }
 };
@@ -65,6 +74,20 @@ initLocalDb();
 
 // API Abstraksi Database
 export const db = {
+  // --- Pengguna / Kasir ---
+  async getUsers() {
+    return JSON.parse(localStorage.getItem('pos_users') || '[]');
+  },
+
+  async login(username, password) {
+    const users = JSON.parse(localStorage.getItem('pos_users') || '[]');
+    const user = users.find(u => u.username === username.toLowerCase() && u.password === password);
+    if (user) {
+      return user;
+    }
+    throw new Error('Username atau password salah.');
+  },
+
   // --- Kategori ---
   async getCategories() {
     if (isSupabaseConfigured) {

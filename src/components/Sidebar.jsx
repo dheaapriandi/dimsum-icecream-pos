@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShoppingBag, ChefHat, BarChart2, Package, Sparkles } from 'lucide-react';
 
-const Sidebar = ({ activeView, setActiveView }) => {
+const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
   const menuItems = [
     { id: 'cashier', name: 'Kasir POS', icon: ShoppingBag },
     { id: 'kitchen', name: 'Antrean Dapur', icon: ChefHat },
@@ -39,14 +39,39 @@ const Sidebar = ({ activeView, setActiveView }) => {
         })}
       </nav>
 
-      <div className="sidebar-footer">
+      <div className="sidebar-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div className="cashier-info">
-          <div className="avatar">K</div>
+          <div className="avatar" style={{ background: 'var(--primary)', color: '#ffffff', fontWeight: 'bold' }}>
+            {currentUser ? currentUser.name.charAt(0) : 'K'}
+          </div>
           <div className="info">
-            <span className="name">Kasir Utama</span>
-            <span className="role">Administrator</span>
+            <span className="name">{currentUser ? currentUser.name : 'Kasir Utama'}</span>
+            <span className="role">{currentUser && currentUser.role === 'admin' ? 'Administrator' : 'Kasir Staf'}</span>
           </div>
         </div>
+        <button 
+          onClick={onLogout}
+          style={{
+            width: '100%',
+            padding: '10px',
+            border: '1px solid var(--border-color)',
+            background: 'transparent',
+            color: '#ef4444',
+            borderRadius: '10px',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            transition: 'background 0.2s'
+          }}
+          onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.05)'}
+          onMouseLeave={(e) => e.target.style.background = 'transparent'}
+        >
+          <span>Keluar Kasir (Logout)</span>
+        </button>
       </div>
 
       <style>{`

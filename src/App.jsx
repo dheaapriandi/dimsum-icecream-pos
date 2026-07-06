@@ -10,6 +10,28 @@ import { Sparkles, Database } from 'lucide-react';
 
 function App() {
   const [activeView, setActiveView] = useState('cashier');
+
+  // Auth States
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('active_cashier');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const handleLogin = async (username, password) => {
+    try {
+      const user = await db.login(username, password);
+      localStorage.setItem('active_cashier', JSON.stringify(user));
+      setCurrentUser(user);
+    } catch (err) {
+      alert(err.message || 'Login gagal.');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('active_cashier');
+    setCurrentUser(null);
+    setActiveView('cashier');
+  };
   
   // Database States
   const [categories, setCategories] = useState([]);
@@ -151,6 +173,7 @@ function App() {
             products={products} 
             categories={categories} 
             onCreateOrder={handleCreateOrder} 
+            currentUser={currentUser}
           />
         );
       case 'kitchen':
@@ -234,10 +257,171 @@ function App() {
     );
   }
 
+  if (!currentUser) {
+    return (
+      <div className="login-screen-overlay">
+        <div className="login-card glass-panel">
+          <div className="login-header">
+            <img src="/logo.png" alt="Logo Kedai AA" className="login-logo" />
+            <h2>SISTEM KASIR KEDAI AA</h2>
+            <p>Silakan masuk menggunakan akun kasir Anda</p>
+          </div>
+
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            handleLogin(username, password);
+          }} className="login-form">
+            <div className="form-group-login">
+              <label>Nama Kasir / Username</label>
+              <input 
+                type="text" 
+                name="username" 
+                placeholder="Masukkan username kasir (cindy / kasir)" 
+                required 
+                className="login-input" 
+              />
+            </div>
+            
+            <div className="form-group-login">
+              <label>Password</label>
+              <input 
+                type="password" 
+                name="password" 
+                placeholder="Masukkan password kasir (123)" 
+                required 
+                className="login-input" 
+              />
+            </div>
+
+            <button type="submit" className="login-btn-submit">
+              <span>Masuk Kasir</span>
+            </button>
+          </form>
+          
+          <div className="login-footer">
+            <span>Kedai Dimsum AA & Ice Cream Nyemil</span>
+          </div>
+        </div>
+
+        <style>{`
+          .login-screen-overlay {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #fffcf6 0%, #fef3c7 50%, #ffedd5 100%);
+            padding: 20px;
+          }
+          .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.85) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-lg) !important;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            border-radius: 24px !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+          }
+          .login-header {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+          }
+          .login-logo {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 4px 6px rgba(249, 115, 22, 0.15));
+          }
+          .login-header h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: 0.5px;
+          }
+          .login-header p {
+            font-size: 12px;
+            color: #64748b;
+          }
+          .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+          .form-group-login {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+          .form-group-login label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+          }
+          .login-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            color: #0f172a;
+            transition: all 0.2s;
+          }
+          .login-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+          }
+          .login-btn-submit {
+            margin-top: 10px;
+            padding: 14px;
+            background: var(--primary);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+          }
+          .login-btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.3);
+          }
+          .login-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       {/* SIDEBAR NAVIGATION */}
-      <Sidebar activeView={activeView} setActiveView={setActiveView} />
+      <Sidebar 
+        activeView={activeView} 
+        setActiveView={setActiveView} 
+        currentUser={currentUser}
+        onLogout={handleLogout}
+      />
 
       {/* PANEL UTAMA */}
       <main className="main-content">
