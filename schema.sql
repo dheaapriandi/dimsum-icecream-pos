@@ -2,10 +2,10 @@
 -- Dapat dieksekusi langsung di SQL Editor Supabase
 
 -- Hapus tabel lama jika ada (opsional)
--- DROP TABLE IF EXISTS order_items;
--- DROP TABLE IF EXISTS orders;
--- DROP TABLE IF EXISTS products;
--- DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS categories;
 
 -- 1. Tabel Kategori (Categories)
 CREATE TABLE categories (
