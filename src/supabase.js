@@ -35,6 +35,9 @@ const DEFAULT_PRODUCTS = [
   { id: 'prod-ds-goreng-keju-3', name: 'Dimsum Goreng Keju Lumer (Isi 3)', description: '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', price: 10000, category_id: 'cat-1', stock: 45, active: true, image_url: '' },
   { id: 'prod-ds-goreng-mentai-keju-4', name: 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', description: '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', price: 17000, category_id: 'cat-1', stock: 30, active: true, image_url: '' },
   
+  // Minuman / Tambahan (Kategori Dimsum AA)
+  { id: 'prod-ds-esteh', name: 'Es Teh', description: 'Es teh manis segar pelepas dahaga.', price: 2500, category_id: 'cat-1', stock: 200, active: true, image_url: '' },
+  
   // Ice Cream Nyemil
   { id: 'prod-ic-small', name: 'Small Cup (1 Scoop)', description: '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', price: 3000, category_id: 'cat-2', stock: 100, active: true, image_url: '' },
   { id: 'prod-ic-medium', name: 'Medium Cup (2 Scoop)', description: '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', price: 5000, category_id: 'cat-2', stock: 100, active: true, image_url: '' },
@@ -44,8 +47,8 @@ const DEFAULT_PRODUCTS = [
 // Helper inisialisasi localStorage
 const initLocalDb = () => {
   const currentProducts = localStorage.getItem('pos_products');
-  // Reset database jika kosong atau terdeteksi mengandung data demo lama "Siomay Ayam"
-  if (!currentProducts || currentProducts.includes('Siomay Ayam')) {
+  // Reset database jika kosong, mengandung data demo lama "Siomay Ayam", atau belum memiliki menu baru "Es Teh"
+  if (!currentProducts || currentProducts.includes('Siomay Ayam') || !currentProducts.includes('Es Teh')) {
     localStorage.setItem('pos_categories', JSON.stringify(DEFAULT_CATEGORIES));
     localStorage.setItem('pos_products', JSON.stringify(DEFAULT_PRODUCTS));
     localStorage.setItem('pos_orders', JSON.stringify([]));

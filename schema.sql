@@ -76,4 +76,6 @@ INSERT INTO products (id, name, description, price, category_id, stock, active) 
 -- Ice Cream
 ('prod-ic-small', 'Small Cup (1 Scoop)', '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', 3000, 'cat-2', 100, TRUE),
 ('prod-ic-medium', 'Medium Cup (2 Scoop)', '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', 5000, 'cat-2', 100, TRUE),
-('prod-ic-large', 'Large Cup (3 Scoop)', '3 Scoop Es Krim + Roti + Susu + (Full Topping).', 10000, 'cat-2', 80, TRUE);
+('prod-ic-large', 'Large Cup (3 Scoop)', '3 Scoop Es Krim + Roti + Susu + (Full Topping).', 10000, 'cat-2', 80, TRUE),
+-- Minuman / Tambahan (Kategori Dimsum AA)
+('prod-ds-esteh', 'Es Teh', 'Es teh manis segar pelepas dahaga.', 2500, 'cat-1', 200, TRUE);
