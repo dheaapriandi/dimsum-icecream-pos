@@ -35,6 +35,8 @@ CREATE TABLE orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   invoice_no VARCHAR(50) NOT NULL UNIQUE,
   total_amount NUMERIC(10, 2) NOT NULL,
+  amount_paid NUMERIC(10, 2) DEFAULT 0,
+  change_amount NUMERIC(10, 2) DEFAULT 0,
   payment_method VARCHAR(20) NOT NULL, -- 'CASH', 'QRIS', 'CARD'
   cashier_name VARCHAR(50) DEFAULT 'Kasir Utama',
   status VARCHAR(20) DEFAULT 'COMPLETED', -- 'PENDING', 'COMPLETED', 'CANCELLED'
