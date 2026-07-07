@@ -75,7 +75,7 @@ INSERT INTO products (id, name, description, price, category_id, stock, active, 
 ('prod-ds-mentai-6', 'Dimsum Mentai Isi 6', '6 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', 23000, 'cat-1', 30, TRUE, '/menu-images/dimsum-mentai.jpg'),
 -- Dimsum Goreng
 ('prod-ds-goreng-keju-3', 'Dimsum Goreng Keju Lumer (Isi 3)', '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', 10000, 'cat-1', 45, TRUE, '/menu-images/dimsum-goreng.jpg'),
-('prod-ds-goreng-mentai-keju-4', 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', 18000, 'cat-1', 30, TRUE, '/menu-images/dimsum-goreng.jpg'),
+('prod-ds-goreng-mentai-keju-4', 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', 18000, 'cat-1', 30, TRUE, '/menu-images/dimsum-goreng-mentai.jpg'),
 -- Ice Cream
 ('prod-ic-small', 'Small Cup (1 Scoop)', '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', 3000, 'cat-2', 100, TRUE, '/menu-images/ice-cream.jpg'),
 ('prod-ic-medium', 'Medium Cup (2 Scoop)', '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', 5000, 'cat-2', 100, TRUE, '/menu-images/ice-cream.jpg'),

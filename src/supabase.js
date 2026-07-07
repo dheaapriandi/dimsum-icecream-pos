@@ -38,7 +38,7 @@ const DEFAULT_PRODUCTS = [
   
   // Dimsum Goreng
   { id: 'prod-ds-goreng-keju-3', name: 'Dimsum Goreng Keju Lumer (Isi 3)', description: '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', price: 10000, category_id: 'cat-1', stock: 45, active: true, image_url: '/menu-images/dimsum-goreng.jpg' },
-  { id: 'prod-ds-goreng-mentai-keju-4', name: 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', description: '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', price: 18000, category_id: 'cat-1', stock: 30, active: true, image_url: '/menu-images/dimsum-goreng.jpg' },
+  { id: 'prod-ds-goreng-mentai-keju-4', name: 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', description: '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', price: 18000, category_id: 'cat-1', stock: 30, active: true, image_url: '/menu-images/dimsum-goreng-mentai.jpg' },
   
   // Minuman / Tambahan (Kategori Dimsum AA)
   { id: 'prod-ds-esteh', name: 'Es Teh', description: 'Es teh manis segar pelepas dahaga.', price: 2500, category_id: 'cat-1', stock: 200, active: true, image_url: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60' },

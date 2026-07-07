@@ -51,15 +51,18 @@ function App() {
           const updates = [];
           prods.forEach(p => {
             let newUrl = '';
-            if (p.image_url && p.image_url.includes('unsplash.com')) {
+            if (p.id === 'prod-ds-goreng-mentai-keju-4') {
+              if (p.image_url !== '/menu-images/dimsum-goreng-mentai.jpg') {
+                newUrl = '/menu-images/dimsum-goreng-mentai.jpg';
+              }
+            } else if (p.image_url && p.image_url.includes('unsplash.com')) {
               if (p.id.includes('orig')) newUrl = '/menu-images/dimsum-original.jpg';
               else if (p.id.includes('mentai')) newUrl = '/menu-images/dimsum-mentai.jpg';
               else if (p.id.includes('goreng')) newUrl = '/menu-images/dimsum-goreng.jpg';
               else if (p.id.includes('prod-ic-')) newUrl = '/menu-images/ice-cream.jpg';
-              
-              if (newUrl) {
-                updates.push(supabase.from('products').update({ image_url: newUrl }).eq('id', p.id));
-              }
+            }
+            if (newUrl) {
+              updates.push(supabase.from('products').update({ image_url: newUrl }).eq('id', p.id));
             }
           });
           if (updates.length > 0) {
@@ -74,7 +77,12 @@ function App() {
         const products = JSON.parse(localProds);
         let updated = false;
         products.forEach(p => {
-          if (p.image_url && p.image_url.includes('unsplash.com')) {
+          if (p.id === 'prod-ds-goreng-mentai-keju-4') {
+            if (p.image_url !== '/menu-images/dimsum-goreng-mentai.jpg') {
+              p.image_url = '/menu-images/dimsum-goreng-mentai.jpg';
+              updated = true;
+            }
+          } else if (p.image_url && p.image_url.includes('unsplash.com')) {
             if (p.id.includes('orig')) p.image_url = '/menu-images/dimsum-original.jpg';
             else if (p.id.includes('mentai')) p.image_url = '/menu-images/dimsum-mentai.jpg';
             else if (p.id.includes('goreng')) p.image_url = '/menu-images/dimsum-goreng.jpg';
