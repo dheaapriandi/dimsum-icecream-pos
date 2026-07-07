@@ -52,12 +52,20 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
       return fetch(event.request).then((networkResponse) => {
-        // Cache dynamic loaded assets on the fly
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      }).catch(() => {
+        // Hanya cache respon sukses (status 200 atau 304) bertipe basic/cors
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.status === 304)) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache).catch(err => {
+              console.warn('Gagal menyimpan cache:', err);
+            });
+          }).catch(err => {
+            console.warn('Gagal membuka cache:', err);
+          });
+        }
+        return networkResponse;
+      }).catch((err) => {
+        console.error('Fetch error:', err);
         // Fallback offline support if network fails
         return caches.match('/');
       });
