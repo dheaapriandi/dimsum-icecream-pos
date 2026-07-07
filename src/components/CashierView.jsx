@@ -1438,6 +1438,16 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           100% { transform: scale(1); opacity: 0.8; }
         }
 
+        @keyframes slide-up {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fade-in-up {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
         /* ===== MOBILE CART BAR & CLOSE BUTTON (hidden on desktop) ===== */
         .mobile-cart-bar {
           display: none;
@@ -1506,32 +1516,36 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
             background: #ffffff !important;
             overflow-y: auto;
             animation: slide-up 0.3s ease-out;
+            width: 100% !important;
+            max-width: 100% !important;
           }
           .cart-section.mobile-cart-open {
             display: flex;
           }
-          @keyframes slide-up {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-          }
-
           /* === MOBILE CLOSE BUTTON === */
           .mobile-cart-close {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid var(--border-color);
-            background: #fff;
-            color: var(--text-muted);
-            z-index: 10;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: absolute !important;
+            top: 14px !important;
+            right: 14px !important;
+            width: 36px !important;
+            height: 36px !important;
+            min-width: 36px !important;
+            min-height: 36px !important;
+            max-width: 36px !important;
+            max-height: 36px !important;
+            border-radius: 50% !important;
+            border: 1px solid var(--border-color) !important;
+            background: #ffffff !important;
+            color: var(--text-muted) !important;
+            z-index: 100 !important;
             cursor: pointer;
             box-shadow: var(--shadow-sm);
+            padding: 0 !important;
+            margin: 0 !important;
+            align-self: flex-end !important;
           }
 
           /* === FLOATING CART BAR === */
@@ -1551,10 +1565,6 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
             box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
             cursor: pointer;
             animation: fade-in-up 0.25s ease-out;
-          }
-          @keyframes fade-in-up {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
           }
           .mobile-cart-bar-left {
             display: flex;
