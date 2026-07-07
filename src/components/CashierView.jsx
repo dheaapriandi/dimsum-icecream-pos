@@ -235,7 +235,7 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
                 {/* Gambar Produk */}
                 <div className="product-card-image-wrapper">
                   <img 
-                    src={prod.image_url ? (prod.image_url.startsWith('/') ? `${prod.image_url}?v=3` : prod.image_url) : 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&auto=format&fit=crop&q=60'} 
+                    src={prod.image_url ? (prod.image_url.startsWith('/') ? `${prod.image_url}?v=4` : prod.image_url) : 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&auto=format&fit=crop&q=60'} 
                     alt={prod.name} 
                     className="product-card-image" 
                   />
