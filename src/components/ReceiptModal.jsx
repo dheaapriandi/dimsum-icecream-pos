@@ -35,6 +35,9 @@ const ReceiptModal = ({ order, onClose }) => {
     lines.push(formatRow("No. Invoice:", order.invoice_no));
     lines.push(formatRow("Tanggal:", dateStr));
     lines.push(formatRow("Kasir:", order.cashier_name || 'Kasir Utama'));
+    if (order.customer_name) {
+      lines.push(formatRow("Pelanggan:", order.customer_name));
+    }
     lines.push("--------------------------------");
     
     if (order.items) {
@@ -147,6 +150,12 @@ const ReceiptModal = ({ order, onClose }) => {
                 <span>Kasir:</span>
                 <span>{order.cashier_name || 'Kasir Utama'}</span>
               </div>
+              {order.customer_name && (
+                <div className="receipt-info-row">
+                  <span>Pelanggan:</span>
+                  <span>{order.customer_name}</span>
+                </div>
+              )}
             </div>
 
             <div className="receipt-divider"></div>

@@ -233,6 +233,7 @@ function App() {
           <CashierView 
             products={products} 
             categories={categories} 
+            orders={orders}
             onCreateOrder={handleCreateOrder} 
             currentUser={currentUser}
           />

@@ -320,10 +320,13 @@ export const db = {
       id: orderId,
       invoice_no: invoiceNo,
       total_amount: orderData.total_amount,
+      amount_paid: orderData.amount_paid || 0,
+      change_amount: orderData.change_amount || 0,
       payment_method: orderData.payment_method,
       cashier_name: orderData.cashier_name || 'Kasir Utama',
       status: orderData.status || 'COMPLETED',
       discount_amount: orderData.discount_amount || 0,
+      customer_name: orderData.customer_name || '',
       created_at: new Date().toISOString()
     };
 

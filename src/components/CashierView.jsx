@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, QrCode, Coins, Check, FileText, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
+const CashierView = ({ products, categories, orders = [], onCreateOrder, currentUser }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [cart, setCart] = useState([]);
@@ -11,6 +11,7 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('CASH'); // 'CASH', 'QRIS', 'CARD'
   const [cashAmount, setCashAmount] = useState('');
+  const [customerName, setCustomerName] = useState('');
   
   // State Mobile Cart
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
@@ -100,12 +101,40 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
     setDiscountValue('');
   };
 
+  // Hitung nama default customer (cust1, cust2, dst)
+  const getNextDefaultCustomerName = () => {
+    // Tanggal hari ini format YYYY-MM-DD dalam timezone lokal
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    
+    // Filter transaksi hari ini
+    const todayOrders = orders.filter(order => {
+      if (!order.created_at) return false;
+      const orderDateStr = new Date(order.created_at).toLocaleDateString('en-CA');
+      return orderDateStr === todayStr;
+    });
+
+    // Cari index/counter tertinggi dari format "cust{X}"
+    let maxNum = 0;
+    todayOrders.forEach(order => {
+      if (order.customer_name) {
+        const match = order.customer_name.match(/^cust(\d+)$/i);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNum) maxNum = num;
+        }
+      }
+    });
+
+    return `cust${maxNum + 1}`;
+  };
+
   // Logika Pembayaran
   const handleOpenCheckout = () => {
     if (cart.length === 0) return;
     setMobileCartOpen(false);
     setIsCheckoutModalOpen(true);
     setCashAmount('');
+    setCustomerName(getNextDefaultCustomerName());
   };
 
   const handleSelectQuickCash = (amount) => {
@@ -132,6 +161,7 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
       discount_amount: cartDiscount, // Discount amount saved separately
       payment_method: paymentMethod,
       cashier_name: currentUser ? currentUser.name : 'Kasir Utama',
+      customer_name: customerName.trim() || getNextDefaultCustomerName(),
       status: 'PENDING'
     };
 
@@ -449,6 +479,28 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
             </div>
 
             <div className="checkout-body">
+              {/* INPUT NAMA CUSTOMER */}
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', textAlign: 'left' }}>Nama Pelanggan / Nomor Meja</label>
+                <input
+                  type="text"
+                  placeholder="Masukkan nama pelanggan..."
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    background: 'rgba(0, 0, 0, 0.02)',
+                    color: 'var(--text-primary)',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
               <div className="amount-summary">
                 <span className="label">TOTAL AKHIR</span>
                 <span className="value">{formatRupiah(cartTotal)}</span>
