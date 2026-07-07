@@ -8,6 +8,70 @@ const ReceiptModal = ({ order, onClose }) => {
     window.print();
   };
 
+  const handlePrintRawBT = () => {
+    const dateStr = formatDate(order.created_at);
+    // Generate receipt HTML for RawBT Bluetooth Printer App
+    const receiptHtml = `
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: 'Courier New', Courier, monospace; font-size: 11px; width: 58mm; padding: 4px; margin: 0; color: #000; }
+            .center { text-align: center; }
+            .right { text-align: right; }
+            .bold { font-weight: bold; }
+            .divider { border-top: 1px dashed #000; margin: 6px 0; }
+            .item-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+            .info-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+            .footer { text-align: center; margin-top: 10px; font-size: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="center bold" style="font-size: 13px;">KEDAI AA</div>
+          <div class="center">Kedai Dimsum & Ice Cream</div>
+          <div class="center">Telp: 0813-1567-5013</div>
+          <div class="divider"></div>
+          <div class="info-row"><span>Invoice:</span><span>${order.invoice_no}</span></div>
+          <div class="info-row"><span>Tanggal:</span><span>${dateStr}</span></div>
+          <div class="info-row"><span>Kasir:</span><span>${order.cashier_name || 'Kasir Utama'}</span></div>
+          <div class="divider"></div>
+          ${order.items ? order.items.map(item => `
+            <div class="item-row">
+              <div style="flex: 1; padding-right: 8px;">
+                <div>${item.product_name || `Produk #${item.product_id}`}</div>
+                <div style="font-size: 9px; color: #555;">${item.quantity} x Rp ${Math.round(item.unit_price).toLocaleString('id-ID')}</div>
+              </div>
+              <div class="bold" style="align-self: flex-end;">Rp ${Math.round(item.quantity * item.unit_price).toLocaleString('id-ID')}</div>
+            </div>
+            ${item.notes ? `<div style="font-size: 9px; font-style: italic; color: #555; margin-bottom: 4px;">* ${item.notes}</div>` : ''}
+          `).join('') : ''}
+          <div class="divider"></div>
+          ${discount > 0 ? `
+            <div class="info-row"><span>Subtotal:</span><span>Rp ${Math.round(subtotal).toLocaleString('id-ID')}</span></div>
+            <div class="info-row"><span>Diskon:</span><span>-Rp ${Math.round(discount).toLocaleString('id-ID')}</span></div>
+            <div class="divider"></div>
+          ` : ''}
+          <div class="info-row bold" style="font-size: 12px;"><span>TOTAL:</span><span>Rp ${Math.round(total).toLocaleString('id-ID')}</span></div>
+          <div class="info-row"><span>Bayar:</span><span>Rp ${Math.round(amountPaid).toLocaleString('id-ID')}</span></div>
+          <div class="info-row"><span>Kembali:</span><span>Rp ${Math.round(change).toLocaleString('id-ID')}</span></div>
+          <div class="divider"></div>
+          <div class="footer">
+            <div>Terima Kasih</div>
+            <div>Atas Kunjungan Anda!</div>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    try {
+      const base64Html = btoa(unescape(encodeURIComponent(receiptHtml)));
+      window.location.href = `rawbt:text/html;base64,${base64Html}`;
+    } catch (err) {
+      console.error('RawBT print error:', err);
+      alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
+    }
+  };
+
   const formatDate = (isoString) => {
     if (!isoString) return '';
     const date = new Date(isoString);
@@ -149,15 +213,40 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
         </div>
 
-        <div className="receipt-modal-footer">
-          <button onClick={onClose} className="btn-close">
-            <X size={18} />
+        <div className="receipt-modal-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+          <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+            <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+              <Printer size={16} />
+              <span>Cetak Bluetooth (RawBT)</span>
+            </button>
+            <button onClick={handlePrint} className="btn-print" style={{ flex: 1, padding: '12px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+              <Printer size={16} />
+              <span>Cetak (Sistem Chrome)</span>
+            </button>
+          </div>
+          <button onClick={onClose} className="btn-close" style={{ width: '100%', padding: '10px' }}>
+            <X size={16} />
             <span>Tutup</span>
           </button>
-          <button onClick={handlePrint} className="btn-print btn-primary">
-            <Printer size={18} />
-            <span>Cetak Struk (58mm)</span>
-          </button>
+
+          {/* Tips printer untuk Kasir */}
+          <div className="printer-tips glass-panel" style={{
+            padding: '10px 12px',
+            borderRadius: '8px',
+            fontSize: '11px',
+            color: 'var(--text-muted)',
+            background: 'rgba(249, 115, 22, 0.04)',
+            border: '1px solid rgba(249, 115, 22, 0.15)',
+            width: '100%',
+            textAlign: 'left',
+            boxSizing: 'border-box'
+          }}>
+            <strong style={{ color: 'var(--primary)' }}>Tips Printer Bluetooth (HP):</strong>
+            <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
+              <li><strong>Rekomendasi Cepat</strong>: Instal aplikasi <strong>RawBT</strong> di Play Store, lalu gunakan tombol cetak RawBT di atas.</li>
+              <li><strong>Alternatif</strong>: Nyalakan Bluetooth HP $\rightarrow$ buka dialog Cetak (Sistem Chrome) $\rightarrow$ pilih printer Bluetooth Anda.</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -393,15 +482,34 @@ const ReceiptModal = ({ order, onClose }) => {
           to { transform: scale(1); }
         }
 
-        /* Pengaturan Cetak Halaman Khusus Struk */
+         /* Pengaturan Cetak Halaman Khusus Struk */
         @media print {
           @page {
             size: 58mm auto;
             margin: 0;
           }
+          body * {
+            visibility: hidden;
+          }
+          #receipt-print, #receipt-print * {
+            visibility: visible;
+          }
+          #receipt-print {
+            position: absolute !important;
+            left: 0;
+            top: 0;
+            width: 58mm !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
           .receipt-modal-overlay {
             background: transparent !important;
             position: absolute !important;
+            left: 0;
+            top: 0;
             padding: 0 !important;
             margin: 0 !important;
             display: block !important;
@@ -412,6 +520,8 @@ const ReceiptModal = ({ order, onClose }) => {
             padding: 0 !important;
             margin: 0 !important;
             background: transparent !important;
+            max-width: none !important;
+            width: auto !important;
           }
           .receipt-scroll-area {
             overflow-y: visible !important;
@@ -419,13 +529,6 @@ const ReceiptModal = ({ order, onClose }) => {
             background: transparent !important;
             padding: 0 !important;
             margin: 0 !important;
-          }
-          .receipt-preview-container {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 58mm !important;
           }
         }
       `}</style>
