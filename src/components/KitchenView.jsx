@@ -9,22 +9,19 @@ const KitchenView = ({ orders, onUpdateOrderStatus }) => {
     return () => clearInterval(timer);
   }, []);
 
-  // Filter pesanan pending & completed
+  // Hanya tampilkan pesanan yang aktif (bukan yang dibatalkan)
   const activeOrders = useMemo(() => {
-    // Karena di mock backend semua orders diset COMPLETED saat dibayar, kita buat state lokal atau simulasi kitchen queue.
-    // Di dunia nyata, order_status bisa 'PENDING' (sedang disiapkan) atau 'READY' (selesai).
-    // Mari kita tampilkan semua orders di sini dan biarkan staff menandainya.
-    // Untuk demo, kita asumsikan status = 'PENDING' sebagai antrean dapur.
-    return orders;
+    return orders.filter(o => o.status !== 'CANCELLED');
   }, [orders]);
 
-  const [kitchenStatusMap, setKitchenStatusMap] = useState({});
-
-  const handleMarkReady = (orderId) => {
-    setKitchenStatusMap(prev => ({
-      ...prev,
-      [orderId]: 'READY'
-    }));
+  const handleMarkReady = async (orderId) => {
+    if (onUpdateOrderStatus) {
+      try {
+        await onUpdateOrderStatus(orderId, { status: 'COMPLETED' });
+      } catch (err) {
+        alert('Gagal memperbarui status antrean: ' + err.message);
+      }
+    }
   };
 
   const getElapsedTime = (createdTimeIso) => {
@@ -43,8 +40,8 @@ const KitchenView = ({ orders, onUpdateOrderStatus }) => {
     return diffMins >= 10; // Tandai merah jika sudah lebih dari 10 menit
   };
 
-  const pendingCount = activeOrders.filter(o => kitchenStatusMap[o.id] !== 'READY').length;
-  const readyCount = activeOrders.filter(o => kitchenStatusMap[o.id] === 'READY').length;
+  const pendingCount = activeOrders.filter(o => o.status === 'PENDING').length;
+  const readyCount = activeOrders.filter(o => o.status === 'COMPLETED').length;
 
   return (
     <div className="kitchen-container">
@@ -63,7 +60,7 @@ const KitchenView = ({ orders, onUpdateOrderStatus }) => {
           <h3 className="column-title">Sedang Disiapkan ({pendingCount})</h3>
           <div className="order-cards-container">
             {activeOrders
-              .filter(o => kitchenStatusMap[o.id] !== 'READY')
+              .filter(o => o.status === 'PENDING')
               .map(order => {
                 const isLate = isOrderLate(order.created_at);
                 return (
@@ -120,7 +117,7 @@ const KitchenView = ({ orders, onUpdateOrderStatus }) => {
           <h3 className="column-title">Siap Disajikan ({readyCount})</h3>
           <div className="order-cards-container">
             {activeOrders
-              .filter(o => kitchenStatusMap[o.id] === 'READY')
+              .filter(o => o.status === 'COMPLETED')
               .map(order => (
                 <div key={order.id} className="kitchen-card glass-panel completed">
                   <div className="card-header">

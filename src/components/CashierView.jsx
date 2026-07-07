@@ -131,7 +131,8 @@ const CashierView = ({ products, categories, onCreateOrder, currentUser }) => {
       total_amount: cartTotal, // Final net amount after discount
       discount_amount: cartDiscount, // Discount amount saved separately
       payment_method: paymentMethod,
-      cashier_name: currentUser ? currentUser.name : 'Kasir Utama'
+      cashier_name: currentUser ? currentUser.name : 'Kasir Utama',
+      status: 'PENDING'
     };
 
     const orderItems = cart.map(item => ({

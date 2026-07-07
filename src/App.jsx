@@ -180,6 +180,7 @@ function App() {
         return (
           <KitchenView 
             orders={orders} 
+            onUpdateOrderStatus={handleUpdateOrder}
           />
         );
       case 'dashboard':
