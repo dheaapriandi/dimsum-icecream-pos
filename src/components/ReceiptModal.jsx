@@ -482,36 +482,34 @@ const ReceiptModal = ({ order, onClose }) => {
           to { transform: scale(1); }
         }
 
-         /* Pengaturan Cetak Halaman Khusus Struk */
+        /* Pengaturan Cetak Halaman Khusus Struk */
         @media print {
           @page {
             size: 58mm auto;
             margin: 0;
           }
-          body * {
-            visibility: hidden;
+          /* Sembunyikan semua elemen di luar modal struk */
+          body > :not(.receipt-modal-overlay) {
+            display: none !important;
           }
-          #receipt-print, #receipt-print * {
-            visibility: visible;
+          /* Sembunyikan elemen dekorasi modal yang tidak perlu dicetak */
+          .receipt-modal-header,
+          .receipt-modal-footer,
+          .printer-tips,
+          .btn-close,
+          .success-badge {
+            display: none !important;
           }
-          #receipt-print {
-            position: absolute !important;
-            left: 0;
-            top: 0;
-            width: 58mm !important;
-            background: transparent !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            border: none !important;
-            box-shadow: none !important;
-          }
+          /* Atur layout modal agar presisi 58mm dan tanpa background/border */
           .receipt-modal-overlay {
             background: transparent !important;
             position: absolute !important;
-            left: 0;
-            top: 0;
+            left: 0 !important;
+            top: 0 !important;
             padding: 0 !important;
             margin: 0 !important;
+            width: 58mm !important;
+            height: auto !important;
             display: block !important;
           }
           .receipt-modal-container {
@@ -520,15 +518,27 @@ const ReceiptModal = ({ order, onClose }) => {
             padding: 0 !important;
             margin: 0 !important;
             background: transparent !important;
-            max-width: none !important;
-            width: auto !important;
+            width: 58mm !important;
+            max-width: 58mm !important;
           }
           .receipt-scroll-area {
-            overflow-y: visible !important;
+            overflow: visible !important;
             max-height: none !important;
             background: transparent !important;
             padding: 0 !important;
             margin: 0 !important;
+            width: 58mm !important;
+          }
+          #receipt-print {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 58mm !important;
+            background: transparent !important;
+            display: block !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
         }
       `}</style>
