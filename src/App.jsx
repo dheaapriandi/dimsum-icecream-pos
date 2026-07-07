@@ -43,9 +43,9 @@ function App() {
   const [currentReceiptOrder, setCurrentReceiptOrder] = useState(null);
 
   // Load Data awal
-  const loadData = async () => {
+  const loadData = async (isBackground = false) => {
     try {
-      setIsLoading(true);
+      if (!isBackground) setIsLoading(true);
       const [cats, prods, ords] = await Promise.all([
         db.getCategories(),
         db.getProducts(),
@@ -57,7 +57,7 @@ function App() {
     } catch (err) {
       console.error('Gagal memuat data:', err);
     } finally {
-      setIsLoading(false);
+      if (!isBackground) setIsLoading(false);
     }
   };
 
@@ -70,7 +70,7 @@ function App() {
     let interval = null;
     if (activeView === 'kitchen' || activeView === 'dashboard') {
       interval = setInterval(() => {
-        loadData();
+        loadData(true);
       }, 5000);
     }
     return () => {
@@ -84,7 +84,7 @@ function App() {
       const completedOrder = await db.createOrder(orderData, items);
       
       // Muat ulang data terbaru (agar stok & riwayat sinkron)
-      await loadData();
+      await loadData(true);
       
       // Dapatkan detail struk lengkap untuk ditampilkan di modal struk
       const orderDetails = await db.getOrderDetails(completedOrder.id);
@@ -102,7 +102,7 @@ function App() {
   const handleAddProduct = async (product) => {
     try {
       await db.addProduct(product);
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Gagal menambah produk:', err);
       throw err;
@@ -113,7 +113,7 @@ function App() {
   const handleUpdateProduct = async (id, updates) => {
     try {
       await db.updateProduct(id, updates);
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Gagal mengubah produk:', err);
       throw err;
@@ -124,7 +124,7 @@ function App() {
   const handleDeleteProduct = async (id) => {
     try {
       await db.deleteProduct(id);
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Gagal menghapus produk:', err);
       throw err;
@@ -135,7 +135,7 @@ function App() {
   const handleUpdateOrder = async (id, updates) => {
     try {
       await db.updateOrder(id, updates);
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Gagal memperbarui transaksi:', err);
       throw err;
@@ -146,7 +146,7 @@ function App() {
   const handleDeleteOrder = async (id) => {
     try {
       await db.deleteOrder(id);
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Gagal menghapus transaksi:', err);
       throw err;
