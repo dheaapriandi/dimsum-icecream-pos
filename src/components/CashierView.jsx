@@ -1086,15 +1086,17 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           justify-content: center;
           z-index: 500;
           padding: 16px;
-        }
-
-        .checkout-container {
+               .checkout-container {
           width: 100%;
           max-width: 460px;
           display: flex;
           flex-direction: column;
-          padding: 24px;
-          border: 1px solid var(--border-color);
+          padding: 28px;
+          background: #ffffff !important; /* Solid clean white for crisp readability */
+          border: 1px solid #e2e8f0;
+          border-radius: 20px;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          color: #0f172a !important;
           animation: fade-in-scale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -1103,26 +1105,41 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
+          border-bottom: 1px solid #f1f5f9;
+          padding-bottom: 12px;
         }
 
         .checkout-header h2 {
-          font-size: 18px;
-          font-weight: 700;
+          font-size: 20px;
+          font-weight: 800;
+          color: #0f172a;
         }
 
         .btn-close-modal {
-          background: transparent;
+          background: #f1f5f9;
           border: none;
-          color: var(--text-muted);
-          font-size: 18px;
+          color: #64748b;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
           cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-close-modal:hover {
+          background: #e2e8f0;
+          color: #0f172a;
         }
 
         .amount-summary {
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid var(--border-color);
-          padding: 16px;
-          border-radius: 12px;
+          background: #fff7ed; /* Light orange background */
+          border: 1px solid #ffedd5;
+          padding: 18px;
+          border-radius: 14px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1130,23 +1147,23 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
         }
 
         .amount-summary .label {
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 700;
-          color: var(--text-muted);
-          letter-spacing: 1px;
-          margin-bottom: 4px;
+          color: #c2410c;
+          letter-spacing: 1.2px;
+          margin-bottom: 6px;
         }
 
         .amount-summary .value {
-          font-size: 28px;
-          font-weight: 800;
-          color: var(--primary);
+          font-size: 32px;
+          font-weight: 900;
+          color: #ea580c;
         }
 
         .payment-methods {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
+          gap: 12px;
           margin-bottom: 20px;
         }
 
@@ -1155,29 +1172,32 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           flex-direction: column;
           align-items: center;
           gap: 8px;
-          padding: 12px;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid var(--border-color);
-          border-radius: 10px;
+          padding: 14px 10px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
           cursor: pointer;
-          color: var(--text-muted);
+          color: #64748b;
           transition: all 0.2s ease;
         }
 
         .method-tab:hover {
-          background: rgba(255, 255, 255, 0.05);
-          color: var(--text-primary);
+          background: #f1f5f9;
+          color: #334155;
+          border-color: #cbd5e1;
         }
 
         .method-tab.active {
-          background: rgba(249, 115, 22, 0.1);
-          border-color: var(--primary);
-          color: var(--primary);
+          background: #ffedd5;
+          border-color: #f97316;
+          color: #ea580c;
+          font-weight: 700;
+          box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.1);
         }
 
         .method-tab span {
           font-size: 12px;
-          font-weight: 600;
+          font-weight: 700;
         }
 
         .cash-payment-form {
@@ -1194,7 +1214,8 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
 
         .form-group label {
           font-size: 13px;
-          color: var(--text-muted);
+          font-weight: 700;
+          color: #475569;
         }
 
         .input-group {
@@ -1205,26 +1226,30 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
 
         .input-prefix {
           position: absolute;
-          left: 14px;
-          font-weight: 700;
-          color: var(--text-muted);
+          left: 16px;
+          font-weight: 800;
+          color: #475569;
+          font-size: 18px;
         }
 
         .cash-input {
           width: 100%;
-          padding: 12px 14px 12px 38px;
+          padding: 14px 16px 14px 44px;
           background: #ffffff;
-          border: 1px solid var(--border-color);
-          border-radius: 10px;
-          color: var(--text-primary);
-          font-size: 18px;
-          font-weight: 700;
+          border: 2px solid #cbd5e1;
+          border-radius: 12px;
+          color: #0f172a;
+          font-size: 20px;
+          font-weight: 800;
           outline: none;
           text-align: right;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
         }
 
         .cash-input:focus {
-          border-color: var(--primary);
+          border-color: #f97316;
+          box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
         }
 
         .quick-cash-grid {
@@ -1234,30 +1259,39 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
         }
 
         .quick-cash-btn {
-          padding: 8px;
+          padding: 10px 6px;
           background: #ffffff;
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          color: var(--text-primary);
-          font-size: 11px;
-          font-weight: 600;
+          border: 1px solid #cbd5e1;
+          border-radius: 10px;
+          color: #334155;
+          font-size: 12px;
+          font-weight: 700;
           cursor: pointer;
           transition: all 0.2s ease;
         }
 
         .quick-cash-btn:hover:not(:disabled) {
-          background: rgba(255,255,255,0.08);
+          background: #f8fafc;
+          border-color: #94a3b8;
+          color: #0f172a;
         }
 
         .quick-cash-btn.pass-amount {
-          background: rgba(34, 197, 94, 0.1);
-          border-color: rgba(34, 197, 94, 0.3);
-          color: rgb(34, 197, 94);
-          grid-column: span 1;
+          background: #dcfce7;
+          border-color: #86efac;
+          color: #166534;
+        }
+
+        .quick-cash-btn.pass-amount:hover:not(:disabled) {
+          background: #bbf7d0;
+          border-color: #4ade80;
         }
 
         .quick-cash-btn:disabled {
-          opacity: 0.3;
+          opacity: 0.4;
+          background: #f1f5f9;
+          border-color: #e2e8f0;
+          color: #94a3b8;
           cursor: not-allowed;
         }
 
@@ -1265,25 +1299,27 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 12px 16px;
-          background: rgba(0,0,0,0.03);
-          border-radius: 10px;
+          padding: 14px 18px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
           margin-top: 10px;
         }
 
         .change-summary .label {
           font-size: 13px;
-          color: var(--text-muted);
+          font-weight: 700;
+          color: #475569;
         }
 
         .change-summary .value {
-          font-size: 20px;
-          font-weight: 700;
-          color: var(--text-muted);
+          font-size: 22px;
+          font-weight: 800;
+          color: #475569;
         }
 
         .change-summary .value.has-change {
-          color: rgb(34, 197, 94);
+          color: #16a34a;
         }
 
         .qris-display, .card-display {
@@ -1291,43 +1327,45 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 24px;
-          background: rgba(255, 255, 255, 0.01);
-          border: 1px dashed var(--border-color);
-          border-radius: 12px;
+          padding: 28px;
+          background: #f8fafc;
+          border: 2px dashed #cbd5e1;
+          border-radius: 14px;
           text-align: center;
         }
 
         .qr-graphic {
-          color: white;
+          color: #0f172a;
           padding: 10px;
           background: white;
-          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
           margin-bottom: 12px;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         .qris-branding {
-          color: #000;
+          color: #ffffff;
           font-weight: 800;
           font-size: 12px;
           margin-top: -6px;
-          background: white;
+          background: #1e293b;
           width: 100%;
-          border-radius: 0 0 8px 8px;
-          padding: 2px 0;
+          border-radius: 0 0 12px 12px;
+          padding: 4px 0;
         }
 
         .card-graphic {
-          color: var(--accent);
+          color: #ec4899;
           margin-bottom: 16px;
           animation: pulse 2s infinite ease-in-out;
         }
 
         .qris-display p, .card-display p {
           font-size: 13px;
-          color: var(--text-muted);
-          line-height: 1.4;
+          font-weight: 600;
+          color: #64748b;
+          line-height: 1.5;
           margin-top: 8px;
         }
 
@@ -1339,36 +1377,52 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
 
         .btn-cancel {
           flex: 1;
-          padding: 12px;
-          border-radius: 10px;
-          border: 1px solid var(--border-color);
-          background: transparent;
-          color: var(--text-muted);
+          padding: 14px;
+          border-radius: 12px;
+          border: 1px solid #cbd5e1;
+          background: #f1f5f9;
+          color: #475569;
           cursor: pointer;
-          font-weight: 600;
+          font-weight: 700;
+          font-size: 14px;
+          transition: all 0.2s ease;
         }
 
         .btn-cancel:hover {
-          background: rgba(255, 255, 255, 0.03);
-          color: var(--text-primary);
+          background: #e2e8f0;
+          color: #0f172a;
+          border-color: #94a3b8;
         }
 
         .btn-complete {
-          flex: 1.5;
-          padding: 12px;
-          border-radius: 10px;
-          font-weight: 600;
+          flex: 1.6;
+          padding: 14px;
+          border-radius: 12px;
+          background: #f97316;
+          color: #ffffff;
+          font-weight: 700;
+          font-size: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.2);
+        }
+
+        .btn-complete:hover:not(:disabled) {
+          background: #ea580c;
+          box-shadow: 0 6px 12px -2px rgba(234, 88, 12, 0.3);
         }
 
         .btn-complete:disabled {
-          opacity: 0.5;
+          background: #cbd5e1;
+          color: #94a3b8;
+          opacity: 0.7;
           cursor: not-allowed;
           box-shadow: none;
-          transform: none;
         }
 
         .empty-search {
