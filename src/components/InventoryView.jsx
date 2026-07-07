@@ -220,6 +220,73 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
             </tbody>
           </table>
         </div>
+
+        {/* Tampilan List Kartu untuk HP / Tablet */}
+        <div className="mobile-product-list">
+          {filteredProducts.map((prod) => {
+            const cat = categories.find(c => c.id === prod.category_id);
+            return (
+              <div key={prod.id} className={`mobile-product-card glass-panel ${!prod.active ? 'inactive-row' : ''}`}>
+                <div className="mobile-card-top">
+                  <div className="product-info">
+                    <span className="mobile-product-name">{prod.name}</span>
+                    {prod.description && <span className="mobile-product-desc">{prod.description}</span>}
+                  </div>
+                  <span className="category-tag" style={{ '--tag-color': cat?.color || '#999' }}>
+                    {cat ? cat.name : 'Uncategorized'}
+                  </span>
+                </div>
+                
+                <div className="mobile-card-middle">
+                  <div className="metric">
+                    <span className="label">Harga Jual</span>
+                    <span className="value bold">{formatRupiah(prod.price)}</span>
+                  </div>
+                  <div className="metric">
+                    <span className="label">Sisa Stok</span>
+                    <span className={`value stock-indicator ${prod.stock < 10 ? 'low' : ''}`}>
+                      {prod.stock} Porsi
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mobile-card-actions">
+                  <button 
+                    onClick={() => toggleStatus(prod)}
+                    className={`status-toggle-btn ${prod.active ? 'active' : 'inactive'}`}
+                    title={prod.active ? 'Klik untuk sembunyikan' : 'Klik untuk tampilkan'}
+                  >
+                    {prod.active ? (
+                      <>
+                        <CheckCircle2 size={14} />
+                        <span>Tayang</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle size={14} />
+                        <span>Arsip</span>
+                      </>
+                    )}
+                  </button>
+                  
+                  <div className="action-buttons">
+                    <button onClick={() => handleOpenEdit(prod)} className="btn-action edit" title="Edit Produk">
+                      <Edit size={14} />
+                    </button>
+                    <button onClick={() => handleDelete(prod.id, prod.name)} className="btn-action delete" title="Hapus Produk">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {filteredProducts.length === 0 && (
+            <div className="empty-table" style={{ padding: '24px', textAlign: 'center' }}>
+              Belum ada produk untuk ditampilkan.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* MODAL FORM TAMBAH / EDIT */}
@@ -648,7 +715,6 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
           background: rgba(255,255,255,0.03);
           color: var(--text-primary);
         }
-
         .form-footer .btn-save {
           border: none;
         }
@@ -656,6 +722,128 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
         @keyframes fade-in-scale {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Mobile Card Styles */
+        .mobile-product-list {
+          display: none;
+          flex-direction: column;
+          gap: 12px;
+          padding: 16px;
+        }
+
+        .mobile-product-card {
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          border-radius: 12px;
+          background: #ffffff;
+          border: 1px solid var(--border-color);
+        }
+
+        .mobile-card-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .mobile-card-top .product-info {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          text-align: left;
+        }
+
+        .mobile-product-name {
+          font-weight: 700;
+          font-size: 15px;
+          color: var(--text-primary);
+        }
+
+        .mobile-product-desc {
+          font-size: 11px;
+          color: var(--text-muted);
+          line-height: 1.4;
+        }
+
+        .mobile-card-middle {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          padding: 10px 12px;
+          background: rgba(0, 0, 0, 0.01);
+          border-radius: 8px;
+          border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .mobile-card-middle .metric {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          text-align: left;
+        }
+
+        .mobile-card-middle .metric .label {
+          font-size: 10px;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+
+        .mobile-card-middle .metric .value {
+          font-size: 13px;
+        }
+
+        .mobile-card-actions {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid var(--border-color);
+          padding-top: 12px;
+          margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+          .table-wrapper {
+            display: none;
+          }
+          .mobile-product-list {
+            display: flex;
+          }
+          .inventory-filters-card {
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px;
+          }
+          .category-select-wrapper {
+            width: 100%;
+          }
+          .inventory-header {
+            padding: 12px 16px;
+            gap: 12px;
+            align-items: flex-start;
+            flex-direction: column;
+          }
+          .inventory-header h2 {
+            font-size: 16px;
+          }
+          .btn-add-product {
+            width: 100%;
+            justify-content: center;
+          }
+          .table-card {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+          }
+          .form-container {
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 16px;
+          }
         }
       `}</style>
     </div>

@@ -2,6 +2,12 @@ import React from 'react';
 import { ShoppingBag, ChefHat, BarChart2, Package, Sparkles } from 'lucide-react';
 
 const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
+  const handleAvatarClick = () => {
+    if (window.confirm('Apakah Anda yakin ingin keluar dari sistem kasir?')) {
+      onLogout();
+    }
+  };
+
   const menuItems = [
     { id: 'cashier', name: 'Kasir POS', icon: ShoppingBag },
     { id: 'kitchen', name: 'Antrean Dapur', icon: ChefHat },
@@ -39,8 +45,8 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
         })}
       </nav>
 
-      <div className="sidebar-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div className="cashier-info">
+      <div className="sidebar-footer">
+        <div className="cashier-info" onClick={handleAvatarClick}>
           <div className="avatar" style={{ background: 'var(--primary)', color: '#ffffff', fontWeight: 'bold' }}>
             {currentUser ? currentUser.name.charAt(0) : 'K'}
           </div>
@@ -51,24 +57,7 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
         </div>
         <button 
           onClick={onLogout}
-          style={{
-            width: '100%',
-            padding: '10px',
-            border: '1px solid var(--border-color)',
-            background: 'transparent',
-            color: '#ef4444',
-            borderRadius: '10px',
-            fontSize: '12px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.05)'}
-          onMouseLeave={(e) => e.target.style.background = 'transparent'}
+          className="logout-btn"
         >
           <span>Keluar Kasir (Logout)</span>
         </button>
@@ -195,6 +184,30 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
         .sidebar-footer {
           padding: 20px;
           border-top: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .logout-btn {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid var(--border-color);
+          background: transparent;
+          color: #ef4444;
+          border-radius: 10px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+          background: rgba(239, 68, 68, 0.05);
         }
 
         .cashier-info {
@@ -261,7 +274,7 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
         }
 
         /* Mobile sidebar hidden, bottom navigation instead */
-        @media (max-width: 576px) {
+        @media (max-width: 768px) {
           .sidebar-container {
             width: 100%;
             height: 60px;
@@ -275,14 +288,14 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
             background: rgba(255, 255, 255, 0.98);
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
           }
-          .sidebar-brand, .sidebar-footer {
+          .sidebar-brand {
             display: none;
           }
           .sidebar-menu {
             flex-direction: row;
             justify-content: space-around;
             padding: 0;
-            width: 100%;
+            width: calc(100% - 60px);
             gap: 0;
           }
           .menu-item {
@@ -305,6 +318,26 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
             width: auto;
             height: 3px;
             border-radius: 0 0 4px 4px;
+          }
+          
+          /* Show only avatar button on mobile */
+          .sidebar-footer {
+            display: flex !important;
+            padding: 0;
+            border: none;
+            width: 60px;
+            height: 60px;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+          }
+          .cashier-info {
+            padding: 0;
+            background: transparent;
+            border: none;
+          }
+          .info, .logout-btn {
+            display: none !important;
           }
         }
       `}</style>

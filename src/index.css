@@ -100,7 +100,7 @@ button, input, select, textarea {
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .main-content {
     margin-left: 0;
     padding: 16px;
@@ -145,7 +145,7 @@ button, input, select, textarea {
   gap: 16px;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .grid-cols-responsive {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 10px;
