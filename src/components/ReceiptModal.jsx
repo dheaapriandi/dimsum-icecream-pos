@@ -250,7 +250,7 @@ const ReceiptModal = ({ order, onClose }) => {
             <strong style={{ color: 'var(--primary)' }}>Tips Printer Bluetooth (HP):</strong>
             <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
               <li><strong>Rekomendasi Cepat</strong>: Instal aplikasi <strong>RawBT</strong> di Play Store, lalu gunakan tombol cetak RawBT di atas.</li>
-              <li><strong>Alternatif</strong>: Nyalakan Bluetooth HP $\rightarrow$ buka dialog Cetak (Sistem Chrome) $\rightarrow$ pilih printer Bluetooth Anda.</li>
+              <li><strong>Alternatif</strong>: Nyalakan Bluetooth HP {" -> "} buka dialog Cetak (Sistem Chrome) {" -> "} pilih printer Bluetooth Anda.</li>
             </ul>
           </div>
         </div>
