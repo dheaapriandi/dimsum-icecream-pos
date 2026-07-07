@@ -10,62 +10,68 @@ const ReceiptModal = ({ order, onClose }) => {
 
   const handlePrintRawBT = () => {
     const dateStr = formatDate(order.created_at);
-    // Generate receipt HTML for RawBT Bluetooth Printer App
-    const receiptHtml = `
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: 'Courier New', Courier, monospace; font-size: 11px; width: 58mm; padding: 4px; margin: 0; color: #000; }
-            .center { text-align: center; }
-            .right { text-align: right; }
-            .bold { font-weight: bold; }
-            .divider { border-top: 1px dashed #000; margin: 6px 0; }
-            .item-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
-            .info-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
-            .footer { text-align: center; margin-top: 10px; font-size: 10px; }
-          </style>
-        </head>
-        <body>
-          <div class="center bold" style="font-size: 13px;">KEDAI AA</div>
-          <div class="center">Kedai Dimsum & Ice Cream</div>
-          <div class="center">Telp: 0813-1567-5013</div>
-          <div class="divider"></div>
-          <div class="info-row"><span>Invoice:</span><span>${order.invoice_no}</span></div>
-          <div class="info-row"><span>Tanggal:</span><span>${dateStr}</span></div>
-          <div class="info-row"><span>Kasir:</span><span>${order.cashier_name || 'Kasir Utama'}</span></div>
-          <div class="divider"></div>
-          ${order.items ? order.items.map(item => `
-            <div class="item-row">
-              <div style="flex: 1; padding-right: 8px;">
-                <div>${item.product_name || `Produk #${item.product_id}`}</div>
-                <div style="font-size: 9px; color: #555;">${item.quantity} x Rp ${Math.round(item.unit_price).toLocaleString('id-ID')}</div>
-              </div>
-              <div class="bold" style="align-self: flex-end;">Rp ${Math.round(item.quantity * item.unit_price).toLocaleString('id-ID')}</div>
-            </div>
-            ${item.notes ? `<div style="font-size: 9px; font-style: italic; color: #555; margin-bottom: 4px;">* ${item.notes}</div>` : ''}
-          `).join('') : ''}
-          <div class="divider"></div>
-          ${discount > 0 ? `
-            <div class="info-row"><span>Subtotal:</span><span>Rp ${Math.round(subtotal).toLocaleString('id-ID')}</span></div>
-            <div class="info-row"><span>Diskon:</span><span>-Rp ${Math.round(discount).toLocaleString('id-ID')}</span></div>
-            <div class="divider"></div>
-          ` : ''}
-          <div class="info-row bold" style="font-size: 12px;"><span>TOTAL:</span><span>Rp ${Math.round(total).toLocaleString('id-ID')}</span></div>
-          <div class="info-row"><span>Bayar:</span><span>Rp ${Math.round(amountPaid).toLocaleString('id-ID')}</span></div>
-          <div class="info-row"><span>Kembali:</span><span>Rp ${Math.round(change).toLocaleString('id-ID')}</span></div>
-          <div class="divider"></div>
-          <div class="footer">
-            <div>Terima Kasih</div>
-            <div>Atas Kunjungan Anda!</div>
-          </div>
-        </body>
-      </html>
-    `;
+    
+    // Helper fungsi perataan teks
+    const padCenter = (str, width = 32) => {
+      if (str.length >= width) return str.substring(0, width);
+      const pad = Math.floor((width - str.length) / 2);
+      return ' '.repeat(pad) + str;
+    };
+
+    const formatRow = (left, right, width = 32) => {
+      const spaceNeeded = width - left.length - right.length;
+      if (spaceNeeded > 0) {
+        return left + ' '.repeat(spaceNeeded) + right;
+      } else {
+        return left + '\n' + ' '.repeat(width - right.length) + right;
+      }
+    };
+
+    const lines = [];
+    lines.push(padCenter("KEDAI AA"));
+    lines.push(padCenter("Kedai Dimsum & Ice Cream"));
+    lines.push(padCenter("Telp: 0813-1567-5013"));
+    lines.push("================================");
+    lines.push(formatRow("No. Invoice:", order.invoice_no));
+    lines.push(formatRow("Tanggal:", dateStr));
+    lines.push(formatRow("Kasir:", order.cashier_name || 'Kasir Utama'));
+    lines.push("--------------------------------");
+    
+    if (order.items) {
+      order.items.forEach(item => {
+        lines.push(item.product_name || `Produk #${item.product_id}`);
+        const qtyPrice = `${item.quantity} x Rp ${Math.round(item.unit_price).toLocaleString('id-ID')}`;
+        const itemTotal = `Rp ${Math.round(item.quantity * item.unit_price).toLocaleString('id-ID')}`;
+        lines.push(formatRow("  " + qtyPrice, itemTotal));
+        if (item.notes) {
+          lines.push(`  * ${item.notes}`);
+        }
+      });
+    }
+    
+    lines.push("--------------------------------");
+    if (discount > 0) {
+      lines.push(formatRow("Subtotal:", `Rp ${Math.round(subtotal).toLocaleString('id-ID')}`));
+      lines.push(formatRow("Diskon:", `-Rp ${Math.round(discount).toLocaleString('id-ID')}`));
+      lines.push("--------------------------------");
+    }
+    
+    lines.push(formatRow("TOTAL:", `Rp ${Math.round(total).toLocaleString('id-ID')}`));
+    lines.push(formatRow("Metode:", paymentMethodText));
+    lines.push(formatRow("Bayar:", `Rp ${Math.round(amountPaid).toLocaleString('id-ID')}`));
+    lines.push(formatRow("Kembali:", `Rp ${Math.round(change).toLocaleString('id-ID')}`));
+    lines.push("================================");
+    lines.push("");
+    lines.push(padCenter("Terima Kasih"));
+    lines.push(padCenter("Atas Kunjungan Anda!"));
+    lines.push("\n\n\n"); // Feed paper
+    
+    const textContent = lines.join("\n");
     
     try {
-      const base64Html = btoa(unescape(encodeURIComponent(receiptHtml)));
-      window.location.href = `rawbt:text/html;base64,${base64Html}`;
+      // Encode base64 data text polos untuk printer thermal
+      const base64Text = btoa(unescape(encodeURIComponent(textContent)));
+      window.location.href = `rawbt:base64,${base64Text}`;
     } catch (err) {
       console.error('RawBT print error:', err);
       alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
@@ -488,11 +494,24 @@ const ReceiptModal = ({ order, onClose }) => {
             size: 58mm auto;
             margin: 0;
           }
-          /* Sembunyikan semua elemen di luar modal struk */
-          body > :not(.receipt-modal-overlay) {
+          /* Reset root dan wrapper agar berukuran 58mm block */
+          body, html, #root, .app-container {
+            background: transparent !important;
+            color: #000 !important;
+            width: 58mm !important;
+            height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: block !important;
+          }
+          /* Sembunyikan elemen utama aplikasi di luar modal */
+          .sidebar,
+          .main-content,
+          main,
+          aside {
             display: none !important;
           }
-          /* Sembunyikan elemen dekorasi modal yang tidak perlu dicetak */
+          /* Sembunyikan dekorasi modal yang tidak dicetak */
           .receipt-modal-header,
           .receipt-modal-footer,
           .printer-tips,
@@ -500,7 +519,7 @@ const ReceiptModal = ({ order, onClose }) => {
           .success-badge {
             display: none !important;
           }
-          /* Atur layout modal agar presisi 58mm dan tanpa background/border */
+          /* Posisikan modal overlay di pojok kiri atas halaman print */
           .receipt-modal-overlay {
             background: transparent !important;
             position: absolute !important;
