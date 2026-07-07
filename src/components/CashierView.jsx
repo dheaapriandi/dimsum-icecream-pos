@@ -12,9 +12,6 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
   const [paymentMethod, setPaymentMethod] = useState('CASH'); // 'CASH', 'QRIS', 'CARD'
   const [cashAmount, setCashAmount] = useState('');
   const [customerName, setCustomerName] = useState('');
-  
-  // State Mobile Cart
-  const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
   // State Diskon
   const [discountType, setDiscountType] = useState('PERCENT'); // 'PERCENT', 'NOMINAL'
@@ -131,7 +128,6 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
   // Logika Pembayaran
   const handleOpenCheckout = () => {
     if (cart.length === 0) return;
-    setMobileCartOpen(false);
     setIsCheckoutModalOpen(true);
     setCashAmount('');
     setCustomerName(getNextDefaultCustomerName());
@@ -309,24 +305,8 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
         </div>
       </div>
 
-      {/* FLOATING CART BAR (MOBILE ONLY) */}
-      {cart.length > 0 && !mobileCartOpen && (
-        <div className="mobile-cart-bar" onClick={() => setMobileCartOpen(true)}>
-          <div className="mobile-cart-bar-left">
-            <ShoppingCart size={20} />
-            <span className="mobile-cart-badge">{cart.reduce((s, i) => s + i.quantity, 0)}</span>
-          </div>
-          <span className="mobile-cart-bar-total">{formatRupiah(cartTotal)}</span>
-          <span className="mobile-cart-bar-btn">Lihat Keranjang →</span>
-        </div>
-      )}
-
       {/* KANAN: KERANJANG KASIR */}
-      <div className={`cart-section glass-panel ${mobileCartOpen ? 'mobile-cart-open' : ''}`}>
-        {/* Mobile close button */}
-        <button className="mobile-cart-close" onClick={() => setMobileCartOpen(false)}>
-          <X size={20} />
-        </button>
+      <div className="cart-section glass-panel">
         <div className="cart-header">
           <ShoppingCart size={22} className="cart-icon" />
           <h2>Keranjang Belanja</h2>
@@ -1448,13 +1428,6 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           to { transform: translateY(0); opacity: 1; }
         }
 
-        /* ===== MOBILE CART BAR & CLOSE BUTTON (hidden on desktop) ===== */
-        .mobile-cart-bar {
-          display: none;
-        }
-        .mobile-cart-close {
-          display: none;
-        }
 
         /* ===== TABLET (max-width: 992px) ===== */
         @media (max-width: 992px) {
@@ -1493,105 +1466,11 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
             flex-direction: column;
             height: auto;
             gap: 0;
-            padding-bottom: 70px;
+            padding-bottom: 24px;
           }
           .menu-section {
             flex: none;
             height: auto;
-          }
-
-          /* === HIDE CART, SHOW AS OVERLAY === */
-          .cart-section {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 900;
-            flex-direction: column;
-            height: 100vh !important;
-            max-height: 100vh !important;
-            border-radius: 0 !important;
-            background: #ffffff !important;
-            overflow-y: auto;
-            animation: slide-up 0.3s ease-out;
-            width: 100% !important;
-            max-width: 100% !important;
-          }
-          .cart-section.mobile-cart-open {
-            display: flex;
-          }
-          /* === MOBILE CLOSE BUTTON === */
-          .mobile-cart-close {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            position: absolute !important;
-            top: 14px !important;
-            right: 14px !important;
-            width: 36px !important;
-            height: 36px !important;
-            min-width: 36px !important;
-            min-height: 36px !important;
-            max-width: 36px !important;
-            max-height: 36px !important;
-            border-radius: 50% !important;
-            border: 1px solid var(--border-color) !important;
-            background: #ffffff !important;
-            color: var(--text-muted) !important;
-            z-index: 100 !important;
-            cursor: pointer;
-            box-shadow: var(--shadow-sm);
-            padding: 0 !important;
-            margin: 0 !important;
-            align-self: flex-end !important;
-          }
-
-          /* === FLOATING CART BAR === */
-          .mobile-cart-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: fixed;
-            bottom: 68px;
-            left: 12px;
-            right: 12px;
-            z-index: 800;
-            background: var(--primary);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 14px;
-            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
-            cursor: pointer;
-            animation: fade-in-up 0.25s ease-out;
-          }
-          .mobile-cart-bar-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-          }
-          .mobile-cart-badge {
-            background: #fff;
-            color: var(--primary);
-            font-size: 11px;
-            font-weight: 800;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .mobile-cart-bar-total {
-            font-weight: 700;
-            font-size: 15px;
-          }
-          .mobile-cart-bar-btn {
-            font-size: 12px;
-            font-weight: 600;
-            opacity: 0.9;
           }
 
           /* === COMPACT HEADER === */
