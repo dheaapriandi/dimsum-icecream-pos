@@ -5,7 +5,7 @@ import KitchenView from './components/KitchenView';
 import DashboardView from './components/DashboardView';
 import InventoryView from './components/InventoryView';
 import ReceiptModal from './components/ReceiptModal';
-import { db, isSupabaseConfigured } from './supabase';
+import { db, isSupabaseConfigured, supabase } from './supabase';
 import { Sparkles, Database } from 'lucide-react';
 
 function App() {
@@ -42,6 +42,55 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentReceiptOrder, setCurrentReceiptOrder] = useState(null);
 
+  const syncProductImages = async () => {
+    try {
+      if (isSupabaseConfigured && supabase) {
+        // Sync Supabase online
+        const { data: prods } = await supabase.from('products').select('id, image_url');
+        if (prods) {
+          const updates = [];
+          prods.forEach(p => {
+            let newUrl = '';
+            if (p.image_url && p.image_url.includes('unsplash.com')) {
+              if (p.id.includes('orig')) newUrl = '/menu-images/dimsum-original.jpg';
+              else if (p.id.includes('mentai')) newUrl = '/menu-images/dimsum-mentai.jpg';
+              else if (p.id.includes('goreng')) newUrl = '/menu-images/dimsum-goreng.jpg';
+              else if (p.id.includes('prod-ic-')) newUrl = '/menu-images/ice-cream.jpg';
+              
+              if (newUrl) {
+                updates.push(supabase.from('products').update({ image_url: newUrl }).eq('id', p.id));
+              }
+            }
+          });
+          if (updates.length > 0) {
+            await Promise.all(updates);
+          }
+        }
+      }
+      
+      // Sync LocalStorage
+      const localProds = localStorage.getItem('pos_products');
+      if (localProds) {
+        const products = JSON.parse(localProds);
+        let updated = false;
+        products.forEach(p => {
+          if (p.image_url && p.image_url.includes('unsplash.com')) {
+            if (p.id.includes('orig')) p.image_url = '/menu-images/dimsum-original.jpg';
+            else if (p.id.includes('mentai')) p.image_url = '/menu-images/dimsum-mentai.jpg';
+            else if (p.id.includes('goreng')) p.image_url = '/menu-images/dimsum-goreng.jpg';
+            else if (p.id.includes('prod-ic-')) p.image_url = '/menu-images/ice-cream.jpg';
+            updated = true;
+          }
+        });
+        if (updated) {
+          localStorage.setItem('pos_products', JSON.stringify(products));
+        }
+      }
+    } catch (e) {
+      console.error('Gagal mensinkronkan gambar produk:', e);
+    }
+  };
+
   // Load Data awal
   const loadData = async (isBackground = false) => {
     try {
@@ -62,7 +111,11 @@ function App() {
   };
 
   useEffect(() => {
-    loadData();
+    const init = async () => {
+      await syncProductImages();
+      await loadData();
+    };
+    init();
   }, []);
 
   // Polling data otomatis setiap 5 detik untuk sinkronisasi dapur & laporan
