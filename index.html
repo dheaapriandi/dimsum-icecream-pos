@@ -60,7 +60,20 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker terdaftar!', reg))
+            .then(reg => {
+              console.log('Service Worker terdaftar!', reg);
+              reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                if (installingWorker) {
+                  installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      console.log('Konten baru terdeteksi, merefresh aplikasi...');
+                      window.location.reload();
+                    }
+                  };
+                }
+              };
+            })
             .catch(err => console.error('Gagal mendaftarkan Service Worker:', err));
         });
       }
