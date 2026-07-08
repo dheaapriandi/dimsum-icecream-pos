@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, ChefHat, BarChart2, Package, Sparkles } from 'lucide-react';
+import { ShoppingBag, ChefHat, BarChart2, Package, Sparkles, Settings } from 'lucide-react';
 
 const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
   const handleAvatarClick = () => {
@@ -12,7 +12,8 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
     { id: 'cashier', name: 'Kasir POS', icon: ShoppingBag },
     { id: 'kitchen', name: 'Antrean Dapur', icon: ChefHat },
     { id: 'dashboard', name: 'Laporan Penjualan', icon: BarChart2 },
-    { id: 'inventory', name: 'Kelola Menu', icon: Package }
+    { id: 'inventory', name: 'Kelola Menu', icon: Package },
+    { id: 'settings', name: 'Pengaturan', icon: Settings }
   ];
 
   return (

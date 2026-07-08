@@ -88,6 +88,20 @@ export const db = {
     throw new Error('Username atau password salah.');
   },
 
+  async changePassword(userId, oldPassword, newPassword) {
+    const users = JSON.parse(localStorage.getItem('pos_users') || '[]');
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+      throw new Error('Pengguna tidak ditemukan.');
+    }
+    if (users[userIndex].password !== oldPassword) {
+      throw new Error('Password lama salah.');
+    }
+    users[userIndex].password = newPassword;
+    localStorage.setItem('pos_users', JSON.stringify(users));
+    return users[userIndex];
+  },
+
   // --- Kategori ---
   async getCategories() {
     if (isSupabaseConfigured) {

@@ -4,6 +4,7 @@ import CashierView from './components/CashierView';
 import KitchenView from './components/KitchenView';
 import DashboardView from './components/DashboardView';
 import InventoryView from './components/InventoryView';
+import SettingsView from './components/SettingsView';
 import ReceiptModal from './components/ReceiptModal';
 import { db, isSupabaseConfigured, supabase } from './supabase';
 import { Sparkles, Database } from 'lucide-react';
@@ -16,6 +17,11 @@ function App() {
     const saved = localStorage.getItem('active_cashier');
     return saved ? JSON.parse(saved) : null;
   });
+
+  const handleUpdateUserSession = (updatedUser) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem('active_cashier', JSON.stringify(updatedUser));
+  };
 
   const handleLogin = async (username, password) => {
     try {
@@ -263,6 +269,13 @@ function App() {
             onAddProduct={handleAddProduct}
             onUpdateProduct={handleUpdateProduct}
             onDeleteProduct={handleDeleteProduct}
+          />
+        );
+      case 'settings':
+        return (
+          <SettingsView 
+            currentUser={currentUser}
+            onUpdateUser={handleUpdateUserSession}
           />
         );
       default:
