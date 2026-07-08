@@ -76,10 +76,29 @@ initLocalDb();
 export const db = {
   // --- Pengguna / Kasir ---
   async getUsers() {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('users').select('*').order('name');
+      if (!error) return data;
+      console.error('Supabase error fetching users, falling back to localStorage:', error);
+    }
     return JSON.parse(localStorage.getItem('pos_users') || '[]');
   },
 
   async login(username, password) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username.toLowerCase())
+        .eq('password', password)
+        .single();
+      
+      if (!error && data) {
+        return data;
+      }
+      throw new Error('Username atau password salah.');
+    }
+
     const users = JSON.parse(localStorage.getItem('pos_users') || '[]');
     const user = users.find(u => u.username === username.toLowerCase() && u.password === password);
     if (user) {
@@ -89,6 +108,37 @@ export const db = {
   },
 
   async changePassword(userId, oldPassword, newPassword) {
+    if (isSupabaseConfigured) {
+      // 1. Verifikasi password lama
+      const { data: user, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (fetchError || !user) {
+        throw new Error('Pengguna tidak ditemukan.');
+      }
+      
+      if (user.password !== oldPassword) {
+        throw new Error('Password lama salah.');
+      }
+      
+      // 2. Perbarui password baru
+      const { data: updatedUser, error: updateError } = await supabase
+        .from('users')
+        .update({ password: newPassword })
+        .eq('id', userId)
+        .select()
+        .single();
+        
+      if (updateError) {
+        throw new Error('Gagal memperbarui password di cloud database.');
+      }
+      
+      return updatedUser;
+    }
+
     const users = JSON.parse(localStorage.getItem('pos_users') || '[]');
     const userIndex = users.findIndex(u => u.id === userId);
     if (userIndex === -1) {
