@@ -1464,13 +1464,35 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
         @media (max-width: 768px) {
           .pos-container {
             flex-direction: column;
-            height: auto;
-            gap: 0;
-            padding-bottom: 24px;
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            gap: 20px;
+            padding-bottom: 32px;
           }
           .menu-section {
-            flex: none;
-            height: auto;
+            flex: none !important;
+            height: auto !important;
+            overflow: visible !important;
+          }
+          .product-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px;
+            padding: 0 2px 24px 2px;
+            overflow: visible !important;
+            height: auto !important;
+          }
+          .cart-section {
+            flex: none !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            display: flex !important;
+          }
+          .cart-items-container {
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
           }
 
           /* === COMPACT HEADER === */
