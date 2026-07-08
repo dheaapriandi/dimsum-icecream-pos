@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ShoppingBag, ChefHat, BarChart2, Package, Sparkles, Settings } from 'lucide-react';
 
 const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+
   const handleAvatarClick = () => {
-    if (window.confirm('Apakah Anda yakin ingin keluar dari sistem kasir?')) {
-      onLogout();
-    }
+    setIsAccountMenuOpen(true);
   };
 
   const menuItems = [
@@ -63,6 +63,75 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
           <span>Keluar Kasir (Logout)</span>
         </button>
       </div>
+
+      {/* MODAL MENU AKUN (MOBILE & DESKTOP COMPATIBLE) */}
+      {isAccountMenuOpen && (
+        <div className="account-menu-overlay" onClick={() => setIsAccountMenuOpen(false)}>
+          <div className="account-menu-card glass-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="account-menu-header">
+              <div className="account-menu-avatar">
+                {currentUser ? currentUser.name.charAt(0) : 'K'}
+              </div>
+              <div className="account-menu-info">
+                <h4>{currentUser ? currentUser.name : 'Kasir Utama'}</h4>
+                <span>{currentUser && currentUser.role === 'admin' ? 'Administrator' : 'Kasir Staf'}</span>
+              </div>
+              <button className="account-menu-close" onClick={() => setIsAccountMenuOpen(false)}>✕</button>
+            </div>
+            
+            <div className="account-menu-body">
+              {/* Core shortcuts */}
+              <button 
+                className={`account-menu-item-btn ${activeView === 'cashier' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveView('cashier');
+                  setIsAccountMenuOpen(false);
+                }}
+              >
+                <ShoppingBag size={16} />
+                <span>Buka Kasir POS</span>
+              </button>
+
+              {currentUser && currentUser.role === 'admin' && (
+                <>
+                  <button 
+                    className={`account-menu-item-btn ${activeView === 'inventory' ? 'active' : ''}`}
+                    onClick={() => {
+                      setActiveView('inventory');
+                      setIsAccountMenuOpen(false);
+                    }}
+                  >
+                    <Package size={16} />
+                    <span>Kelola Menu (Inventory)</span>
+                  </button>
+                </>
+              )}
+              
+              <button 
+                className={`account-menu-item-btn ${activeView === 'settings' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveView('settings');
+                  setIsAccountMenuOpen(false);
+                }}
+              >
+                <Settings size={16} />
+                <span>Pengaturan Kata Sandi</span>
+              </button>
+            </div>
+            
+            <div className="account-menu-footer">
+              <button className="account-menu-logout-btn" onClick={() => {
+                setIsAccountMenuOpen(false);
+                if (window.confirm('Apakah Anda yakin ingin keluar dari sistem kasir?')) {
+                  onLogout();
+                }
+              }}>
+                Keluar dari POS (Logout)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .sidebar-container {
@@ -256,6 +325,154 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
           100% { transform: rotate(360deg) scale(1); }
         }
 
+        /* ACCOUNT MENU POPUP/MODAL */
+        .account-menu-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+          padding: 16px;
+          backdrop-filter: blur(4px);
+        }
+
+        .account-menu-card {
+          width: 100%;
+          max-width: 300px;
+          background: #ffffff !important;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1);
+          color: #0f172a !important;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+          animation: fade-in-scale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fade-in-scale {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+
+        .account-menu-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border-bottom: 1px solid #f1f5f9;
+          padding-bottom: 16px;
+          position: relative;
+        }
+
+        .account-menu-avatar {
+          width: 42px;
+          height: 42px;
+          background: #ffedd5;
+          color: #ea580c;
+          font-weight: 800;
+          font-size: 16px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #fed7aa;
+        }
+
+        .account-menu-info {
+          display: flex;
+          flex-direction: column;
+          text-align: left;
+        }
+
+        .account-menu-info h4 {
+          font-size: 14px;
+          font-weight: 700;
+          color: #0f172a;
+          margin: 0;
+        }
+
+        .account-menu-info span {
+          font-size: 11px;
+          color: #64748b;
+          font-weight: 600;
+        }
+
+        .account-menu-close {
+          position: absolute;
+          right: 0;
+          top: 0;
+          background: transparent;
+          border: none;
+          color: #94a3b8;
+          font-size: 18px;
+          cursor: pointer;
+        }
+
+        .account-menu-close:hover {
+          color: #0f172a;
+        }
+
+        .account-menu-body {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          padding: 16px 0;
+        }
+
+        .account-menu-item-btn {
+          width: 100%;
+          padding: 10px 12px;
+          border-radius: 10px;
+          border: 1px solid transparent;
+          background: #f8fafc;
+          color: #475569;
+          font-weight: 600;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .account-menu-item-btn:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+
+        .account-menu-item-btn.active {
+          background: #ffedd5;
+          border-color: #ffd8a8;
+          color: #ea580c;
+        }
+
+        .account-menu-footer {
+          border-top: 1px solid #f1f5f9;
+          padding-top: 14px;
+        }
+
+        .account-menu-logout-btn {
+          width: 100%;
+          padding: 10px;
+          border-radius: 10px;
+          border: 1px solid #fca5a5;
+          background: #fef2f2;
+          color: #ef4444;
+          font-weight: 700;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .account-menu-logout-btn:hover {
+          background: #fee2e2;
+        }
+
         /* Collapsed Sidebar on medium screens */
         @media (max-width: 992px) {
           .sidebar-container {
@@ -298,6 +515,10 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
             padding: 0;
             width: calc(100% - 60px);
             gap: 0;
+          }
+          .sidebar-menu button:nth-child(4),
+          .sidebar-menu button:nth-child(5) {
+            display: none !important;
           }
           .menu-item {
             flex-direction: column;
