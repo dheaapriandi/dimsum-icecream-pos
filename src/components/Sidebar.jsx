@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ShoppingBag, ChefHat, BarChart2, Package, Sparkles, Settings } from 'lucide-react';
 
-const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
-  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-
+const Sidebar = ({ activeView, setActiveView, currentUser, onLogout, onAvatarClick }) => {
   const handleAvatarClick = () => {
-    setIsAccountMenuOpen(true);
+    if (onAvatarClick) {
+      onAvatarClick();
+    }
   };
 
   const menuItems = [
@@ -63,75 +63,6 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout }) => {
           <span>Keluar Kasir (Logout)</span>
         </button>
       </div>
-
-      {/* MODAL MENU AKUN (MOBILE & DESKTOP COMPATIBLE) */}
-      {isAccountMenuOpen && (
-        <div className="account-menu-overlay" onClick={() => setIsAccountMenuOpen(false)}>
-          <div className="account-menu-card glass-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="account-menu-header">
-              <div className="account-menu-avatar">
-                {currentUser ? currentUser.name.charAt(0) : 'K'}
-              </div>
-              <div className="account-menu-info">
-                <h4>{currentUser ? currentUser.name : 'Kasir Utama'}</h4>
-                <span>{currentUser && currentUser.role === 'admin' ? 'Administrator' : 'Kasir Staf'}</span>
-              </div>
-              <button className="account-menu-close" onClick={() => setIsAccountMenuOpen(false)}>✕</button>
-            </div>
-            
-            <div className="account-menu-body">
-              {/* Core shortcuts */}
-              <button 
-                className={`account-menu-item-btn ${activeView === 'cashier' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveView('cashier');
-                  setIsAccountMenuOpen(false);
-                }}
-              >
-                <ShoppingBag size={16} />
-                <span>Buka Kasir POS</span>
-              </button>
-
-              {currentUser && currentUser.role === 'admin' && (
-                <>
-                  <button 
-                    className={`account-menu-item-btn ${activeView === 'inventory' ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveView('inventory');
-                      setIsAccountMenuOpen(false);
-                    }}
-                  >
-                    <Package size={16} />
-                    <span>Kelola Menu (Inventory)</span>
-                  </button>
-                </>
-              )}
-              
-              <button 
-                className={`account-menu-item-btn ${activeView === 'settings' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveView('settings');
-                  setIsAccountMenuOpen(false);
-                }}
-              >
-                <Settings size={16} />
-                <span>Pengaturan Kata Sandi</span>
-              </button>
-            </div>
-            
-            <div className="account-menu-footer">
-              <button className="account-menu-logout-btn" onClick={() => {
-                setIsAccountMenuOpen(false);
-                if (window.confirm('Apakah Anda yakin ingin keluar dari sistem kasir?')) {
-                  onLogout();
-                }
-              }}>
-                Keluar dari POS (Logout)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <style>{`
         .sidebar-container {
