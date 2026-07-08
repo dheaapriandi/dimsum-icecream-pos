@@ -449,6 +449,26 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
         )}
       </div>
 
+      {/* FLOATING ACTION BAR FOR MOBILE CHECKOUT */}
+      {cart.length > 0 && !isCheckoutModalOpen && (
+        <div className="mobile-checkout-bar" onClick={handleOpenCheckout}>
+          <div className="mobile-checkout-info">
+            <div className="mobile-checkout-icon-wrapper">
+              <ShoppingCart size={18} />
+              <span className="mobile-checkout-badge">{cart.reduce((s, i) => s + i.quantity, 0)}</span>
+            </div>
+            <div className="mobile-checkout-details">
+              <span className="mobile-checkout-total-label">Total</span>
+              <span className="mobile-checkout-total-value">{formatRupiah(cartTotal)}</span>
+            </div>
+          </div>
+          <button className="mobile-checkout-btn">
+            <span>Lanjut Bayar</span>
+            <Check size={16} />
+          </button>
+        </div>
+      )}
+
       {/* MODAL PEMBAYARAN */}
       {isCheckoutModalOpen && (
         <div className="checkout-overlay">
@@ -1053,6 +1073,11 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           margin-top: 8px;
         }
 
+        /* FLOATING CHECKOUT BAR FOR MOBILE */
+        .mobile-checkout-bar {
+          display: none;
+        }
+
         /* MODAL PEMBAYARAN */
         .checkout-overlay {
           position: fixed;
@@ -1470,7 +1495,7 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
             min-height: 0 !important;
             overflow: visible !important;
             gap: 20px;
-            padding-bottom: 32px;
+            padding-bottom: 90px !important; /* Extra padding to clear floating checkout bar */
           }
           .menu-section {
             flex: none !important;
@@ -1495,6 +1520,108 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
             overflow: visible !important;
             height: auto !important;
             max-height: none !important;
+          }
+
+          /* FLOATING CHECKOUT BAR FOR MOBILE */
+          .mobile-checkout-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 400;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px 14px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            animation: slide-up-bar 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-sizing: border-box;
+          }
+
+          @keyframes slide-up-bar {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+
+          .mobile-checkout-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .mobile-checkout-icon-wrapper {
+            position: relative;
+            background: #fff7ed;
+            color: #ea580c;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .mobile-checkout-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ea580c;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid #ffffff;
+            box-sizing: border-box;
+          }
+
+          .mobile-checkout-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+          }
+
+          .mobile-checkout-total-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .mobile-checkout-total-value {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+          }
+
+          .mobile-checkout-btn {
+            background: #f97316;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.2);
+            cursor: pointer;
+            transition: background 0.2s ease;
+          }
+
+          .mobile-checkout-btn:hover {
+            background: #ea580c;
           }
 
           /* === COMPACT HEADER === */
