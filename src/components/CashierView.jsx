@@ -1066,7 +1066,9 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
           justify-content: center;
           z-index: 500;
           padding: 16px;
-               .checkout-container {
+        }
+
+        .checkout-container {
           width: 100%;
           max-width: 460px;
           display: flex;
