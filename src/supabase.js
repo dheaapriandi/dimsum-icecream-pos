@@ -68,6 +68,11 @@ const initLocalDb = () => {
       localStorage.setItem('pos_users', JSON.stringify(DEFAULT_USERS));
     }
   }
+  // Set default QRIS DANA Azka Media
+  const currentQris = localStorage.getItem('pos_static_qris');
+  if (!currentQris || currentQris === '') {
+    localStorage.setItem('pos_static_qris', '00020101021126570011ID.DANA.WWW011893600915386356433802098635643380303UMI51440014ID.CO.QRIS.WWW0215ID10253868088570303UMI5204899953033605802ID5910Azka Media6012Kab. Cirebon610545166630456D1');
+  }
 };
 
 initLocalDb();
