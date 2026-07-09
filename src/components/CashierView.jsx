@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, QrCode, Coins, Check, FileText, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { generateDynamicQRIS } from '../supabase';
 
 const CashierView = ({ products, categories, orders = [], onCreateOrder, currentUser }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -578,15 +579,82 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
               )}
 
               {/* TAMPILAN QRIS */}
-              {paymentMethod === 'QRIS' && (
-                <div className="qris-display">
-                  <div className="qris-code">
-                    <QrCode size={160} className="qr-graphic" />
-                    <div className="qris-branding">QRIS GPN DUMMY</div>
+              {paymentMethod === 'QRIS' && (() => {
+                const merchantQris = localStorage.getItem('pos_static_qris') || '';
+                const dynamicQris = merchantQris ? generateDynamicQRIS(merchantQris, cartTotal) : null;
+                const qrImageUrl = dynamicQris 
+                  ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(dynamicQris)}`
+                  : null;
+
+                return (
+                  <div className="qris-display" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%' }}>
+                    <div className="qris-code-container" style={{
+                      background: '#ffffff',
+                      padding: '16px',
+                      borderRadius: '16px',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      {qrImageUrl ? (
+                        <img 
+                          src={qrImageUrl} 
+                          alt="QRIS Dinamis" 
+                          style={{ width: '160px', height: '160px', display: 'block' }}
+                        />
+                      ) : (
+                        <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
+                          <QrCode size={120} className="qr-graphic" style={{ color: '#94a3b8' }} />
+                        </div>
+                      )}
+                      <div className="qris-branding" style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', letterSpacing: '1px' }}>
+                        QRIS GPN {qrImageUrl ? 'DINAMIS' : 'DUMMY'}
+                      </div>
+                    </div>
+                    
+                    <div className="qris-amount-banner" style={{
+                      background: '#fff7ed',
+                      border: '1px solid #ffedd5',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      width: '100%',
+                      textAlign: 'center',
+                      boxSizing: 'border-box'
+                    }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Nominal Harus Di-scan
+                      </div>
+                      <div style={{ fontSize: '22px', fontWeight: '800', color: '#ea580c', marginTop: '2px' }}>
+                        {formatRupiah(cartTotal)}
+                      </div>
+                    </div>
+
+                    {qrImageUrl ? (
+                      <p style={{ fontSize: '12px', color: '#64748b', margin: '0', textAlign: 'center', fontWeight: '500' }}>
+                        ✅ <strong>QRIS Dinamis Aktif.</strong> Nominal di atas akan otomatis terisi saat pelanggan men-scan kode QR di atas.
+                      </p>
+                    ) : (
+                      <div style={{
+                        background: '#fef2f2',
+                        border: '1px solid #fee2e2',
+                        borderRadius: '12px',
+                        padding: '10px 14px',
+                        fontSize: '11px',
+                        color: '#ef4444',
+                        textAlign: 'left',
+                        width: '100%',
+                        boxSizing: 'border-box'
+                      }}>
+                        <strong>⚠️ Belum ada QRIS Merchant yang di-setting.</strong><br/>
+                        Minta pelanggan men-scan QRIS statis kasir Anda dan <strong>ketik nominal manual sebesar {formatRupiah(cartTotal)}</strong>, ATAU atur teks QRIS Merchant Anda di menu <strong>Pengaturan</strong> agar QR Code di atas dapat berubah otomatis.
+                      </div>
+                    )}
                   </div>
-                  <p>Tunjukkan QR Code ini pada pelanggan untuk di-scan.</p>
-                </div>
-              )}
+                );
+              })()}
 
               {/* TAMPILAN KARTU */}
               {paymentMethod === 'CARD' && (

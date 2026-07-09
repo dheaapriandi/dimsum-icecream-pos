@@ -11,6 +11,18 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
   const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [staticQris, setStaticQris] = useState(() => {
+    return localStorage.getItem('pos_static_qris') || '';
+  });
+  const [qrisSuccessMsg, setQrisSuccessMsg] = useState('');
+
+  const handleSaveQris = (e) => {
+    e.preventDefault();
+    localStorage.setItem('pos_static_qris', staticQris.trim());
+    setQrisSuccessMsg('Konfigurasi QRIS Merchant berhasil disimpan!');
+    setTimeout(() => setQrisSuccessMsg(''), 3000);
+  };
+
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -146,6 +158,52 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
             <button type="submit" className="btn-save-settings btn-primary" disabled={isSubmitting}>
               <Lock size={16} />
               <span>{isSubmitting ? 'Menyimpan...' : 'Perbarui Password'}</span>
+            </button>
+          </form>
+        </div>
+
+        {/* PANEL KIRI: KONFIGURASI QRIS */}
+        <div className="settings-card glass-panel qris-settings-card" style={{ marginTop: '24px' }}>
+          <div className="card-header">
+            <Database size={20} className="header-icon orange-icon" />
+            <h3>Konfigurasi QRIS Dinamis</h3>
+          </div>
+
+          {qrisSuccessMsg && (
+            <div className="alert-message success-alert">
+              <CheckCircle2 size={16} className="alert-icon" />
+              <span>{qrisSuccessMsg}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSaveQris} className="settings-form">
+            <div className="form-group">
+              <label>Teks QRIS Statis Merchant (EMVCo)</label>
+              <textarea
+                placeholder="Masukkan string QRIS statis merchant Anda di sini (biasanya diawali dengan 000201...)"
+                value={staticQris}
+                onChange={(e) => setStaticQris(e.target.value)}
+                style={{
+                  width: '100%',
+                  height: '100px',
+                  padding: '12px',
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontFamily: 'monospace',
+                  resize: 'vertical',
+                  outline: 'none',
+                  color: 'var(--text-primary)'
+                }}
+              />
+              <span className="input-tip" style={{ marginTop: '4px' }}>
+                Dapatkan string ini dengan melakukan scan QRIS merchant toko Anda (Gopay/ShopeePay/EDC) menggunakan aplikasi QR Scanner umum, lalu salin teks panjang hasil scannya.
+              </span>
+            </div>
+
+            <button type="submit" className="btn-save-settings btn-primary" style={{ alignSelf: 'flex-start', minWidth: '150px' }}>
+              <span>Simpan QRIS Merchant</span>
             </button>
           </form>
         </div>

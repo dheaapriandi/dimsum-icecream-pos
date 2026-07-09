@@ -482,3 +482,44 @@ export const db = {
     return true;
   }
 };
+
+export function getCRC16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    let x = ((crc >> 8) ^ str.charCodeAt(i)) & 0xFF;
+    x ^= x >> 4;
+    crc = ((crc << 8) ^ (x << 12) ^ (x << 5) ^ (x << 1)) & 0xFFFF;
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+export function generateDynamicQRIS(staticQris, amount) {
+  if (!staticQris) return null;
+  let qris = staticQris.trim();
+  
+  if (qris.includes('6304')) {
+    qris = qris.substring(0, qris.lastIndexOf('6304') + 4);
+  } else {
+    qris = qris + '6304';
+  }
+  
+  const amountStr = Math.round(amount).toString();
+  const amountTag = '54' + amountStr.length.toString().padStart(2, '0') + amountStr;
+  
+  const tag54Regex = /54\d{2}\d+/;
+  if (tag54Regex.test(qris)) {
+    qris = qris.replace(tag54Regex, amountTag);
+  } else {
+    const tag58Index = qris.indexOf('5802ID');
+    if (tag58Index !== -1) {
+      qris = qris.substring(0, tag58Index) + amountTag + qris.substring(tag58Index);
+    } else {
+      const tag63Index = qris.lastIndexOf('6304');
+      qris = qris.substring(0, tag63Index) + amountTag + qris.substring(tag63Index);
+    }
+  }
+  
+  const cleanQrisWithoutCrc = qris.substring(0, qris.lastIndexOf('6304') + 4);
+  const crc = getCRC16(cleanQrisWithoutCrc);
+  return cleanQrisWithoutCrc + crc;
+}
