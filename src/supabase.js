@@ -488,12 +488,19 @@ export const db = {
   }
 };
 
-export function getCRC16(str) {
-  let crc = 0xFFFF;
-  for (let i = 0; i < str.length; i++) {
-    let x = ((crc >> 8) ^ str.charCodeAt(i)) & 0xFF;
-    x ^= x >> 4;
-    crc = ((crc << 8) ^ (x << 12) ^ (x << 5) ^ (x << 1)) & 0xFFFF;
+export function getCRC16(data) {
+  let crc = 0xFFFF; // Initial value
+  const polynomial = 0x1021;
+
+  for (let i = 0; i < data.length; i++) {
+    crc ^= (data.charCodeAt(i) << 8);
+    for (let j = 0; j < 8; j++) {
+      if ((crc & 0x8000) !== 0) {
+        crc = ((crc << 1) ^ polynomial) & 0xFFFF;
+      } else {
+        crc = (crc << 1) & 0xFFFF;
+      }
+    }
   }
   return crc.toString(16).toUpperCase().padStart(4, '0');
 }
@@ -502,29 +509,56 @@ export function generateDynamicQRIS(staticQris, amount) {
   if (!staticQris) return null;
   let qris = staticQris.trim();
   
-  if (qris.includes('6304')) {
-    qris = qris.substring(0, qris.lastIndexOf('6304') + 4);
-  } else {
-    qris = qris + '6304';
+  const crcIndex = qris.lastIndexOf('6304');
+  if (crcIndex !== -1 && crcIndex >= qris.length - 12) {
+    qris = qris.substring(0, crcIndex);
   }
   
+  let fields = [];
+  let pos = 0;
+  let hasTag54 = false;
   const amountStr = Math.round(amount).toString();
-  const amountTag = '54' + amountStr.length.toString().padStart(2, '0') + amountStr;
+  const amountVal = amountStr;
   
-  const tag54Regex = /54\d{2}\d+/;
-  if (tag54Regex.test(qris)) {
-    qris = qris.replace(tag54Regex, amountTag);
-  } else {
-    const tag58Index = qris.indexOf('5802ID');
-    if (tag58Index !== -1) {
-      qris = qris.substring(0, tag58Index) + amountTag + qris.substring(tag58Index);
+  while (pos < qris.length) {
+    if (pos + 4 > qris.length) break;
+    const tag = qris.substring(pos, pos + 2);
+    const lenStr = qris.substring(pos + 2, pos + 4);
+    const len = parseInt(lenStr, 10);
+    if (isNaN(len) || pos + 4 + len > qris.length) break;
+    
+    const val = qris.substring(pos + 4, pos + 4 + len);
+    
+    if (tag === '54') {
+      fields.push({ tag, lenStr: amountVal.length.toString().padStart(2, '0'), val: amountVal });
+      hasTag54 = true;
     } else {
-      const tag63Index = qris.lastIndexOf('6304');
-      qris = qris.substring(0, tag63Index) + amountTag + qris.substring(tag63Index);
+      fields.push({ tag, lenStr, val });
+    }
+    pos += 4 + len;
+  }
+  
+  if (!hasTag54) {
+    const newField = { tag: '54', lenStr: amountVal.length.toString().padStart(2, '0'), val: amountVal };
+    const tag53Index = fields.findIndex(f => f.tag === '53');
+    if (tag53Index !== -1) {
+      fields.splice(tag53Index + 1, 0, newField);
+    } else {
+      const tag58Index = fields.findIndex(f => f.tag === '58');
+      if (tag58Index !== -1) {
+        fields.splice(tag58Index, 0, newField);
+      } else {
+        fields.push(newField);
+      }
     }
   }
   
-  const cleanQrisWithoutCrc = qris.substring(0, qris.lastIndexOf('6304') + 4);
-  const crc = getCRC16(cleanQrisWithoutCrc);
-  return cleanQrisWithoutCrc + crc;
+  let reconstructed = '';
+  for (const f of fields) {
+    reconstructed += f.tag + f.lenStr + f.val;
+  }
+  
+  reconstructed += '6304';
+  const crc = getCRC16(reconstructed);
+  return reconstructed + crc;
 }
