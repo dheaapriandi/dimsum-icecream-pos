@@ -8,164 +8,9 @@ const ReceiptModal = ({ order, onClose }) => {
     window.print();
   };
 
-  const handlePrintRawBT = () => {
+  const generateReceiptCanvas = (logoImg) => {
     const dateStr = formatDate(order.created_at);
     
-    // Helper fungsi perataan teks
-    const padCenter = (str, width = 32) => {
-      if (str.length >= width) return str.substring(0, width);
-      const pad = Math.floor((width - str.length) / 2);
-      return ' '.repeat(pad) + str;
-    };
-
-    const formatRow = (left, right, width = 32) => {
-      const spaceNeeded = width - left.length - right.length;
-      if (spaceNeeded > 0) {
-        return left + ' '.repeat(spaceNeeded) + right;
-      } else {
-        return left + '\n' + ' '.repeat(width - right.length) + right;
-      }
-    };
-
-    const lines = [];
-    lines.push(padCenter("KEDAI AA"));
-    lines.push(padCenter("Kedai Dimsum & Ice Cream"));
-    lines.push(padCenter("Telp: 0813-1567-5013"));
-    lines.push("================================");
-    lines.push(formatRow("No. Invoice:", order.invoice_no));
-    lines.push(formatRow("Tanggal:", dateStr));
-    lines.push(formatRow("Kasir:", order.cashier_name || 'Kasir Utama'));
-    if (order.customer_name) {
-      lines.push(formatRow("Pelanggan:", order.customer_name));
-    }
-    lines.push("--------------------------------");
-    
-    if (order.items) {
-      order.items.forEach(item => {
-        lines.push(item.product_name || `Produk #${item.product_id}`);
-        const qtyPrice = `${item.quantity} x Rp ${Math.round(item.unit_price).toLocaleString('id-ID')}`;
-        const itemTotal = `Rp ${Math.round(item.quantity * item.unit_price).toLocaleString('id-ID')}`;
-        lines.push(formatRow("  " + qtyPrice, itemTotal));
-        if (item.notes) {
-          lines.push(`  * ${item.notes}`);
-        }
-      });
-    }
-    
-    lines.push("--------------------------------");
-    if (discount > 0) {
-      lines.push(formatRow("Subtotal:", `Rp ${Math.round(subtotal).toLocaleString('id-ID')}`));
-      lines.push(formatRow("Diskon:", `-Rp ${Math.round(discount).toLocaleString('id-ID')}`));
-      lines.push("--------------------------------");
-    }
-    
-    lines.push(formatRow("TOTAL:", `Rp ${Math.round(total).toLocaleString('id-ID')}`));
-    lines.push(formatRow("Metode:", paymentMethodText));
-    lines.push(formatRow("Bayar:", `Rp ${Math.round(amountPaid).toLocaleString('id-ID')}`));
-    lines.push(formatRow("Kembali:", `Rp ${Math.round(change).toLocaleString('id-ID')}`));
-    lines.push("================================");
-    lines.push("");
-    lines.push(padCenter("Terima Kasih"));
-    lines.push(padCenter("Atas Kunjungan Anda!"));
-    lines.push("\n\n\n"); // Feed paper
-    
-    const textContent = lines.join("\n");
-    
-    try {
-      // Encode base64 data text polos untuk printer thermal
-      const base64Text = btoa(unescape(encodeURIComponent(textContent)));
-      window.location.href = `rawbt:base64,${base64Text}`;
-    } catch (err) {
-      console.error('RawBT print error:', err);
-      alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
-    }
-  };
-
-  const handlePrintRawPrinter = () => {
-    const dateStr = formatDate(order.created_at);
-    
-    // Helper fungsi perataan teks
-    const padCenter = (str, width = 32) => {
-      if (str.length >= width) return str.substring(0, width);
-      const pad = Math.floor((width - str.length) / 2);
-      return ' '.repeat(pad) + str;
-    };
-
-    const formatRow = (left, right, width = 32) => {
-      const spaceNeeded = width - left.length - right.length;
-      if (spaceNeeded > 0) {
-        return left + ' '.repeat(spaceNeeded) + right;
-      } else {
-        return left + '\n' + ' '.repeat(width - right.length) + right;
-      }
-    };
-
-    const lines = [];
-    lines.push(padCenter("KEDAI AA"));
-    lines.push(padCenter("Kedai Dimsum & Ice Cream"));
-    lines.push(padCenter("Telp: 0813-1567-5013"));
-    lines.push("================================");
-    lines.push(formatRow("No. Invoice:", order.invoice_no));
-    lines.push(formatRow("Tanggal:", dateStr));
-    lines.push(formatRow("Kasir:", order.cashier_name || 'Kasir Utama'));
-    if (order.customer_name) {
-      lines.push(formatRow("Pelanggan:", order.customer_name));
-    }
-    lines.push("--------------------------------");
-    
-    if (order.items) {
-      order.items.forEach(item => {
-        lines.push(item.product_name || `Produk #${item.product_id}`);
-        const qtyPrice = `${item.quantity} x Rp ${Math.round(item.unit_price).toLocaleString('id-ID')}`;
-        const itemTotal = `Rp ${Math.round(item.quantity * item.unit_price).toLocaleString('id-ID')}`;
-        lines.push(formatRow("  " + qtyPrice, itemTotal));
-        if (item.notes) {
-          lines.push(`  * ${item.notes}`);
-        }
-      });
-    }
-    
-    lines.push("--------------------------------");
-    if (discount > 0) {
-      lines.push(formatRow("Subtotal:", `Rp ${Math.round(subtotal).toLocaleString('id-ID')}`));
-      lines.push(formatRow("Diskon:", `-Rp ${Math.round(discount).toLocaleString('id-ID')}`));
-      lines.push("--------------------------------");
-    }
-    
-    lines.push(formatRow("TOTAL:", `Rp ${Math.round(total).toLocaleString('id-ID')}`));
-    lines.push(formatRow("Metode:", paymentMethodText));
-    lines.push(formatRow("Bayar:", `Rp ${Math.round(amountPaid).toLocaleString('id-ID')}`));
-    lines.push(formatRow("Kembali:", `Rp ${Math.round(change).toLocaleString('id-ID')}`));
-    lines.push("================================");
-    lines.push("");
-    lines.push(padCenter("Terima Kasih"));
-    lines.push(padCenter("Atas Kunjungan Anda!"));
-    lines.push("\n\n\n"); // Feed paper
-    
-    const textContent = lines.join("\n");
-    
-    try {
-      // Encode base64 data text polos untuk printer thermal
-      const base64Text = btoa(unescape(encodeURIComponent(textContent)));
-      const encoded = encodeURIComponent(base64Text);
-      
-      // Coba dengan skema utama brrawprinter://
-      window.location.href = `brrawprinter://base64,${encoded}`;
-      
-      // Fallback ke skema alternatif br-rawprinter:// jika skema utama tidak terdeteksi
-      setTimeout(() => {
-        window.location.href = `br-rawprinter://base64,${encoded}`;
-      }, 1200);
-    } catch (err) {
-      console.error('RawPrinter print error:', err);
-      alert('Gagal mengirim data ke printer. Pastikan aplikasi BR RawPrinter terpasang di iPhone Anda.');
-    }
-  };
-
-  const handleDownloadImage = () => {
-    const dateStr = formatDate(order.created_at);
-    
-    // Helper alignment
     const padCenter = (str, width = 32) => {
       if (str.length >= width) return str.substring(0, width);
       const pad = Math.floor((width - str.length) / 2);
@@ -222,18 +67,15 @@ const ReceiptModal = ({ order, onClose }) => {
     lines.push(padCenter("Terima Kasih"));
     lines.push(padCenter("Atas Kunjungan Anda!"));
     
-    // Canvas Drawing
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // Receipt width: 384px (fits 58mm thermal printer nicely)
     const width = 384;
     const padding = 20;
     const fontHeight = 16;
     const lineSpacing = 8;
     const lineHeight = fontHeight + lineSpacing;
     
-    // Expand nested newlines
     const allLines = [];
     lines.forEach(l => {
       if (l.includes('\n')) {
@@ -243,39 +85,110 @@ const ReceiptModal = ({ order, onClose }) => {
       }
     });
     
-    const height = padding * 2 + allLines.length * lineHeight;
+    // Logo calculation
+    let logoHeight = 0;
+    const logoWidth = 100;
+    if (logoImg) {
+      const aspectRatio = logoImg.height / logoImg.width;
+      logoHeight = logoWidth * aspectRatio;
+    }
+    
+    const startTextY = padding + (logoHeight > 0 ? logoHeight + 15 : 0);
+    const height = startTextY + padding + allLines.length * lineHeight;
     
     canvas.width = width;
     canvas.height = height;
     
-    // Background (White)
+    // Fill White
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
     
-    // Text Style (High-contrast Black)
+    // Draw Logo
+    if (logoImg && logoHeight > 0) {
+      ctx.drawImage(logoImg, (width - logoWidth) / 2, padding, logoWidth, logoHeight);
+    }
+    
+    // Draw Text
     ctx.fillStyle = '#000000';
     ctx.font = '14px Courier, Courier New, monospace';
     ctx.textBaseline = 'top';
     
-    // Draw text line by line
     allLines.forEach((line, index) => {
-      const y = padding + index * lineHeight;
+      const y = startTextY + index * lineHeight;
       ctx.fillText(line, padding, y);
     });
     
-    // Trigger local download
-    try {
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `struk-${order.invoice_no}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error('Download receipt image error:', err);
-      alert('Gagal mengunduh gambar struk.');
-    }
+    return canvas;
+  };
+
+  const handlePrintRawBT = () => {
+    const img = new Image();
+    img.src = '/logo.png';
+    
+    const proceedPrint = (logoImg) => {
+      try {
+        const canvas = generateReceiptCanvas(logoImg);
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64Text = dataUrl.split(',')[1];
+        window.location.href = `rawbt:base64,${base64Text}`;
+      } catch (err) {
+        console.error('RawBT print error:', err);
+        alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
+      }
+    };
+
+    img.onload = () => proceedPrint(img);
+    img.onerror = () => proceedPrint(null);
+  };
+
+  const handlePrintRawPrinter = () => {
+    const img = new Image();
+    img.src = '/logo.png';
+    
+    const proceedPrint = (logoImg) => {
+      try {
+        const canvas = generateReceiptCanvas(logoImg);
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64Text = dataUrl.split(',')[1];
+        const encoded = encodeURIComponent(base64Text);
+        
+        window.location.href = `brrawprinter://base64,${encoded}`;
+        
+        setTimeout(() => {
+          window.location.href = `br-rawprinter://base64,${encoded}`;
+        }, 1200);
+      } catch (err) {
+        console.error('RawPrinter print error:', err);
+        alert('Gagal mengirim data ke printer. Pastikan aplikasi BR RawPrinter terpasang di iPhone Anda.');
+      }
+    };
+
+    img.onload = () => proceedPrint(img);
+    img.onerror = () => proceedPrint(null);
+  };
+
+  const handleDownloadImage = () => {
+    const img = new Image();
+    img.src = '/logo.png';
+    
+    const proceedDownload = (logoImg) => {
+      try {
+        const canvas = generateReceiptCanvas(logoImg);
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `struk-${order.invoice_no}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error('Download receipt image error:', err);
+        alert('Gagal mengunduh gambar struk.');
+      }
+    };
+
+    img.onload = () => proceedDownload(img);
+    img.onerror = () => proceedDownload(null);
   };
 
   const formatDate = (isoString) => {
