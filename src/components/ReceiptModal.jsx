@@ -147,7 +147,7 @@ const ReceiptModal = ({ order, onClose }) => {
     try {
       // Encode base64 data text polos untuk printer thermal
       const base64Text = btoa(unescape(encodeURIComponent(textContent)));
-      window.location.href = `rawprinter:base64,${base64Text}`;
+      window.location.href = `brrawprinter:base64,${base64Text}`;
     } catch (err) {
       console.error('RawPrinter print error:', err);
       alert('Gagal mengirim data ke printer. Pastikan aplikasi BR RawPrinter terpasang di iPhone Anda.');
