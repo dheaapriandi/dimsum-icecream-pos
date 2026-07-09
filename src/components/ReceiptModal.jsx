@@ -81,6 +81,79 @@ const ReceiptModal = ({ order, onClose }) => {
     }
   };
 
+  const handlePrintRawPrinter = () => {
+    const dateStr = formatDate(order.created_at);
+    
+    // Helper fungsi perataan teks
+    const padCenter = (str, width = 32) => {
+      if (str.length >= width) return str.substring(0, width);
+      const pad = Math.floor((width - str.length) / 2);
+      return ' '.repeat(pad) + str;
+    };
+
+    const formatRow = (left, right, width = 32) => {
+      const spaceNeeded = width - left.length - right.length;
+      if (spaceNeeded > 0) {
+        return left + ' '.repeat(spaceNeeded) + right;
+      } else {
+        return left + '\n' + ' '.repeat(width - right.length) + right;
+      }
+    };
+
+    const lines = [];
+    lines.push(padCenter("KEDAI AA"));
+    lines.push(padCenter("Kedai Dimsum & Ice Cream"));
+    lines.push(padCenter("Telp: 0813-1567-5013"));
+    lines.push("================================");
+    lines.push(formatRow("No. Invoice:", order.invoice_no));
+    lines.push(formatRow("Tanggal:", dateStr));
+    lines.push(formatRow("Kasir:", order.cashier_name || 'Kasir Utama'));
+    if (order.customer_name) {
+      lines.push(formatRow("Pelanggan:", order.customer_name));
+    }
+    lines.push("--------------------------------");
+    
+    if (order.items) {
+      order.items.forEach(item => {
+        lines.push(item.product_name || `Produk #${item.product_id}`);
+        const qtyPrice = `${item.quantity} x Rp ${Math.round(item.unit_price).toLocaleString('id-ID')}`;
+        const itemTotal = `Rp ${Math.round(item.quantity * item.unit_price).toLocaleString('id-ID')}`;
+        lines.push(formatRow("  " + qtyPrice, itemTotal));
+        if (item.notes) {
+          lines.push(`  * ${item.notes}`);
+        }
+      });
+    }
+    
+    lines.push("--------------------------------");
+    if (discount > 0) {
+      lines.push(formatRow("Subtotal:", `Rp ${Math.round(subtotal).toLocaleString('id-ID')}`));
+      lines.push(formatRow("Diskon:", `-Rp ${Math.round(discount).toLocaleString('id-ID')}`));
+      lines.push("--------------------------------");
+    }
+    
+    lines.push(formatRow("TOTAL:", `Rp ${Math.round(total).toLocaleString('id-ID')}`));
+    lines.push(formatRow("Metode:", paymentMethodText));
+    lines.push(formatRow("Bayar:", `Rp ${Math.round(amountPaid).toLocaleString('id-ID')}`));
+    lines.push(formatRow("Kembali:", `Rp ${Math.round(change).toLocaleString('id-ID')}`));
+    lines.push("================================");
+    lines.push("");
+    lines.push(padCenter("Terima Kasih"));
+    lines.push(padCenter("Atas Kunjungan Anda!"));
+    lines.push("\n\n\n"); // Feed paper
+    
+    const textContent = lines.join("\n");
+    
+    try {
+      // Encode base64 data text polos untuk printer thermal
+      const base64Text = btoa(unescape(encodeURIComponent(textContent)));
+      window.location.href = `rawprinter:base64,${base64Text}`;
+    } catch (err) {
+      console.error('RawPrinter print error:', err);
+      alert('Gagal mengirim data ke printer. Pastikan aplikasi BR RawPrinter terpasang di iPhone Anda.');
+    }
+  };
+
   const formatDate = (isoString) => {
     if (!isoString) return '';
     const date = new Date(isoString);
@@ -112,6 +185,9 @@ const ReceiptModal = ({ order, onClose }) => {
   const formatRupiah = (number) => {
     return 'Rp ' + Math.round(number).toLocaleString('id-ID');
   };
+
+  const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isAndroid = typeof window !== 'undefined' && /Android/.test(navigator.userAgent);
 
   return (
     <div className="receipt-modal-overlay">
@@ -229,16 +305,40 @@ const ReceiptModal = ({ order, onClose }) => {
         </div>
 
         <div className="receipt-modal-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
-          <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-            <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+            {isIOS && (
+              <button onClick={handlePrintRawPrinter} className="btn-print btn-primary" style={{ width: '100%', padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                <Printer size={16} />
+                <span>Cetak Bluetooth (BR RawPrinter - iOS)</span>
+              </button>
+            )}
+            
+            {isAndroid && (
+              <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ width: '100%', padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                <Printer size={16} />
+                <span>Cetak Bluetooth (RawBT - Android)</span>
+              </button>
+            )}
+
+            {!isIOS && !isAndroid && (
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                  <Printer size={16} />
+                  <span>Cetak (RawBT Android)</span>
+                </button>
+                <button onClick={handlePrintRawPrinter} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap', background: '#ec4899', borderColor: '#db2777' }}>
+                  <Printer size={16} />
+                  <span>Cetak (RawPrinter iOS)</span>
+                </button>
+              </div>
+            )}
+            
+            <button onClick={handlePrint} className="btn-print" style={{ width: '100%', padding: '12px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
               <Printer size={16} />
-              <span>Cetak Bluetooth (RawBT)</span>
-            </button>
-            <button onClick={handlePrint} className="btn-print" style={{ flex: 1, padding: '12px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
-              <Printer size={16} />
-              <span>Cetak (Sistem Chrome)</span>
+              <span>Cetak (Sistem Chrome/Safari)</span>
             </button>
           </div>
+          
           <button onClick={onClose} className="btn-close" style={{ width: '100%', padding: '10px' }}>
             <X size={16} />
             <span>Tutup</span>
@@ -256,10 +356,25 @@ const ReceiptModal = ({ order, onClose }) => {
             textAlign: 'left',
             boxSizing: 'border-box'
           }}>
-            <strong style={{ color: 'var(--primary)' }}>Tips Printer Bluetooth (HP):</strong>
-            <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
-              <li><strong>Rekomendasi Cepat</strong>: Instal aplikasi <strong>RawBT</strong> di Play Store, lalu gunakan tombol cetak RawBT di atas.</li>
-              <li><strong>Alternatif</strong>: Nyalakan Bluetooth HP {" -> "} buka dialog Cetak (Sistem Chrome) {" -> "} pilih printer Bluetooth Anda.</li>
+            <strong style={{ color: 'var(--primary)' }}>💡 Tips Cetak Struk:</strong>
+            <ul style={{ margin: '4px 0 0 16px', padding: 0, lineHeight: '1.4' }}>
+              {isIOS ? (
+                <>
+                  <li>Pastikan Anda sudah menginstal aplikasi <strong>BR RawPrinter</strong> dari App Store di iPhone.</li>
+                  <li>Buka BR RawPrinter dan hubungkan printer Bluetooth Anda sebelum menekan tombol cetak.</li>
+                </>
+              ) : isAndroid ? (
+                <>
+                  <li>Pastikan Anda sudah menginstal aplikasi <strong>RawBT</strong> dari Play Store di HP Android.</li>
+                  <li>Hubungkan printer thermal Bluetooth Anda di aplikasi RawBT sebelum mencetak.</li>
+                </>
+              ) : (
+                <>
+                  <li><strong>Android</strong>: Install aplikasi <strong>RawBT</strong> dari Play Store untuk cetak langsung via Bluetooth.</li>
+                  <li><strong>iPhone/iOS</strong>: Install aplikasi <strong>BR RawPrinter</strong> dari App Store untuk cetak langsung via Bluetooth.</li>
+                </>
+              )}
+              <li><strong>Alternatif</strong>: Pilih "Cetak (Sistem)" lalu sambungkan ke printer Anda.</li>
             </ul>
           </div>
         </div>
