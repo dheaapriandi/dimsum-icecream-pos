@@ -130,7 +130,7 @@ const ReceiptModal = ({ order, onClose }) => {
         const canvas = generateReceiptCanvas(logoImg);
         const dataUrl = canvas.toDataURL('image/png');
         const base64Text = dataUrl.split(',')[1];
-        window.location.href = `rawbt:base64,${base64Text}`;
+        window.location.href = `rawbt:data:image/png;base64,${base64Text}`;
       } catch (err) {
         console.error('RawBT print error:', err);
         alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
