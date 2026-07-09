@@ -147,7 +147,15 @@ const ReceiptModal = ({ order, onClose }) => {
     try {
       // Encode base64 data text polos untuk printer thermal
       const base64Text = btoa(unescape(encodeURIComponent(textContent)));
-      window.location.href = `brrawprinter:base64,${base64Text}`;
+      const encoded = encodeURIComponent(base64Text);
+      
+      // Coba dengan skema utama brrawprinter://
+      window.location.href = `brrawprinter://base64,${encoded}`;
+      
+      // Fallback ke skema alternatif br-rawprinter:// jika skema utama tidak terdeteksi
+      setTimeout(() => {
+        window.location.href = `br-rawprinter://base64,${encoded}`;
+      }, 1200);
     } catch (err) {
       console.error('RawPrinter print error:', err);
       alert('Gagal mengirim data ke printer. Pastikan aplikasi BR RawPrinter terpasang di iPhone Anda.');
