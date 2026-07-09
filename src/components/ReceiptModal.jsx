@@ -489,7 +489,7 @@ const ReceiptModal = ({ order, onClose }) => {
             textAlign: 'left',
             boxSizing: 'border-box'
           }}>
-            <strong style={{ color: 'var(--primary)' }}>💡 Tips Cetak Struk (iPhone / iPad):</strong>
+            <strong style={{ color: 'var(--primary)' }}>💡 Tips Cetak Struk:</strong>
             <ul style={{ margin: '4px 0 0 16px', padding: 0, lineHeight: '1.4' }}>
               {isIOS ? (
                 <>
