@@ -431,32 +431,45 @@ const ReceiptModal = ({ order, onClose }) => {
         <div className="receipt-modal-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
             {isIOS ? (
-              <button onClick={handleDownloadImage} className="btn-print btn-primary" style={{ width: '100%', padding: '12px', fontSize: '13px' }}>
-                <Printer size={16} />
-                <span>Unduh Gambar Struk (Untuk BR RawPrinter)</span>
-              </button>
-            ) : isAndroid ? (
-              <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ width: '100%', padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
-                <Printer size={16} />
-                <span>Cetak Bluetooth (RawBT - Android)</span>
-              </button>
-            ) : (
-              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <button onClick={handleDownloadImage} className="btn-print btn-primary" style={{ width: '100%', padding: '12px', fontSize: '13px' }}>
                   <Printer size={16} />
-                  <span>Cetak (RawBT Android)</span>
+                  <span>Metode 1: Unduh Gambar Struk (.PNG)</span>
                 </button>
-                <button onClick={handleDownloadImage} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap', background: '#ec4899', borderColor: '#db2777' }}>
+                <button onClick={handlePrint} className="btn-print" style={{ width: '100%', padding: '12px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
                   <Printer size={16} />
-                  <span>Unduh Struk (iOS)</span>
+                  <span>Metode 2: Kirim PDF (Cetak Sistem)</span>
                 </button>
               </div>
+            ) : isAndroid ? (
+              <>
+                <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ width: '100%', padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                  <Printer size={16} />
+                  <span>Cetak Bluetooth (RawBT - Android)</span>
+                </button>
+                <button onClick={handlePrint} className="btn-print" style={{ width: '100%', padding: '12px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                  <Printer size={16} />
+                  <span>Cetak (Sistem Android)</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                  <button onClick={handlePrintRawBT} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                    <Printer size={16} />
+                    <span>Cetak (RawBT Android)</span>
+                  </button>
+                  <button onClick={handleDownloadImage} className="btn-print btn-primary" style={{ flex: 1, padding: '12px', fontSize: '13px', whiteSpace: 'nowrap', background: '#ec4899', borderColor: '#db2777' }}>
+                    <Printer size={16} />
+                    <span>Unduh Struk (iOS)</span>
+                  </button>
+                </div>
+                <button onClick={handlePrint} className="btn-print" style={{ width: '100%', padding: '12px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                  <Printer size={16} />
+                  <span>Cetak (Sistem Desktop)</span>
+                </button>
+              </>
             )}
-            
-            <button onClick={handlePrint} className="btn-print" style={{ width: '100%', padding: '12px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
-              <Printer size={16} />
-              <span>Cetak (Sistem Chrome/Safari)</span>
-            </button>
           </div>
           
           <button onClick={onClose} className="btn-close" style={{ width: '100%', padding: '10px' }}>
