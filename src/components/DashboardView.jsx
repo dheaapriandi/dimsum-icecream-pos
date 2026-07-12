@@ -73,9 +73,306 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
   const [isEodModalOpen, setIsEodModalOpen] = useState(false);
   const [isEomModalOpen, setIsEomModalOpen] = useState(false);
   const [selectedEomMonth, setSelectedEomMonth] = useState('');
+  const [selectedEodDate, setSelectedEodDate] = useState(getJakartaYMD(new Date()));
 
   const handlePrintEod = () => {
     setIsEodModalOpen(true);
+  };
+  const generateEodReportCanvas = (logoImg) => {
+    const padCenter = (str, width = 32) => {
+      if (str.length >= width) return str.substring(0, width);
+      const pad = Math.floor((width - str.length) / 2);
+      return ' '.repeat(pad) + str;
+    };
+
+    const formatRow = (left, right, width = 32) => {
+      const spaceNeeded = width - left.length - right.length;
+      if (spaceNeeded > 0) {
+        return left + ' '.repeat(spaceNeeded) + right;
+      } else {
+        return left + '\n' + ' '.repeat(width - right.length) + right;
+      }
+    };
+
+    const lines = [];
+    lines.push(padCenter("KEDAI AA"));
+    lines.push(padCenter("LAPORAN PENJUALAN HARIAN"));
+    lines.push(padCenter("END OF DAY (EOD) REPORT"));
+    lines.push("--------------------------------");
+    
+    const parts = selectedEodDate.split('-');
+    const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : selectedEodDate;
+    
+    lines.push(formatRow("Tanggal:", formattedDate));
+    lines.push(formatRow("Waktu Cetak:", new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })));
+    lines.push(formatRow("Kasir:", "Kasir Utama"));
+    lines.push("================================");
+    
+    lines.push(formatRow("TOTAL TRANSAKSI:", `${todayStats.totalOrders} Pesanan`));
+    lines.push(formatRow("Omzet Kotor:", formatRupiah(todayStats.totalRevenue + todayStats.totalDiscount)));
+    if (todayStats.totalDiscount > 0) {
+      lines.push(formatRow("Total Diskon:", `-${formatRupiah(todayStats.totalDiscount)}`));
+    }
+    lines.push("--------------------------------");
+    lines.push(formatRow("PENDAPATAN BERSIH:", formatRupiah(todayStats.totalRevenue)));
+    lines.push("================================");
+    
+    lines.push("RINCIAN PEMBAYARAN:");
+    lines.push(formatRow("  TUNAI (CASH):", formatRupiah(todayStats.payments.CASH)));
+    lines.push(formatRow("  QRIS / E-WALLET:", formatRupiah(todayStats.payments.QRIS)));
+    lines.push(formatRow("  KARTU DEBIT/KREDIT:", formatRupiah(todayStats.payments.CARD)));
+    lines.push("================================");
+    
+    lines.push("5 MENU TERLARIS:");
+    if (todayStats.topProducts.length > 0) {
+      todayStats.topProducts.forEach((p, i) => {
+        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+      });
+    } else {
+      lines.push(padCenter("(Belum ada penjualan)"));
+    }
+    lines.push("================================");
+    lines.push("");
+    lines.push(padCenter("Laporan Penjualan Kedai AA"));
+    lines.push(padCenter("Terima Kasih &"));
+    lines.push(padCenter("Selamat Beristirahat!"));
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    const width = 384;
+    const padding = 20;
+    const fontHeight = 16;
+    const lineSpacing = 8;
+    const lineHeight = fontHeight + lineSpacing;
+    
+    const allLines = [];
+    lines.forEach(l => {
+      if (l.includes('\n')) {
+        allLines.push(...l.split('\n'));
+      } else {
+        allLines.push(l);
+      }
+    });
+    
+    let logoHeight = 0;
+    const logoWidth = 100;
+    if (logoImg) {
+      const aspectRatio = logoImg.height / logoImg.width;
+      logoHeight = logoWidth * aspectRatio;
+    }
+    
+    const startTextY = padding + (logoHeight > 0 ? logoHeight + 15 : 0);
+    const height = startTextY + padding + allLines.length * lineHeight;
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    
+    if (logoImg && logoHeight > 0) {
+      ctx.drawImage(logoImg, (width - logoWidth) / 2, padding, logoWidth, logoHeight);
+    }
+    
+    ctx.fillStyle = '#000000';
+    ctx.font = '14px Courier, Courier New, monospace';
+    ctx.textBaseline = 'top';
+    
+    allLines.forEach((line, index) => {
+      const y = startTextY + index * lineHeight;
+      ctx.fillText(line, padding, y);
+    });
+    
+    return canvas;
+  };
+
+  const generateEomReportCanvas = (logoImg) => {
+    const padCenter = (str, width = 32) => {
+      if (str.length >= width) return str.substring(0, width);
+      const pad = Math.floor((width - str.length) / 2);
+      return ' '.repeat(pad) + str;
+    };
+
+    const formatRow = (left, right, width = 32) => {
+      const spaceNeeded = width - left.length - right.length;
+      if (spaceNeeded > 0) {
+        return left + ' '.repeat(spaceNeeded) + right;
+      } else {
+        return left + '\n' + ' '.repeat(width - right.length) + right;
+      }
+    };
+
+    const lines = [];
+    lines.push(padCenter("KEDAI AA"));
+    lines.push(padCenter("LAPORAN PENJUALAN BULANAN"));
+    lines.push(padCenter("END OF MONTH (EOM) REPORT"));
+    lines.push("--------------------------------");
+    
+    const selectedMonthLabel = availableMonths.find(m => m.value === selectedEomMonth)?.label || selectedEomMonth;
+    
+    lines.push(formatRow("Bulan:", selectedMonthLabel));
+    lines.push(formatRow("Waktu Cetak:", new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })));
+    lines.push(formatRow("Kasir:", "Kasir Utama"));
+    lines.push("================================");
+    
+    lines.push(formatRow("TOTAL TRANSAKSI:", `${monthStats.totalOrders} Pesanan`));
+    lines.push(formatRow("Omzet Kotor:", formatRupiah(monthStats.totalRevenue + monthStats.totalDiscount)));
+    if (monthStats.totalDiscount > 0) {
+      lines.push(formatRow("Total Diskon:", `-${formatRupiah(monthStats.totalDiscount)}`));
+    }
+    lines.push("--------------------------------");
+    lines.push(formatRow("PENDAPATAN BERSIH:", formatRupiah(monthStats.totalRevenue)));
+    lines.push("================================");
+    
+    lines.push("RINCIAN PEMBAYARAN:");
+    lines.push(formatRow("  TUNAI (CASH):", formatRupiah(monthStats.payments.CASH)));
+    lines.push(formatRow("  QRIS / E-WALLET:", formatRupiah(monthStats.payments.QRIS)));
+    lines.push(formatRow("  KARTU DEBIT/KREDIT:", formatRupiah(monthStats.payments.CARD)));
+    lines.push("================================");
+    
+    lines.push("5 MENU TERLARIS:");
+    if (monthStats.topProducts.length > 0) {
+      monthStats.topProducts.forEach((p, i) => {
+        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+      });
+    } else {
+      lines.push(padCenter("(Belum ada penjualan)"));
+    }
+    lines.push("================================");
+    lines.push("");
+    lines.push(padCenter("Laporan Bulanan Kedai AA"));
+    lines.push(padCenter("Terima Kasih atas"));
+    lines.push(padCenter("Kerja Kerasnya!"));
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    const width = 384;
+    const padding = 20;
+    const fontHeight = 16;
+    const lineSpacing = 8;
+    const lineHeight = fontHeight + lineSpacing;
+    
+    const allLines = [];
+    lines.forEach(l => {
+      if (l.includes('\n')) {
+        allLines.push(...l.split('\n'));
+      } else {
+        allLines.push(l);
+      }
+    });
+    
+    let logoHeight = 0;
+    const logoWidth = 100;
+    if (logoImg) {
+      const aspectRatio = logoImg.height / logoImg.width;
+      logoHeight = logoWidth * aspectRatio;
+    }
+    
+    const startTextY = padding + (logoHeight > 0 ? logoHeight + 15 : 0);
+    const height = startTextY + padding + allLines.length * lineHeight;
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    
+    if (logoImg && logoHeight > 0) {
+      ctx.drawImage(logoImg, (width - logoWidth) / 2, padding, logoWidth, logoHeight);
+    }
+    
+    ctx.fillStyle = '#000000';
+    ctx.font = '14px Courier, Courier New, monospace';
+    ctx.textBaseline = 'top';
+    
+    allLines.forEach((line, index) => {
+      const y = startTextY + index * lineHeight;
+      ctx.fillText(line, padding, y);
+    });
+    
+    return canvas;
+  };
+
+  const handlePrintEodRawBT = () => {
+    const img = new Image();
+    img.src = '/logo.png';
+    const proceed = (logoImg) => {
+      try {
+        const canvas = generateEodReportCanvas(logoImg);
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64Text = dataUrl.split(',')[1];
+        window.location.href = `rawbt:data:image/png;base64,${base64Text}`;
+      } catch (err) {
+        console.error('EOD print error:', err);
+        alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
+      }
+    };
+    img.onload = () => proceed(img);
+    img.onerror = () => proceed(null);
+  };
+
+  const handlePrintEomRawBT = () => {
+    const img = new Image();
+    img.src = '/logo.png';
+    const proceed = (logoImg) => {
+      try {
+        const canvas = generateEomReportCanvas(logoImg);
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64Text = dataUrl.split(',')[1];
+        window.location.href = `rawbt:data:image/png;base64,${base64Text}`;
+      } catch (err) {
+        console.error('EOM print error:', err);
+        alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
+      }
+    };
+    img.onload = () => proceed(img);
+    img.onerror = () => proceed(null);
+  };
+
+  const handleDownloadEodImage = () => {
+    const img = new Image();
+    img.src = '/logo.png';
+    const proceed = (logoImg) => {
+      try {
+        const canvas = generateEodReportCanvas(logoImg);
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `laporan-harian-${selectedEodDate}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error('Download EOD image error:', err);
+        alert('Gagal mengunduh gambar laporan harian.');
+      }
+    };
+    img.onload = () => proceed(img);
+    img.onerror = () => proceed(null);
+  };
+
+  const handleDownloadEomImage = () => {
+    const img = new Image();
+    img.src = '/logo.png';
+    const proceed = (logoImg) => {
+      try {
+        const canvas = generateEomReportCanvas(logoImg);
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `laporan-bulanan-${selectedEomMonth}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error('Download EOM image error:', err);
+        alert('Gagal mengunduh gambar laporan bulanan.');
+      }
+    };
+    img.onload = () => proceed(img);
+    img.onerror = () => proceed(null);
   };
 
   // List 6 bulan terakhir untuk pilihan Laporan Bulanan
@@ -130,11 +427,10 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     return { totalOrders, totalRevenue, totalDiscount, payments, topProducts };
   }, [selectedEomMonth, orders, products]);
 
-  // Filter transaksi hari ini
+  // Filter transaksi berdasarkan tanggal EOD terpilih
   const todayOrders = useMemo(() => {
-    const todayStr = getJakartaYMD(new Date());
-    return orders.filter(o => getJakartaYMD(o.created_at) === todayStr && o.status !== 'CANCELLED');
-  }, [orders]);
+    return orders.filter(o => getJakartaYMD(o.created_at) === selectedEodDate && o.status !== 'CANCELLED');
+  }, [orders, selectedEodDate]);
 
   const todayStats = useMemo(() => {
     const totalOrders = todayOrders.length;
@@ -797,14 +1093,28 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
       {isEodModalOpen && (
         <div className="edit-modal-overlay">
           <div className="edit-modal-container glass-panel" style={{ maxWidth: '360px' }}>
-            <div className="edit-modal-header">
-              <h3>Preview Laporan Harian (EOD)</h3>
-              <button className="btn-close-modal" onClick={() => setIsEodModalOpen(false)}>
-                <X size={20} />
-              </button>
+            <div className="edit-modal-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>Preview Laporan Harian (EOD)</h3>
+                <button className="btn-close-modal" onClick={() => setIsEodModalOpen(false)}>
+                  <X size={20} />
+                </button>
+              </div>
+              
+              {/* Selector Tanggal Laporan */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>Pilih Tanggal Laporan:</label>
+                <input
+                  type="date"
+                  value={selectedEodDate}
+                  onChange={(e) => setSelectedEodDate(e.target.value)}
+                  className="modal-input"
+                  style={{ padding: '6px 10px', fontSize: '13px' }}
+                />
+              </div>
             </div>
             
-            <div className="receipt-scroll-area" style={{ maxHeight: '380px', padding: '10px' }}>
+            <div className="receipt-scroll-area" style={{ maxHeight: '330px', padding: '10px' }}>
               {/* PRINT AREA (id="receipt-print" untuk thermal layout) */}
               <div id="receipt-print" className="receipt-preview-container" style={{ maxWidth: '100%', border: 'none', boxShadow: 'none', padding: '10px' }}>
                 <div className="receipt-header">
@@ -814,7 +1124,10 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                   <div className="receipt-subtitle" style={{ fontWeight: 'bold', fontSize: '12px' }}>END OF DAY (EOD) REPORT</div>
                   <div className="receipt-subtitle" style={{ fontSize: '11px', marginTop: '8px' }}>--------------------------------</div>
                   <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px' }}>
-                    Tanggal: {new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    Tanggal: {(() => {
+                      const parts = selectedEodDate.split('-');
+                      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : selectedEodDate;
+                    })()}
                   </div>
                   <div className="receipt-subtitle" style={{ textAlign: 'left', fontSize: '11px' }}>
                     Waktu Cetak: {new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}
@@ -889,20 +1202,45 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
               </div>
             </div>
 
-            <div className="edit-modal-footer">
-              <button className="btn-cancel" onClick={() => setIsEodModalOpen(false)}>
-                Tutup
-              </button>
-              <button 
-                className="btn-save btn-primary" 
-                onClick={() => {
-                  window.print();
-                  setIsEodModalOpen(false);
-                }}
-              >
-                <Printer size={16} />
-                <span>Cetak Laporan</span>
-              </button>
+            <div className="edit-modal-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <button 
+                  className="btn-save btn-primary" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px' }}
+                  onClick={handlePrintEodRawBT}
+                >
+                  <Printer size={15} />
+                  <span>Cetak (RawBT)</span>
+                </button>
+                <button 
+                  className="btn-save btn-primary" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px', background: '#ec4899', borderColor: '#db2777' }}
+                  onClick={handleDownloadEodImage}
+                >
+                  <Printer size={15} />
+                  <span>Unduh (iOS)</span>
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <button 
+                  className="btn-cancel" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px' }}
+                  onClick={() => setIsEodModalOpen(false)}
+                >
+                  Tutup
+                </button>
+                <button 
+                  className="btn-save" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                  onClick={() => {
+                    window.print();
+                    setIsEodModalOpen(false);
+                  }}
+                >
+                  <Printer size={15} />
+                  <span>Sistem Print</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -936,7 +1274,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
               </div>
             </div>
             
-            <div className="receipt-scroll-area" style={{ maxHeight: '350px', padding: '10px' }}>
+            <div className="receipt-scroll-area" style={{ maxHeight: '330px', padding: '10px' }}>
               {/* PRINT AREA (id="receipt-print" untuk thermal layout) */}
               <div id="receipt-print" className="receipt-preview-container" style={{ maxWidth: '100%', border: 'none', boxShadow: 'none', padding: '10px' }}>
                 <div className="receipt-header">
@@ -1021,20 +1359,45 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
               </div>
             </div>
 
-            <div className="edit-modal-footer">
-              <button className="btn-cancel" onClick={() => setIsEomModalOpen(false)}>
-                Tutup
-              </button>
-              <button 
-                className="btn-save btn-primary" 
-                onClick={() => {
-                  window.print();
-                  setIsEomModalOpen(false);
-                }}
-              >
-                <Printer size={16} />
-                <span>Cetak Laporan</span>
-              </button>
+            <div className="edit-modal-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <button 
+                  className="btn-save btn-primary" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px' }}
+                  onClick={handlePrintEomRawBT}
+                >
+                  <Printer size={15} />
+                  <span>Cetak (RawBT)</span>
+                </button>
+                <button 
+                  className="btn-save btn-primary" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px', background: '#ec4899', borderColor: '#db2777' }}
+                  onClick={handleDownloadEomImage}
+                >
+                  <Printer size={15} />
+                  <span>Unduh (iOS)</span>
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <button 
+                  className="btn-cancel" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px' }}
+                  onClick={() => setIsEomModalOpen(false)}
+                >
+                  Tutup
+                </button>
+                <button 
+                  className="btn-save" 
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                  onClick={() => {
+                    window.print();
+                    setIsEomModalOpen(false);
+                  }}
+                >
+                  <Printer size={15} />
+                  <span>Sistem Print</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
