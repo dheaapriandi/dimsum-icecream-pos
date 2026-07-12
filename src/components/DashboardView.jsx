@@ -126,7 +126,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     lines.push("MENU TERJUAL HARI INI:");
     if (todayStats.topProducts.length > 0) {
       todayStats.topProducts.forEach((p, i) => {
-        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
       });
     } else {
       lines.push(padCenter("(Belum ada penjualan)"));
@@ -234,7 +234,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     lines.push("5 MENU TERLARIS:");
     if (monthStats.topProducts.length > 0) {
       monthStats.topProducts.forEach((p, i) => {
-        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
       });
     } else {
       lines.push(padCenter("(Belum ada penjualan)"));
@@ -423,7 +423,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
         bodyLines.push("MENU TERJUAL HARI INI:");
         if (todayStats.topProducts.length > 0) {
           todayStats.topProducts.forEach((p, i) => {
-            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
           });
         } else {
           bodyLines.push(padCenter("(Belum ada penjualan)"));
@@ -591,7 +591,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
         bodyLines.push("5 MENU TERLARIS:");
         if (monthStats.topProducts.length > 0) {
           monthStats.topProducts.forEach((p, i) => {
-            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
           });
         } else {
           bodyLines.push(padCenter("(Belum ada penjualan)"));
@@ -709,17 +709,22 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     monthOrders.forEach(order => {
       if (order.items) {
         order.items.forEach(item => {
-          counts[item.product_id] = (counts[item.product_id] || 0) + item.quantity;
+          if (!counts[item.product_id]) {
+            counts[item.product_id] = { qty: 0, revenue: 0 };
+          }
+          counts[item.product_id].qty += item.quantity;
+          counts[item.product_id].revenue += item.quantity * item.unit_price;
         });
       }
     });
     
     const topProducts = Object.entries(counts)
-      .map(([id, qty]) => {
+      .map(([id, info]) => {
         const prod = products.find(p => p.id === id);
         return {
           name: prod ? prod.name : `Produk #${id}`,
-          qty
+          qty: info.qty,
+          revenue: info.revenue
         };
       })
       .sort((a, b) => b.qty - a.qty)
@@ -746,17 +751,22 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     todayOrders.forEach(order => {
       if (order.items) {
         order.items.forEach(item => {
-          counts[item.product_id] = (counts[item.product_id] || 0) + item.quantity;
+          if (!counts[item.product_id]) {
+            counts[item.product_id] = { qty: 0, revenue: 0 };
+          }
+          counts[item.product_id].qty += item.quantity;
+          counts[item.product_id].revenue += item.quantity * item.unit_price;
         });
       }
     });
 
     const topProducts = Object.entries(counts)
-      .map(([id, qty]) => {
+      .map(([id, info]) => {
         const prod = products.find(p => p.id === id);
         return {
           name: prod ? prod.name : `Produk #${id}`,
-          qty
+          qty: info.qty,
+          revenue: info.revenue
         };
       })
       .sort((a, b) => b.qty - a.qty);
@@ -1485,7 +1495,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                   {todayStats.topProducts.map((p, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                       <span>{i+1}. {p.name}</span>
-                      <span>{p.qty} Porsi</span>
+                      <span>{p.qty} Porsi ({formatRupiah(p.revenue)})</span>
                     </div>
                   ))}
                   {todayStats.topProducts.length === 0 && (
@@ -1642,7 +1652,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                   {monthStats.topProducts.map((p, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                       <span>{i+1}. {p.name}</span>
-                      <span>{p.qty} Porsi</span>
+                      <span>{p.qty} Porsi ({formatRupiah(p.revenue)})</span>
                     </div>
                   ))}
                   {monthStats.topProducts.length === 0 && (
