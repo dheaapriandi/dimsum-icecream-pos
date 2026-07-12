@@ -127,6 +127,9 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     if (todayStats.topProducts.length > 0) {
       todayStats.topProducts.forEach((p, i) => {
         lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
+        if (i < todayStats.topProducts.length - 1) {
+          lines.push("  - - - - - - - - - - - - - - - -");
+        }
       });
     } else {
       lines.push(padCenter("(Belum ada penjualan)"));
@@ -424,6 +427,9 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
         if (todayStats.topProducts.length > 0) {
           todayStats.topProducts.forEach((p, i) => {
             bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
+            if (i < todayStats.topProducts.length - 1) {
+              bodyLines.push("  - - - - - - - - - - - - - - - -");
+            }
           });
         } else {
           bodyLines.push(padCenter("(Belum ada penjualan)"));
@@ -1493,9 +1499,14 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                 <div className="receipt-info-section" style={{ fontSize: '11px' }}>
                   <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>MENU TERJUAL HARI INI:</div>
                   {todayStats.topProducts.map((p, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                      <span>{i+1}. {p.name}</span>
-                      <span>{p.qty} Porsi ({formatRupiah(p.revenue)})</span>
+                    <div key={i}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
+                        <span>{i+1}. {p.name}</span>
+                        <span>{p.qty} Porsi ({formatRupiah(p.revenue)})</span>
+                      </div>
+                      {i < todayStats.topProducts.length - 1 && (
+                        <div style={{ borderTop: '1px dotted #000', margin: '2px 0' }}></div>
+                      )}
                     </div>
                   ))}
                   {todayStats.topProducts.length === 0 && (
