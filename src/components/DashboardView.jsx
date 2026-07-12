@@ -234,7 +234,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     lines.push("5 MENU TERLARIS:");
     if (monthStats.topProducts.length > 0) {
       monthStats.topProducts.forEach((p, i) => {
-        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
+        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
       });
     } else {
       lines.push(padCenter("(Belum ada penjualan)"));
@@ -591,7 +591,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
         bodyLines.push("5 MENU TERLARIS:");
         if (monthStats.topProducts.length > 0) {
           monthStats.topProducts.forEach((p, i) => {
-            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
+            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
           });
         } else {
           bodyLines.push(padCenter("(Belum ada penjualan)"));
@@ -1652,7 +1652,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                   {monthStats.topProducts.map((p, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                       <span>{i+1}. {p.name}</span>
-                      <span>{p.qty} Porsi ({formatRupiah(p.revenue)})</span>
+                      <span>{p.qty} Porsi</span>
                     </div>
                   ))}
                   {monthStats.topProducts.length === 0 && (
