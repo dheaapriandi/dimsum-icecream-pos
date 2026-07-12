@@ -126,7 +126,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     lines.push("MENU TERJUAL HARI INI:");
     if (todayStats.topProducts.length > 0) {
       todayStats.topProducts.forEach((p, i) => {
-        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
+        lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`, 28));
         if (i < todayStats.topProducts.length - 1) {
           lines.push("  - - - - - - - - - - - - - - - -");
         }
@@ -426,7 +426,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
         bodyLines.push("MENU TERJUAL HARI INI:");
         if (todayStats.topProducts.length > 0) {
           todayStats.topProducts.forEach((p, i) => {
-            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`));
+            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi (${formatRupiah(p.revenue)})`, 28));
             if (i < todayStats.topProducts.length - 1) {
               bodyLines.push("  - - - - - - - - - - - - - - - -");
             }
@@ -1496,8 +1496,8 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
 
                 <div className="receipt-divider" style={{ borderTop: '1px dashed #000', margin: '8px 0' }}></div>
 
-                <div className="receipt-info-section" style={{ fontSize: '11px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>MENU TERJUAL HARI INI:</div>
+                <div className="receipt-info-section" style={{ fontSize: '11px', padding: '0 8px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px', marginLeft: '-8px' }}>MENU TERJUAL HARI INI:</div>
                   {todayStats.topProducts.map((p, i) => (
                     <div key={i}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
@@ -1510,7 +1510,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                     </div>
                   ))}
                   {todayStats.topProducts.length === 0 && (
-                    <div style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>Belum ada data penjualan hari ini.</div>
+                    <div style={{ textAlign: 'center', color: '#666', fontStyle: 'italic', margin: '8px 0' }}>Belum ada data penjualan hari ini.</div>
                   )}
                 </div>
 
