@@ -123,7 +123,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     lines.push(formatRow("  KARTU DEBIT/KREDIT:", formatRupiah(todayStats.payments.CARD)));
     lines.push("================================");
     
-    lines.push("5 MENU TERLARIS:");
+    lines.push("MENU TERJUAL HARI INI:");
     if (todayStats.topProducts.length > 0) {
       todayStats.topProducts.forEach((p, i) => {
         lines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
@@ -420,7 +420,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
         bodyLines.push(formatRow("  KARTU DEBIT/KREDIT:", formatRupiah(todayStats.payments.CARD)));
         bodyLines.push("================================");
         
-        bodyLines.push("5 MENU TERLARIS:");
+        bodyLines.push("MENU TERJUAL HARI INI:");
         if (todayStats.topProducts.length > 0) {
           todayStats.topProducts.forEach((p, i) => {
             bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
@@ -759,8 +759,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
           qty
         };
       })
-      .sort((a, b) => b.qty - a.qty)
-      .slice(0, 5);
+      .sort((a, b) => b.qty - a.qty);
 
     return { totalOrders, totalRevenue, totalDiscount, payments, topProducts };
   }, [todayOrders, products]);
@@ -1482,7 +1481,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                 <div className="receipt-divider" style={{ borderTop: '1px dashed #000', margin: '8px 0' }}></div>
 
                 <div className="receipt-info-section" style={{ fontSize: '11px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>5 MENU TERLARIS HARI INI:</div>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>MENU TERJUAL HARI INI:</div>
                   {todayStats.topProducts.map((p, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                       <span>{i+1}. {p.name}</span>
