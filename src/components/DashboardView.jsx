@@ -300,10 +300,161 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     img.src = '/logo.png';
     const proceed = (logoImg) => {
       try {
-        const canvas = generateEodReportCanvas(logoImg);
-        const dataUrl = canvas.toDataURL('image/png');
-        const base64Text = dataUrl.split(',')[1];
-        window.location.href = `rawbt:data:image/png;base64,${base64Text}`;
+        const padCenter = (str, width = 32) => {
+          if (str.length >= width) return str.substring(0, width);
+          const pad = Math.floor((width - str.length) / 2);
+          return ' '.repeat(pad) + str;
+        };
+
+        const formatRow = (left, right, width = 32) => {
+          const spaceNeeded = width - left.length - right.length;
+          if (spaceNeeded > 0) {
+            return left + ' '.repeat(spaceNeeded) + right;
+          } else {
+            return left + '\n' + ' '.repeat(width - right.length) + right;
+          }
+        };
+
+        const bytes = [];
+        
+        // Initialize printer (ESC @)
+        bytes.push(0x1B, 0x40);
+        
+        // Print Logo (if present)
+        if (logoImg) {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          const width = 128; // Must be multiple of 8
+          const aspectRatio = logoImg.height / logoImg.width;
+          const height = Math.round(width * aspectRatio);
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(logoImg, 0, 0, width, height);
+          
+          const imgData = ctx.getImageData(0, 0, width, height);
+          const data = imgData.data;
+          
+          const xL = (width / 8) & 0xFF;
+          const xH = ((width / 8) >> 8) & 0xFF;
+          const yL = height & 0xFF;
+          const yH = (height >> 8) & 0xFF;
+          
+          // Center alignment
+          bytes.push(0x1B, 0x61, 0x01);
+          
+          // GS v 0 0 xL xH yL yH
+          bytes.push(0x1D, 0x76, 0x30, 0, xL, xH, yL, yH);
+          
+          // Convert pixels to 1-bit bitmap
+          for (let y = 0; y < height; y++) {
+            for (let xByte = 0; xByte < width / 8; xByte++) {
+              let byteVal = 0;
+              for (let bit = 0; bit < 8; bit++) {
+                const xPixel = xByte * 8 + bit;
+                const idx = (y * width + xPixel) * 4;
+                const r = data[idx];
+                const g = data[idx+1];
+                const b = data[idx+2];
+                const a = data[idx+3];
+                
+                let isBlack = false;
+                if (a > 50) {
+                  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                  if (luminance < 140) {
+                    isBlack = true;
+                  }
+                }
+                
+                if (isBlack) {
+                  byteVal |= (1 << (7 - bit));
+                }
+              }
+              bytes.push(byteVal);
+            }
+          }
+          bytes.push(0x0A); // line feed
+        }
+        
+        // Center alignment for header text
+        bytes.push(0x1B, 0x61, 0x01);
+        
+        const parts = selectedEodDate.split('-');
+        const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : selectedEodDate;
+        
+        const headerText = [
+          "KEDAI AA",
+          "LAPORAN PENJUALAN HARIAN",
+          "END OF DAY (EOD) REPORT",
+          "--------------------------------"
+        ].join("\n") + "\n";
+        
+        const encoder = new TextEncoder();
+        bytes.push(...encoder.encode(headerText));
+        
+        // Left alignment for details
+        bytes.push(0x1B, 0x61, 0x00);
+        
+        const bodyLines = [];
+        bodyLines.push(formatRow("Tanggal:", formattedDate));
+        bodyLines.push(formatRow("Waktu Cetak:", new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })));
+        bodyLines.push(formatRow("Kasir:", "Kasir Utama"));
+        bodyLines.push("================================");
+        
+        bodyLines.push(formatRow("TOTAL TRANSAKSI:", `${todayStats.totalOrders} Pesanan`));
+        bodyLines.push(formatRow("Omzet Kotor:", formatRupiah(todayStats.totalRevenue + todayStats.totalDiscount)));
+        if (todayStats.totalDiscount > 0) {
+          bodyLines.push(formatRow("Total Diskon:", `-${formatRupiah(todayStats.totalDiscount)}`));
+        }
+        bodyLines.push("--------------------------------");
+        bodyLines.push(formatRow("PENDAPATAN BERSIH:", formatRupiah(todayStats.totalRevenue)));
+        bodyLines.push("================================");
+        
+        bodyLines.push("RINCIAN PEMBAYARAN:");
+        bodyLines.push(formatRow("  TUNAI (CASH):", formatRupiah(todayStats.payments.CASH)));
+        bodyLines.push(formatRow("  QRIS / E-WALLET:", formatRupiah(todayStats.payments.QRIS)));
+        bodyLines.push(formatRow("  KARTU DEBIT/KREDIT:", formatRupiah(todayStats.payments.CARD)));
+        bodyLines.push("================================");
+        
+        bodyLines.push("5 MENU TERLARIS:");
+        if (todayStats.topProducts.length > 0) {
+          todayStats.topProducts.forEach((p, i) => {
+            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+          });
+        } else {
+          bodyLines.push(padCenter("(Belum ada penjualan)"));
+        }
+        bodyLines.push("================================");
+        bodyLines.push("");
+        
+        bytes.push(...encoder.encode(bodyLines.join("\n") + "\n"));
+        
+        // Center alignment for footer
+        bytes.push(0x1B, 0x61, 0x01);
+        
+        const footerText = [
+          "Laporan Penjualan Kedai AA",
+          "Terima Kasih &",
+          "Selamat Beristirahat!",
+          "\n\n\n\n"
+        ].join("\n");
+        
+        bytes.push(...encoder.encode(footerText));
+        
+        // Convert Uint8Array bytes to Base64
+        let binary = '';
+        const len = bytes.length;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64Text = btoa(binary);
+        
+        // Send base64 print data directly to RawBT
+        window.location.href = `rawbt:base64,${base64Text}`;
       } catch (err) {
         console.error('EOD print error:', err);
         alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
@@ -318,10 +469,160 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     img.src = '/logo.png';
     const proceed = (logoImg) => {
       try {
-        const canvas = generateEomReportCanvas(logoImg);
-        const dataUrl = canvas.toDataURL('image/png');
-        const base64Text = dataUrl.split(',')[1];
-        window.location.href = `rawbt:data:image/png;base64,${base64Text}`;
+        const padCenter = (str, width = 32) => {
+          if (str.length >= width) return str.substring(0, width);
+          const pad = Math.floor((width - str.length) / 2);
+          return ' '.repeat(pad) + str;
+        };
+
+        const formatRow = (left, right, width = 32) => {
+          const spaceNeeded = width - left.length - right.length;
+          if (spaceNeeded > 0) {
+            return left + ' '.repeat(spaceNeeded) + right;
+          } else {
+            return left + '\n' + ' '.repeat(width - right.length) + right;
+          }
+        };
+
+        const bytes = [];
+        
+        // Initialize printer (ESC @)
+        bytes.push(0x1B, 0x40);
+        
+        // Print Logo (if present)
+        if (logoImg) {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          const width = 128; // Must be multiple of 8
+          const aspectRatio = logoImg.height / logoImg.width;
+          const height = Math.round(width * aspectRatio);
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(logoImg, 0, 0, width, height);
+          
+          const imgData = ctx.getImageData(0, 0, width, height);
+          const data = imgData.data;
+          
+          const xL = (width / 8) & 0xFF;
+          const xH = ((width / 8) >> 8) & 0xFF;
+          const yL = height & 0xFF;
+          const yH = (height >> 8) & 0xFF;
+          
+          // Center alignment
+          bytes.push(0x1B, 0x61, 0x01);
+          
+          // GS v 0 0 xL xH yL yH
+          bytes.push(0x1D, 0x76, 0x30, 0, xL, xH, yL, yH);
+          
+          // Convert pixels to 1-bit bitmap
+          for (let y = 0; y < height; y++) {
+            for (let xByte = 0; xByte < width / 8; xByte++) {
+              let byteVal = 0;
+              for (let bit = 0; bit < 8; bit++) {
+                const xPixel = xByte * 8 + bit;
+                const idx = (y * width + xPixel) * 4;
+                const r = data[idx];
+                const g = data[idx+1];
+                const b = data[idx+2];
+                const a = data[idx+3];
+                
+                let isBlack = false;
+                if (a > 50) {
+                  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                  if (luminance < 140) {
+                    isBlack = true;
+                  }
+                }
+                
+                if (isBlack) {
+                  byteVal |= (1 << (7 - bit));
+                }
+              }
+              bytes.push(byteVal);
+            }
+          }
+          bytes.push(0x0A); // line feed
+        }
+        
+        // Center alignment for header text
+        bytes.push(0x1B, 0x61, 0x01);
+        
+        const selectedMonthLabel = availableMonths.find(m => m.value === selectedEomMonth)?.label || selectedEomMonth;
+        
+        const headerText = [
+          "KEDAI AA",
+          "LAPORAN PENJUALAN BULANAN",
+          "END OF MONTH (EOM) REPORT",
+          "--------------------------------"
+        ].join("\n") + "\n";
+        
+        const encoder = new TextEncoder();
+        bytes.push(...encoder.encode(headerText));
+        
+        // Left alignment for details
+        bytes.push(0x1B, 0x61, 0x00);
+        
+        const bodyLines = [];
+        bodyLines.push(formatRow("Bulan:", selectedMonthLabel));
+        bodyLines.push(formatRow("Waktu Cetak:", new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })));
+        bodyLines.push(formatRow("Kasir:", "Kasir Utama"));
+        bodyLines.push("================================");
+        
+        bodyLines.push(formatRow("TOTAL TRANSAKSI:", `${monthStats.totalOrders} Pesanan`));
+        bodyLines.push(formatRow("Omzet Kotor:", formatRupiah(monthStats.totalRevenue + monthStats.totalDiscount)));
+        if (monthStats.totalDiscount > 0) {
+          bodyLines.push(formatRow("Total Diskon:", `-${formatRupiah(monthStats.totalDiscount)}`));
+        }
+        bodyLines.push("--------------------------------");
+        bodyLines.push(formatRow("PENDAPATAN BERSIH:", formatRupiah(monthStats.totalRevenue)));
+        bodyLines.push("================================");
+        
+        bodyLines.push("RINCIAN PEMBAYARAN:");
+        bodyLines.push(formatRow("  TUNAI (CASH):", formatRupiah(monthStats.payments.CASH)));
+        bodyLines.push(formatRow("  QRIS / E-WALLET:", formatRupiah(monthStats.payments.QRIS)));
+        bodyLines.push(formatRow("  KARTU DEBIT/KREDIT:", formatRupiah(monthStats.payments.CARD)));
+        bodyLines.push("================================");
+        
+        bodyLines.push("5 MENU TERLARIS:");
+        if (monthStats.topProducts.length > 0) {
+          monthStats.topProducts.forEach((p, i) => {
+            bodyLines.push(formatRow(`  ${i+1}. ${p.name}`, `${p.qty} Porsi`));
+          });
+        } else {
+          bodyLines.push(padCenter("(Belum ada penjualan)"));
+        }
+        bodyLines.push("================================");
+        bodyLines.push("");
+        
+        bytes.push(...encoder.encode(bodyLines.join("\n") + "\n"));
+        
+        // Center alignment for footer
+        bytes.push(0x1B, 0x61, 0x01);
+        
+        const footerText = [
+          "Laporan Bulanan Kedai AA",
+          "Terima Kasih atas",
+          "Kerja Kerasnya!",
+          "\n\n\n\n"
+        ].join("\n");
+        
+        bytes.push(...encoder.encode(footerText));
+        
+        // Convert Uint8Array bytes to Base64
+        let binary = '';
+        const len = bytes.length;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64Text = btoa(binary);
+        
+        // Send base64 print data directly to RawBT
+        window.location.href = `rawbt:base64,${base64Text}`;
       } catch (err) {
         console.error('EOM print error:', err);
         alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');

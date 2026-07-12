@@ -127,10 +127,163 @@ const ReceiptModal = ({ order, onClose }) => {
     
     const proceedPrint = (logoImg) => {
       try {
-        const canvas = generateReceiptCanvas(logoImg);
-        const dataUrl = canvas.toDataURL('image/png');
-        const base64Text = dataUrl.split(',')[1];
-        window.location.href = `rawbt:data:image/png;base64,${base64Text}`;
+        const dateStr = formatDate(order.created_at);
+        
+        // Helper alignment
+        const padCenter = (str, width = 32) => {
+          if (str.length >= width) return str.substring(0, width);
+          const pad = Math.floor((width - str.length) / 2);
+          return ' '.repeat(pad) + str;
+        };
+
+        const formatRow = (left, right, width = 32) => {
+          const spaceNeeded = width - left.length - right.length;
+          if (spaceNeeded > 0) {
+            return left + ' '.repeat(spaceNeeded) + right;
+          } else {
+            return left + '\n' + ' '.repeat(width - right.length) + right;
+          }
+        };
+
+        const bytes = [];
+        
+        // Initialize printer (ESC @)
+        bytes.push(0x1B, 0x40);
+        
+        // Print Logo (if present)
+        if (logoImg) {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          const width = 128; // Must be multiple of 8
+          const aspectRatio = logoImg.height / logoImg.width;
+          const height = Math.round(width * aspectRatio);
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(logoImg, 0, 0, width, height);
+          
+          const imgData = ctx.getImageData(0, 0, width, height);
+          const data = imgData.data;
+          
+          const xL = (width / 8) & 0xFF;
+          const xH = ((width / 8) >> 8) & 0xFF;
+          const yL = height & 0xFF;
+          const yH = (height >> 8) & 0xFF;
+          
+          // Center alignment
+          bytes.push(0x1B, 0x61, 0x01);
+          
+          // GS v 0 0 xL xH yL yH
+          bytes.push(0x1D, 0x76, 0x30, 0, xL, xH, yL, yH);
+          
+          // Convert pixels to 1-bit bitmap
+          for (let y = 0; y < height; y++) {
+            for (let xByte = 0; xByte < width / 8; xByte++) {
+              let byteVal = 0;
+              for (let bit = 0; bit < 8; bit++) {
+                const xPixel = xByte * 8 + bit;
+                const idx = (y * width + xPixel) * 4;
+                const r = data[idx];
+                const g = data[idx+1];
+                const b = data[idx+2];
+                const a = data[idx+3];
+                
+                let isBlack = false;
+                if (a > 50) {
+                  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                  if (luminance < 140) {
+                    isBlack = true;
+                  }
+                }
+                
+                if (isBlack) {
+                  byteVal |= (1 << (7 - bit));
+                }
+              }
+              bytes.push(byteVal);
+            }
+          }
+          bytes.push(0x0A); // line feed
+        }
+        
+        // Center alignment for header text
+        bytes.push(0x1B, 0x61, 0x01);
+        
+        const headerText = [
+          "KEDAI AA",
+          "Kedai Dimsum & Ice Cream",
+          "Telp: 0813-1567-5013",
+          "================================"
+        ].join("\n") + "\n";
+        
+        const encoder = new TextEncoder();
+        bytes.push(...encoder.encode(headerText));
+        
+        // Left alignment for details and items
+        bytes.push(0x1B, 0x61, 0x00);
+        
+        const bodyLines = [];
+        bodyLines.push(formatRow("No. Invoice:", order.invoice_no));
+        bodyLines.push(formatRow("Tanggal:", dateStr));
+        bodyLines.push(formatRow("Kasir:", order.cashier_name || 'Kasir Utama'));
+        if (order.customer_name) {
+          bodyLines.push(formatRow("Pelanggan:", order.customer_name));
+        }
+        bodyLines.push("--------------------------------");
+        
+        if (order.items) {
+          order.items.forEach(item => {
+            bodyLines.push(item.product_name || `Produk #${item.product_id}`);
+            const qtyPrice = `${item.quantity} x Rp ${Math.round(item.unit_price).toLocaleString('id-ID')}`;
+            const itemTotal = `Rp ${Math.round(item.quantity * item.unit_price).toLocaleString('id-ID')}`;
+            bodyLines.push(formatRow("  " + qtyPrice, itemTotal));
+            if (item.notes) {
+              bodyLines.push(`  * ${item.notes}`);
+            }
+          });
+        }
+        
+        bodyLines.push("--------------------------------");
+        if (discount > 0) {
+          bodyLines.push(formatRow("Subtotal:", `Rp ${Math.round(subtotal).toLocaleString('id-ID')}`));
+          bodyLines.push(formatRow("Diskon:", `-Rp ${Math.round(discount).toLocaleString('id-ID')}`));
+          bodyLines.push("--------------------------------");
+        }
+        
+        bodyLines.push(formatRow("TOTAL:", `Rp ${Math.round(total).toLocaleString('id-ID')}`));
+        bodyLines.push(formatRow("Metode:", paymentMethodText));
+        bodyLines.push(formatRow("Bayar:", `Rp ${Math.round(amountPaid).toLocaleString('id-ID')}`));
+        bodyLines.push(formatRow("Kembali:", `Rp ${Math.round(change).toLocaleString('id-ID')}`));
+        bodyLines.push("================================");
+        bodyLines.push("");
+        
+        bytes.push(...encoder.encode(bodyLines.join("\n") + "\n"));
+        
+        // Center alignment for footer
+        bytes.push(0x1B, 0x61, 0x01);
+        
+        const footerText = [
+          "Terima Kasih",
+          "Atas Kunjungan Anda!",
+          "\n\n\n\n"
+        ].join("\n");
+        
+        bytes.push(...encoder.encode(footerText));
+        
+        // Convert Uint8Array bytes to Base64
+        let binary = '';
+        const len = bytes.length;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64Text = btoa(binary);
+        
+        // Send base64 print data directly to RawBT
+        window.location.href = `rawbt:base64,${base64Text}`;
       } catch (err) {
         console.error('RawBT print error:', err);
         alert('Gagal mengirim data ke printer. Pastikan aplikasi RawBT terpasang.');
