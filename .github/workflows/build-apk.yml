@@ -37,7 +37,8 @@ jobs:
       - name: Setup Android SDK
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-35" "build-tools;35.0.0" "build-tools;35.0.1"
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" || true
+          sdkmanager --list | head -30
 
       - name: Install NPM Dependencies
         run: npm ci
