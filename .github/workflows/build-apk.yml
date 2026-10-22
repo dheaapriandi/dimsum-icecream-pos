@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     name: Build Android APK
@@ -20,14 +23,16 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Setup Java JDK
+      - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | sdkmanager --licenses || true
 
       - name: Install NPM Dependencies
         run: npm ci
@@ -42,9 +47,9 @@ jobs:
         working-directory: ./android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Rename APK file
+      - name: Prepare APK Output
         run: |
           mkdir -p build-output
           cp android/app/build/outputs/apk/debug/app-debug.apk build-output/Kedai-AA-POS.apk
@@ -64,7 +69,7 @@ jobs:
           name: "Kedai AA POS - Android APK (Terbaru)"
           body: |
             ### 📱 Berkas Aplikasi Android (APK) Kedai AA POS
-            Unduh file `Kedai-AA-POS.apk` di bagian **Assets** di bawah ini dan pasang pada HP / Tablet kasir Android Anda.
+            Unduh file `Kedai-AA-POS.apk` di bawah ini dan pasang pada HP / Tablet kasir Android Anda.
             
             - **Nama Aplikasi:** Kedai AA POS
             - **Package ID:** `com.kedaiaa.pos`
