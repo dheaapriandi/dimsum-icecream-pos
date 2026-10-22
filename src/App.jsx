@@ -7,11 +7,24 @@ import InventoryView from './components/InventoryView';
 import SettingsView from './components/SettingsView';
 import ReceiptModal from './components/ReceiptModal';
 import { db, isSupabaseConfigured, supabase } from './supabase';
-import { Sparkles, Database, ShoppingBag, Package, Settings } from 'lucide-react';
+import { Sparkles, Database, ShoppingBag, Package, Settings, ShieldCheck, Lock } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 
 function App() {
   const [activeView, setActiveView] = useState('cashier');
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+
+  // Web Access Gate State (Opsi 1: Sembunyikan Web / Khusus Aplikasi APK)
+  const [isWebAccessAllowed, setIsWebAccessAllowed] = useState(() => {
+    if (Capacitor.isNativePlatform()) return true;
+    if (typeof window !== 'undefined') {
+      if (window.location.search.includes('admin=true') || window.location.search.includes('pos=true')) return true;
+      return localStorage.getItem('web_access_granted') === 'true';
+    }
+    return false;
+  });
+  const [adminPinInput, setAdminPinInput] = useState('');
+  const [showPinModal, setShowPinModal] = useState(false);
 
   // Auth States
   const [currentUser, setCurrentUser] = useState(() => {
@@ -332,6 +345,212 @@ function App() {
             0% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.05); opacity: 1; }
             100% { transform: scale(1); opacity: 0.9; }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // TAMPILAN PROTEKSI WEB AKSES (OPSI 1: KHUSUS APLIKASI ANDROID APK)
+  if (!isWebAccessAllowed) {
+    return (
+      <div className="private-screen-overlay">
+        <div className="private-card glass-panel">
+          <div className="private-icon-wrapper">
+            <img src="/logo.png" alt="Logo Kedai AA" className="private-logo" />
+          </div>
+          <h2>AKSES SISTEM PRIVAT</h2>
+          <div className="private-badge">Khusus Aplikasi Kasir Kedai AA</div>
+          <p className="private-desc">
+            Sistem Kasir (POS) ini telah dialihkan menjadi <strong>Aplikasi Android Internal</strong> demi privasi dan keamanan operasional toko.
+          </p>
+          <div className="private-notice-box">
+            <span>📱 Silakan buka aplikasi <strong>Kedai AA POS</strong> yang terpasang di perangkat kasir / HP toko Anda.</span>
+          </div>
+
+          {!showPinModal ? (
+            <button 
+              type="button" 
+              className="btn-unlock-web"
+              onClick={() => setShowPinModal(true)}
+            >
+              🔒 Buka via Web Browser (Khusus Owner / Admin)
+            </button>
+          ) : (
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (adminPinInput === '123' || adminPinInput === 'admin') {
+                  localStorage.setItem('web_access_granted', 'true');
+                  setIsWebAccessAllowed(true);
+                } else {
+                  alert('PIN Admin salah. Akses ditolak.');
+                }
+              }} 
+              className="pin-unlock-form"
+            >
+              <label>Masukkan PIN Owner / Admin:</label>
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <input 
+                  type="password" 
+                  value={adminPinInput}
+                  onChange={(e) => setAdminPinInput(e.target.value)}
+                  placeholder="PIN..."
+                  autoFocus
+                  required
+                  className="pin-input"
+                />
+                <button type="submit" className="btn-pin-submit">Buka</button>
+                <button type="button" className="btn-pin-cancel" onClick={() => setShowPinModal(false)}>Batal</button>
+              </div>
+              <span className="pin-tip">PIN bawaan: <code>123</code></span>
+            </form>
+          )}
+
+          <div className="private-footer">
+            &copy; {new Date().getFullYear()} Kedai Dimsum AA & Ice Cream Nyemil
+          </div>
+        </div>
+
+        <style>{`
+          .private-screen-overlay {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 20px;
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          }
+          .private-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(30, 41, 59, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+            border-radius: 20px;
+            padding: 36px 28px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          .private-icon-wrapper {
+            margin-bottom: 16px;
+          }
+          .private-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(249, 115, 22, 0.4));
+          }
+          .private-card h2 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+          }
+          .private-badge {
+            display: inline-block;
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 16px;
+          }
+          .private-desc {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin: 0 0 20px 0;
+          }
+          .private-notice-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px dashed rgba(148, 163, 184, 0.3);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.5;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .btn-unlock-web {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          .btn-unlock-web:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.4);
+          }
+          .pin-unlock-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+          }
+          .pin-unlock-form label {
+            font-size: 11px;
+            color: #cbd5e1;
+            text-align: left;
+            font-weight: 600;
+          }
+          .pin-input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #ffffff;
+            border-radius: 8px;
+            font-size: 13px;
+          }
+          .btn-pin-submit {
+            background: #f97316;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+          }
+          .btn-pin-cancel {
+            background: #334155;
+            color: #cbd5e1;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+          }
+          .pin-tip {
+            font-size: 10px;
+            color: #64748b;
+            text-align: left;
+          }
+          .private-footer {
+            margin-top: 24px;
+            font-size: 11px;
+            color: #64748b;
           }
         `}</style>
       </div>

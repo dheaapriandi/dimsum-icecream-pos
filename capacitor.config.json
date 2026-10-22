@@ -1,0 +1,8 @@
+﻿{
+  "appId": "com.kedaiaa.pos",
+  "appName": "Kedai AA POS",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

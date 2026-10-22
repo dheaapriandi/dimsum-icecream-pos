@@ -1,0 +1,76 @@
+﻿name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NPM Dependencies
+        run: npm ci
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Build Android Debug APK
+        working-directory: ./android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Rename APK file
+        run: |
+          mkdir -p build-output
+          cp android/app/build/outputs/apk/debug/app-debug.apk build-output/Kedai-AA-POS.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kedai-AA-POS-APK
+          path: build-output/Kedai-AA-POS.apk
+          retention-days: 30
+
+      - name: Publish Release with APK
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0-apk
+          name: "Kedai AA POS - Android APK (Terbaru)"
+          body: |
+            ### 📱 Berkas Aplikasi Android (APK) Kedai AA POS
+            Unduh file `Kedai-AA-POS.apk` di bagian **Assets** di bawah ini dan pasang pada HP / Tablet kasir Android Anda.
+            
+            - **Nama Aplikasi:** Kedai AA POS
+            - **Package ID:** `com.kedaiaa.pos`
+            - **Status:** Siap Digunakan
+          files: |
+            build-output/Kedai-AA-POS.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

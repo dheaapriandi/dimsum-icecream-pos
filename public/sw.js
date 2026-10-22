@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kedaiaa-pos-v23';
+const CACHE_NAME = 'kedaiaa-pos-v24';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
