@@ -18,6 +18,8 @@ function App() {
     const saved = localStorage.getItem('active_cashier');
     return saved ? JSON.parse(saved) : null;
   });
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   const handleUpdateUserSession = (updatedUser) => {
     setCurrentUser(updatedUser);
@@ -38,6 +40,8 @@ function App() {
     localStorage.removeItem('active_cashier');
     setCurrentUser(null);
     setActiveView('cashier');
+    setLoginUsername('');
+    setLoginPassword('');
   };
   
   // Database States
@@ -346,15 +350,15 @@ function App() {
 
           <form onSubmit={(e) => {
             e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
-            handleLogin(username, password);
+            handleLogin(loginUsername, loginPassword);
           }} className="login-form">
             <div className="form-group-login">
               <label>Nama Kasir / Username</label>
               <input 
                 type="text" 
                 name="username" 
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
                 placeholder="Masukkan username..." 
                 required 
                 className="login-input" 
@@ -366,6 +370,8 @@ function App() {
               <input 
                 type="password" 
                 name="password" 
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="Masukkan password..." 
                 required 
                 className="login-input" 
@@ -376,6 +382,47 @@ function App() {
               <span>Masuk Kasir</span>
             </button>
           </form>
+
+          {/* Quick Credential Hint & Reset */}
+          <div className="login-quick-hint">
+            <div className="hint-label">💡 Akun Bawaan (Klik untuk isi otomatis):</div>
+            <div className="hint-buttons">
+              <button 
+                type="button" 
+                className="hint-btn"
+                onClick={() => {
+                  setLoginUsername('cindy');
+                  setLoginPassword('123');
+                }}
+              >
+                👤 <strong>Admin:</strong> cindy / 123
+              </button>
+              <button 
+                type="button" 
+                className="hint-btn"
+                onClick={() => {
+                  setLoginUsername('kasir');
+                  setLoginPassword('123');
+                }}
+              >
+                🛒 <strong>Kasir:</strong> kasir / 123
+              </button>
+            </div>
+            <button 
+              type="button" 
+              className="btn-reset-creds"
+              onClick={() => {
+                if (window.confirm('Kembalikan semua akun ke username & password bawaan (123)?')) {
+                  db.resetDefaultUsers();
+                  setLoginUsername('cindy');
+                  setLoginPassword('123');
+                  alert('Akun berhasil direset ke bawaan:\n- Admin: cindy (password: 123)\n- Kasir: kasir (password: 123)');
+                }
+              }}
+            >
+              Lupa Password? Reset ke Akun Bawaan
+            </button>
+          </div>
           
           <div className="login-footer">
             <span>Kedai Dimsum AA & Ice Cream Nyemil</span>
@@ -478,6 +525,56 @@ function App() {
           .login-btn-submit:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(249, 115, 22, 0.3);
+          }
+          .login-quick-hint {
+            margin: 18px 0;
+            padding: 12px;
+            background: rgba(249, 115, 22, 0.06);
+            border: 1px dashed rgba(249, 115, 22, 0.3);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .hint-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #b45309;
+          }
+          .hint-buttons {
+            display: flex;
+            gap: 8px;
+          }
+          .hint-btn {
+            flex: 1;
+            padding: 8px 10px;
+            background: #ffffff;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #9a3412;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+          }
+          .hint-btn:hover {
+            background: #fff7ed;
+            border-color: #fb923c;
+            transform: translateY(-1px);
+          }
+          .btn-reset-creds {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 11px;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 4px;
+            text-align: center;
+            transition: color 0.15s;
+          }
+          .btn-reset-creds:hover {
+            color: #ef4444;
           }
           .login-footer {
             text-align: center;

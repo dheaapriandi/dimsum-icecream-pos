@@ -91,17 +91,34 @@ export const db = {
 
   async login(username, password) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', username.toLowerCase())
-        .eq('password', password)
-        .single();
-      
-      if (!error && data) {
-        return data;
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('username', username.toLowerCase())
+          .eq('password', password)
+          .single();
+        
+        if (!error && data) {
+          return data;
+        }
+
+        // Jika error jaringan atau Supabase offline / tabel tidak ada, fallback ke localStorage
+        if (error && error.code !== 'PGRST116') {
+          console.warn('Supabase offline/error saat login, mencoba data lokal:', error);
+        } else if (error && error.code === 'PGRST116') {
+          // Cek juga data lokal barangkali akun lokal
+          const localUsers = JSON.parse(localStorage.getItem('pos_users') || '[]');
+          const localUser = localUsers.find(u => u.username === username.toLowerCase() && u.password === password);
+          if (localUser) {
+            return localUser;
+          }
+          throw new Error('Username atau password salah.');
+        }
+      } catch (err) {
+        if (err.message === 'Username atau password salah.') throw err;
+        console.warn('Koneksi Supabase gagal, beralih ke data lokal:', err);
       }
-      throw new Error('Username atau password salah.');
     }
 
     const users = JSON.parse(localStorage.getItem('pos_users') || '[]');
@@ -110,6 +127,11 @@ export const db = {
       return user;
     }
     throw new Error('Username atau password salah.');
+  },
+
+  resetDefaultUsers() {
+    localStorage.setItem('pos_users', JSON.stringify(DEFAULT_USERS));
+    return DEFAULT_USERS;
   },
 
   async changePassword(userId, oldPassword, newPassword) {
