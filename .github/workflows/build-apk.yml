@@ -49,6 +49,11 @@ jobs:
       - name: Ensure gradlew executable
         run: chmod +x android/gradlew
 
+      - name: Create Android local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          cat android/local.properties
+
       - name: Sync Capacitor (copy web assets only)
         run: |
           # Copy web dist into Android assets folder manually (no Gradle needed)
