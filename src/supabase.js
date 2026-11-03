@@ -24,6 +24,7 @@ const DEFAULT_USERS = [
 
 const DEFAULT_CATEGORIES = [
   { id: 'cat-1', name: 'Dimsum AA', slug: 'dimsum-aa', icon: 'Utensils', color: '#f97316' },
+  { id: 'cat-3', name: 'Sate Taichan', slug: 'sate-taichan', icon: 'Flame', color: '#ef4444' },
   { id: 'cat-2', name: 'Ice Cream Nyemil', slug: 'ice-cream-nyemil', icon: 'IceCream', color: '#ec4899' }
 ];
 
@@ -43,6 +44,17 @@ const DEFAULT_PRODUCTS = [
   // Minuman / Tambahan (Kategori Dimsum AA)
   { id: 'prod-ds-esteh', name: 'Es Teh', description: 'Es teh manis segar pelepas dahaga.', price: 2500, category_id: 'cat-1', stock: 200, active: true, image_url: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60' },
   
+  // Sate Taichan Kedai AA (Gambar tunggal)
+  { id: 'prod-st-10', name: 'Sate Taichan (10 tusuk)', description: '10 tusuk sate ayam taichan gurih dengan sambal khas dan jeruk limau.', price: 23000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-10-nasi', name: 'Sate Taichan (10 tusuk) + Nasi Daun Jeruk', description: '10 tusuk sate taichan gurih disajikan lengkap dengan nasi daun jeruk harum dan sambal pedas segar.', price: 27000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-10-lontong', name: 'Sate Taichan (10 tusuk) + Lontong', description: '10 tusuk sate taichan gurih disajikan dengan lontong pulen dan sambal pedas segar.', price: 25000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-5', name: 'Sate Taichan (5 tusuk)', description: '5 tusuk sate ayam taichan gurih dengan sambal khas dan jeruk limau.', price: 12000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-5-nasi', name: 'Sate Taichan (5 tusuk) + Nasi Daun Jeruk', description: '5 tusuk sate taichan gurih disajikan lengkap dengan nasi daun jeruk harum dan sambal pedas segar.', price: 16000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-5-lontong', name: 'Sate Taichan (5 tusuk) + Lontong', description: '5 tusuk sate taichan gurih disajikan dengan lontong pulen dan sambal pedas segar.', price: 14000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-nasi', name: 'Nasi Daun Jeruk', description: 'Nasi hangat harum gurih dengan irisan daun jeruk segar.', price: 4000, category_id: 'cat-3', stock: 150, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-lontong', name: 'Lontong', description: 'Lontong potong pulen dan kenyal.', price: 2000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-sambal', name: 'Ekstra Sambal', description: 'Tambahan sambal taichan pedas gurih segar per cup.', price: 3000, category_id: 'cat-3', stock: 200, active: true, image_url: '/menu-images/sate-taichan.png' },
+
   // Ice Cream Nyemil
   { id: 'prod-ic-small', name: 'Small Cup (1 Scoop)', description: '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', price: 3000, category_id: 'cat-2', stock: 100, active: true, image_url: '/menu-images/ice-cream.jpg' },
   { id: 'prod-ic-medium', name: 'Medium Cup (2 Scoop)', description: '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', price: 5000, category_id: 'cat-2', stock: 100, active: true, image_url: '/menu-images/ice-cream.jpg' },
@@ -52,8 +64,8 @@ const DEFAULT_PRODUCTS = [
 // Helper inisialisasi localStorage
 const initLocalDb = () => {
   const currentProducts = localStorage.getItem('pos_products');
-  // Reset database jika kosong, mengandung data demo lama "Siomay Ayam", atau belum memiliki menu baru / harga baru / gambar
-  if (!currentProducts || currentProducts.includes('Siomay Ayam') || !currentProducts.includes('Es Teh') || !currentProducts.includes('"price":16000') || !currentProducts.includes('unsplash.com')) {
+  // Reset database jika kosong, mengandung data demo lama "Siomay Ayam", atau belum memiliki menu baru / Sate Taichan
+  if (!currentProducts || currentProducts.includes('Siomay Ayam') || !currentProducts.includes('Es Teh') || !currentProducts.includes('Sate Taichan')) {
     localStorage.setItem('pos_categories', JSON.stringify(DEFAULT_CATEGORIES));
     localStorage.setItem('pos_products', JSON.stringify(DEFAULT_PRODUCTS));
     localStorage.setItem('pos_orders', JSON.stringify([]));
