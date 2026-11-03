@@ -42,6 +42,9 @@ jobs:
         run: npm ci
 
       - name: Build Web Application
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://lnpenifjorpysjdfzgfk.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_YwVB5qKu_iW-TiAHRIxlMA_UtEoyWr5' }}
         run: npm run build
 
       - name: Create Android local.properties

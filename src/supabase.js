@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Ambil URL dan KEY dari environment variable Vite
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Ambil URL dan KEY dari environment variable Vite atau fallback langsung ke project Supabase Kedai AA
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://lnpenifjorpysjdfzgfk.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_YwVB5qKu_iW-TiAHRIxlMA_UtEoyWr5';
 
 // Cek apakah Supabase sudah dikonfigurasi
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey && supabaseUrl !== 'YOUR_SUPABASE_URL');
