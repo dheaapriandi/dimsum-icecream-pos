@@ -14,17 +14,8 @@ function App() {
   const [activeView, setActiveView] = useState('cashier');
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
-  // Web Access Gate State (Opsi 1: Sembunyikan Web / Khusus Aplikasi APK)
-  const [isWebAccessAllowed, setIsWebAccessAllowed] = useState(() => {
-    if (Capacitor.isNativePlatform()) return true;
-    if (typeof window !== 'undefined') {
-      if (window.location.search.includes('admin=true') || window.location.search.includes('pos=true')) return true;
-      return localStorage.getItem('web_access_granted') === 'true';
-    }
-    return false;
-  });
-  const [adminPinInput, setAdminPinInput] = useState('');
-  const [showPinModal, setShowPinModal] = useState(false);
+  // Web Access Gate State (Opsi 2: Kunci Total 100% Khusus Aplikasi Android APK)
+  const isWebAccessAllowed = Capacitor.isNativePlatform();
 
   // Auth States
   const [currentUser, setCurrentUser] = useState(() => {
@@ -351,7 +342,7 @@ function App() {
     );
   }
 
-  // TAMPILAN PROTEKSI WEB AKSES (OPSI 1: KHUSUS APLIKASI ANDROID APK)
+  // TAMPILAN PROTEKSI WEB AKSES (OPSI 2: KUNCI TOTAL - KHUSUS APLIKASI ANDROID APK)
   if (!isWebAccessAllowed) {
     return (
       <div className="private-screen-overlay">
@@ -359,198 +350,76 @@ function App() {
           <div className="private-icon-wrapper">
             <img src="/logo.png" alt="Logo Kedai AA" className="private-logo" />
           </div>
-          <h2>AKSES SISTEM PRIVAT</h2>
-          <div className="private-badge">Khusus Aplikasi Kasir Kedai AA</div>
-          <p className="private-desc">
-            Sistem Kasir (POS) ini telah dialihkan menjadi <strong>Aplikasi Android Internal</strong> demi privasi dan keamanan operasional toko.
+          <h2>403 • AKSES DITOLAK</h2>
+          <div className="private-badge" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+            Akses Web Browser Dinonaktifkan
+          </div>
+          <p className="private-desc" style={{ marginTop: '16px', lineHeight: '1.6' }}>
+            Situs web ini bersifat <strong>tertutup & private</strong>. Sistem POS hanya dapat diakses melalui <strong>Aplikasi Android Resmi</strong> pada tablet / HP kasir Kedai AA.
           </p>
-          <div className="private-notice-box">
-            <span>📱 Silakan buka aplikasi <strong>Kedai AA POS</strong> yang terpasang di perangkat kasir / HP toko Anda.</span>
+          <div className="private-notice-box" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px dashed rgba(255, 255, 255, 0.15)', padding: '14px', borderRadius: '12px', margin: '18px 0', fontSize: '13px' }}>
+            <span>🔒 Akses browser publik ditutup untuk menjamin keamanan & integritas data kasir.</span>
           </div>
 
-          {!showPinModal ? (
-            <button 
-              type="button" 
-              className="btn-unlock-web"
-              onClick={() => setShowPinModal(true)}
-            >
-              🔒 Buka via Web Browser (Khusus Owner / Admin)
-            </button>
-          ) : (
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (adminPinInput === '123' || adminPinInput === 'admin') {
-                  localStorage.setItem('web_access_granted', 'true');
-                  setIsWebAccessAllowed(true);
-                } else {
-                  alert('PIN Admin salah. Akses ditolak.');
-                }
-              }} 
-              className="pin-unlock-form"
-            >
-              <label>Masukkan PIN Owner / Admin:</label>
-              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                <input 
-                  type="password" 
-                  value={adminPinInput}
-                  onChange={(e) => setAdminPinInput(e.target.value)}
-                  placeholder="PIN..."
-                  autoFocus
-                  required
-                  className="pin-input"
-                />
-                <button type="submit" className="btn-pin-submit">Buka</button>
-                <button type="button" className="btn-pin-cancel" onClick={() => setShowPinModal(false)}>Batal</button>
-              </div>
-              <span className="pin-tip">PIN bawaan: <code>123</code></span>
-            </form>
-          )}
-
-          <div className="private-footer">
+          <div className="private-footer" style={{ marginTop: '24px', fontSize: '11px', color: '#64748b' }}>
             &copy; {new Date().getFullYear()} Kedai Dimsum AA & Ice Cream Nyemil
           </div>
         </div>
 
         <style>{`
           .private-screen-overlay {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
             padding: 20px;
             color: #ffffff;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
           }
           .private-card {
             width: 100%;
-            max-width: 440px;
-            background: rgba(30, 41, 59, 0.95) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-            border-radius: 20px;
-            padding: 36px 28px;
+            max-width: 420px;
+            background: rgba(15, 23, 42, 0.92) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7) !important;
+            border-radius: 24px;
+            padding: 40px 28px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
           }
           .private-icon-wrapper {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
           }
           .private-logo {
-            width: 80px;
-            height: 80px;
+            width: 88px;
+            height: 88px;
             object-fit: contain;
-            filter: drop-shadow(0 4px 10px rgba(249, 115, 22, 0.4));
+            filter: drop-shadow(0 4px 14px rgba(249, 115, 22, 0.35));
           }
           .private-card h2 {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
-            letter-spacing: 0.5px;
-            color: #ffffff;
-            margin: 0 0 8px 0;
+            letter-spacing: 1px;
+            color: #f1f5f9;
+            margin: 0 0 10px 0;
           }
           .private-badge {
             display: inline-block;
-            background: rgba(249, 115, 22, 0.2);
-            color: #fb923c;
-            border: 1px solid rgba(249, 115, 22, 0.4);
-            padding: 4px 12px;
-            border-radius: 9999px;
             font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            border: 1px solid transparent;
           }
           .private-desc {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #cbd5e1;
-            margin: 0 0 20px 0;
-          }
-          .private-notice-box {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px dashed rgba(148, 163, 184, 0.3);
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 12px;
+            font-size: 13.5px;
             color: #94a3b8;
-            margin-bottom: 24px;
-            line-height: 1.5;
-            text-align: left;
-            width: 100%;
-            box-sizing: border-box;
-          }
-          .btn-unlock-web {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #94a3b8;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s;
-          }
-          .btn-unlock-web:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.4);
-          }
-          .pin-unlock-form {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-sizing: border-box;
-          }
-          .pin-unlock-form label {
-            font-size: 11px;
-            color: #cbd5e1;
-            text-align: left;
-            font-weight: 600;
-          }
-          .pin-input {
-            flex: 1;
-            padding: 8px 12px;
-            background: #1e293b;
-            border: 1px solid #475569;
-            color: #ffffff;
-            border-radius: 8px;
-            font-size: 13px;
-          }
-          .btn-pin-submit {
-            background: #f97316;
-            color: #ffffff;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-          }
-          .btn-pin-cancel {
-            background: #334155;
-            color: #cbd5e1;
-            border: none;
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
-          }
-          .pin-tip {
-            font-size: 10px;
-            color: #64748b;
-            text-align: left;
-          }
-          .private-footer {
-            margin-top: 24px;
-            font-size: 11px;
-            color: #64748b;
+            margin: 0;
           }
         `}</style>
       </div>
