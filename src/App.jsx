@@ -606,56 +606,6 @@ function App() {
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(249, 115, 22, 0.3);
           }
-          .login-quick-hint {
-            margin: 18px 0;
-            padding: 12px;
-            background: rgba(249, 115, 22, 0.06);
-            border: 1px dashed rgba(249, 115, 22, 0.3);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-          }
-          .hint-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #b45309;
-          }
-          .hint-buttons {
-            display: flex;
-            gap: 8px;
-          }
-          .hint-btn {
-            flex: 1;
-            padding: 8px 10px;
-            background: #ffffff;
-            border: 1px solid #fed7aa;
-            border-radius: 8px;
-            font-size: 11px;
-            color: #9a3412;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.15s;
-          }
-          .hint-btn:hover {
-            background: #fff7ed;
-            border-color: #fb923c;
-            transform: translateY(-1px);
-          }
-          .btn-reset-creds {
-            background: transparent;
-            border: none;
-            color: #64748b;
-            font-size: 11px;
-            text-decoration: underline;
-            cursor: pointer;
-            padding: 4px;
-            text-align: center;
-            transition: color 0.15s;
-          }
-          .btn-reset-creds:hover {
-            color: #ef4444;
-          }
           .login-footer {
             text-align: center;
             font-size: 11px;
