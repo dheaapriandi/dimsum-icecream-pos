@@ -7,7 +7,7 @@ import InventoryView from './components/InventoryView';
 import SettingsView from './components/SettingsView';
 import ReceiptModal from './components/ReceiptModal';
 import { db, isSupabaseConfigured, supabase } from './supabase';
-import { Sparkles, Database, ShoppingBag, Package, Settings, ShieldCheck, Lock } from 'lucide-react';
+import { Database, ShoppingBag, Package, Settings, WifiOff } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 
 function App() {
@@ -56,6 +56,9 @@ function App() {
   // App States
   const [isLoading, setIsLoading] = useState(true);
   const [currentReceiptOrder, setCurrentReceiptOrder] = useState(null);
+  const [pendingSyncCount, setPendingSyncCount] = useState(() =>
+    typeof db.getPendingCount === 'function' ? db.getPendingCount() : 0
+  );
 
   const syncProductImages = async () => {
     try {
@@ -154,10 +157,40 @@ function App() {
     };
   }, [activeView]);
 
+  // Kirim antrean transaksi offline ke Supabase (otomatis tiap 30 detik & saat online)
+  useEffect(() => {
+    let disposed = false;
+
+    const syncOfflineOrders = async () => {
+      try {
+        const synced = await db.syncPendingOrders();
+        if (disposed) return;
+        setPendingSyncCount(db.getPendingCount());
+        if (synced > 0) await loadData(true);
+      } catch (err) {
+        if (!disposed) {
+          setPendingSyncCount(db.getPendingCount());
+          console.warn('Sinkronisasi transaksi offline gagal:', err);
+        }
+      }
+    };
+
+    syncOfflineOrders();
+    const interval = setInterval(syncOfflineOrders, 30000);
+    window.addEventListener('online', syncOfflineOrders);
+
+    return () => {
+      disposed = true;
+      clearInterval(interval);
+      window.removeEventListener('online', syncOfflineOrders);
+    };
+  }, []);
+
   // Callback Transaksi baru
   const handleCreateOrder = async (orderData, items) => {
     try {
       const completedOrder = await db.createOrder(orderData, items);
+      setPendingSyncCount(db.getPendingCount());
       
       // Muat ulang data terbaru (agar stok & riwayat sinkron)
       await loadData(true);
@@ -361,7 +394,6 @@ function App() {
             <span>🔒 Akses browser publik ditutup untuk menjamin keamanan & integritas data kasir.</span>
           </div>
 
-          <div className="private-footer" style={{ marginTop: '24px', fontSize: '11px', color: '#64748b' }}>
             &copy; {new Date().getFullYear()} Kedai Dimsum AA & Ice Cream Nyemil
           </div>
         </div>
@@ -471,47 +503,6 @@ function App() {
             </button>
           </form>
 
-          {/* Quick Credential Hint & Reset */}
-          <div className="login-quick-hint">
-            <div className="hint-label">💡 Akun Bawaan (Klik untuk isi otomatis):</div>
-            <div className="hint-buttons">
-              <button 
-                type="button" 
-                className="hint-btn"
-                onClick={() => {
-                  setLoginUsername('cindy');
-                  setLoginPassword('123');
-                }}
-              >
-                👤 <strong>Admin:</strong> cindy / 123
-              </button>
-              <button 
-                type="button" 
-                className="hint-btn"
-                onClick={() => {
-                  setLoginUsername('kasir');
-                  setLoginPassword('123');
-                }}
-              >
-                🛒 <strong>Kasir:</strong> kasir / 123
-              </button>
-            </div>
-            <button 
-              type="button" 
-              className="btn-reset-creds"
-              onClick={() => {
-                if (window.confirm('Kembalikan semua akun ke username & password bawaan (123)?')) {
-                  db.resetDefaultUsers();
-                  setLoginUsername('cindy');
-                  setLoginPassword('123');
-                  alert('Akun berhasil direset ke bawaan:\n- Admin: cindy (password: 123)\n- Kasir: kasir (password: 123)');
-                }
-              }}
-            >
-              Lupa Password? Reset ke Akun Bawaan
-            </button>
-          </div>
-          
           <div className="login-footer">
             <span>Kedai Dimsum AA & Ice Cream Nyemil</span>
           </div>
@@ -705,6 +696,15 @@ function App() {
               Hubungkan Supabase Cloud dengan mengatur file <code>.env</code> di root proyek.
             </div>
           )}
+          {pendingSyncCount > 0 && (
+            <div
+              className="pending-sync-badge"
+              title="Transaksi offline akan dikirim otomatis saat koneksi tersedia"
+            >
+              <WifiOff size={13} />
+              <span>{pendingSyncCount} transaksi menunggu sinkronisasi</span>
+            </div>
+          )}
         </div>
 
         {/* AREA TAMPILAN AKTIF */}
@@ -764,6 +764,19 @@ function App() {
           padding: 2px 6px;
           border-radius: 4px;
           color: var(--text-primary);
+        }
+
+        .pending-sync-badge {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px;
+          border-radius: 999px;
+          background: rgba(234, 179, 8, 0.12);
+          border: 1px solid rgba(234, 179, 8, 0.35);
+          color: #a16207;
+          font-weight: 600;
+          white-space: nowrap;
         }
 
         @media (max-width: 576px) {

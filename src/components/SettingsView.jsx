@@ -247,16 +247,6 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
             </div>
 
             <div className="info-divider"></div>
-
-            <div className="credentials-doc">
-              <h4>Dokumentasi Akun Bawaan</h4>
-              <p>Berikut adalah kredensial login bawaan POS Kedai AA:</p>
-              <div className="cred-box">
-                <div className="cred-line"><strong>Admin:</strong> username: <code>cindy</code> / password: <code>123</code></div>
-                <div className="cred-line"><strong>Kasir:</strong> username: <code>kasir</code> / password: <code>123</code></div>
-              </div>
-              <p className="cred-warn">⚠️ Disarankan untuk segera mengubah password bawaan ini demi keamanan sistem POS Anda.</p>
-            </div>
           </div>
         </div>
       </div>
