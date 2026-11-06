@@ -33,7 +33,7 @@ const getJakartaYM = (dateInput) => {
   return `${year}-${month}`;
 };
 
-const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDeleteOrder }) => {
+const DashboardView = ({ orders, products, isAdmin = false, onReprintReceipt, onUpdateOrder, onDeleteOrder }) => {
   const [editingOrder, setEditingOrder] = useState(null);
   const [editPaymentMethod, setEditPaymentMethod] = useState('CASH');
   const [editCashierName, setEditCashierName] = useState('');

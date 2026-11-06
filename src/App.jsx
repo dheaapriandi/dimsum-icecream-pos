@@ -319,13 +319,11 @@ function App() {
           />
         );
       case 'dashboard':
-        if (currentUser && currentUser.role !== 'admin') {
-          return <CashierView products={products} categories={categories} orders={orders} onCreateOrder={handleCreateOrder} currentUser={currentUser} />;
-        }
         return (
           <DashboardView 
             orders={orders} 
             products={products}
+            isAdmin={currentUser && currentUser.role === 'admin'}
             onReprintReceipt={handleReprintReceipt}
             onUpdateOrder={handleUpdateOrder}
             onDeleteOrder={handleDeleteOrder}
