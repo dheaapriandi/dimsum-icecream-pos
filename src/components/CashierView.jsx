@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, QrCode, Coins, Check, FileText, X } from 'lucide-react';
+import { Search, ShoppingCart, Trash2, Plus, Minus, QrCode, Coins, Check, FileText, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { generateDynamicQRIS } from '../supabase';
 
@@ -530,14 +530,6 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
                   <QrCode size={18} />
                   <span>QRIS</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('CARD')}
-                  className={`method-tab ${paymentMethod === 'CARD' ? 'active' : ''}`}
-                >
-                  <CreditCard size={18} />
-                  <span>Kartu</span>
-                </button>
               </div>
 
               {/* FORM KHUSUS TUNAI */}
@@ -661,13 +653,6 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
                 );
               })()}
 
-              {/* TAMPILAN KARTU */}
-              {paymentMethod === 'CARD' && (
-                <div className="card-display">
-                  <CreditCard size={64} className="card-graphic" />
-                  <p>Masukkan kartu pada mesin EDC Merchant Anda, lalu lakukan swipe/insert.</p>
-                </div>
-              )}
             </div>
 
             <div className="checkout-footer">
