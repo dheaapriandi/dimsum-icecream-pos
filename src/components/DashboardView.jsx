@@ -1232,8 +1232,55 @@ const DashboardView = ({ orders, products, isAdmin = false, onReprintReceipt, on
 
       {/* RIWAYAT TRANSAKSI TABEL */}
       <div className="dashboard-card glass-panel table-card">
-        <div className="table-header">
+        <div className="table-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <h3>Riwayat Transaksi Terbaru</h3>
+          <button
+            type="button"
+            onClick={() => {
+              const rows = [];
+              const header = ['No. Invoice', 'Tanggal', 'Kasir', 'Pelanggan', 'Metode Pembayaran', 'Total', 'Diskon', 'Item'];
+              rows.push(header.join(','));
+              orders.forEach(o => {
+                const items = (o.items || []).map(i => `${i.quantity}x ${i.product_name || i.product_id}`).join(' | ');
+                const vals = [
+                  o.invoice_no || '',
+                  o.created_at ? new Date(o.created_at).toLocaleString('id-ID') : '',
+                  o.cashier_name || '',
+                  o.customer_name || '',
+                  o.payment_method || '',
+                  o.total_amount || 0,
+                  o.discount_amount || 0,
+                  '"' + items.replace(/"/g, '""') + '"'
+                ];
+                rows.push(vals.map(v => (typeof v === 'string' && v.includes(',') ? '"' + v.replace(/"/g, '""') + '"' : v)).join(','));
+              });
+              const csv = rows.join('\n');
+              const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `riwayat-transaksi-${new Date().toISOString().slice(0, 10)}.csv`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }}
+            style={{
+              padding: '8px 14px',
+              borderRadius: '8px',
+              border: '1px solid var(--border-color)',
+              background: 'var(--primary)',
+              color: '#ffffff',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            ⬇ Export CSV
+          </button>
         </div>
 
         <div className="table-wrapper">
