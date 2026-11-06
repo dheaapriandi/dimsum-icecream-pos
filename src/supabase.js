@@ -30,35 +30,35 @@ const DEFAULT_CATEGORIES = [
 
 const DEFAULT_PRODUCTS = [
   // Dimsum Original
-  { id: 'prod-ds-orig-1', name: 'Dimsum Original Satuan', description: '1 Pcs dimsum kukus original khas Kedai Dimsum AA.', price: 2000, category_id: 'cat-1', stock: 150, active: true, image_url: '/menu-images/dimsum-original.jpg' },
-  { id: 'prod-ds-orig-5', name: 'Dimsum Original 1 Porsi (Isi 5)', description: '5 Pcs dimsum kukus original khas Kedai Dimsum AA.', price: 10000, category_id: 'cat-1', stock: 60, active: true, image_url: '/menu-images/dimsum-original.jpg' },
+  { id: 'prod-ds-orig-1', name: 'Dimsum Original Satuan', description: '1 Pcs dimsum kukus original khas Kedai Dimsum AA.', price: 2000, category_id: 'cat-1', stock: 999, active: true, image_url: '/menu-images/dimsum-original.jpg' },
+  { id: 'prod-ds-orig-5', name: 'Dimsum Original 1 Porsi (Isi 5)', description: '5 Pcs dimsum kukus original khas Kedai Dimsum AA.', price: 10000, category_id: 'cat-1', stock: 999, active: true, image_url: '/menu-images/dimsum-original.jpg' },
   
   // Dimsum Mentai
-  { id: 'prod-ds-mentai-4', name: 'Dimsum Mentai Isi 4', description: '4 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', price: 16000, category_id: 'cat-1', stock: 40, active: true, image_url: '/menu-images/dimsum-mentai.jpg' },
-  { id: 'prod-ds-mentai-6', name: 'Dimsum Mentai Isi 6', description: '6 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', price: 23000, category_id: 'cat-1', stock: 30, active: true, image_url: '/menu-images/dimsum-mentai.jpg' },
+  { id: 'prod-ds-mentai-4', name: 'Dimsum Mentai Isi 4', description: '4 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', price: 16000, category_id: 'cat-1', stock: 999, active: true, image_url: '/menu-images/dimsum-mentai.jpg' },
+  { id: 'prod-ds-mentai-6', name: 'Dimsum Mentai Isi 6', description: '6 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', price: 23000, category_id: 'cat-1', stock: 999, active: true, image_url: '/menu-images/dimsum-mentai.jpg' },
   
   // Dimsum Goreng
-  { id: 'prod-ds-goreng-keju-3', name: 'Dimsum Goreng Keju Lumer (Isi 3)', description: '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', price: 10000, category_id: 'cat-1', stock: 45, active: true, image_url: '/menu-images/dimsum-goreng.jpg' },
-  { id: 'prod-ds-goreng-mentai-keju-4', name: 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', description: '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', price: 18000, category_id: 'cat-1', stock: 30, active: true, image_url: '/menu-images/dimsum-goreng-mentai.jpg' },
+  { id: 'prod-ds-goreng-keju-3', name: 'Dimsum Goreng Keju Lumer (Isi 3)', description: '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', price: 10000, category_id: 'cat-1', stock: 999, active: true, image_url: '/menu-images/dimsum-goreng.jpg' },
+  { id: 'prod-ds-goreng-mentai-keju-4', name: 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', description: '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', price: 18000, category_id: 'cat-1', stock: 999, active: true, image_url: '/menu-images/dimsum-goreng-mentai.jpg' },
   
   // Minuman / Tambahan (Kategori Dimsum AA)
-  { id: 'prod-ds-esteh', name: 'Es Teh', description: 'Es teh manis segar pelepas dahaga.', price: 2500, category_id: 'cat-1', stock: 200, active: true, image_url: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60' },
+  { id: 'prod-ds-esteh', name: 'Es Teh', description: 'Es teh manis segar pelepas dahaga.', price: 2500, category_id: 'cat-1', stock: 999, active: true, image_url: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60' },
   
   // Sate Taichan Kedai AA (Gambar tunggal)
-  { id: 'prod-st-10', name: 'Sate Taichan (10 tusuk)', description: '10 tusuk sate ayam taichan gurih dengan sambal khas dan jeruk limau.', price: 23000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-10-nasi', name: 'Sate Taichan (10 tusuk) + Nasi Daun Jeruk', description: '10 tusuk sate taichan gurih disajikan lengkap dengan nasi daun jeruk harum dan sambal pedas segar.', price: 27000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-10-lontong', name: 'Sate Taichan (10 tusuk) + Lontong', description: '10 tusuk sate taichan gurih disajikan dengan lontong pulen dan sambal pedas segar.', price: 25000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-5', name: 'Sate Taichan (5 tusuk)', description: '5 tusuk sate ayam taichan gurih dengan sambal khas dan jeruk limau.', price: 12000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-5-nasi', name: 'Sate Taichan (5 tusuk) + Nasi Daun Jeruk', description: '5 tusuk sate taichan gurih disajikan lengkap dengan nasi daun jeruk harum dan sambal pedas segar.', price: 16000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-5-lontong', name: 'Sate Taichan (5 tusuk) + Lontong', description: '5 tusuk sate taichan gurih disajikan dengan lontong pulen dan sambal pedas segar.', price: 14000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-nasi', name: 'Nasi Daun Jeruk', description: 'Nasi hangat harum gurih dengan irisan daun jeruk segar.', price: 4000, category_id: 'cat-3', stock: 150, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-lontong', name: 'Lontong', description: 'Lontong potong pulen dan kenyal.', price: 2000, category_id: 'cat-3', stock: 100, active: true, image_url: '/menu-images/sate-taichan.png' },
-  { id: 'prod-st-sambal', name: 'Ekstra Sambal', description: 'Tambahan sambal taichan pedas gurih segar per cup.', price: 3000, category_id: 'cat-3', stock: 200, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-10', name: 'Sate Taichan (10 tusuk)', description: '10 tusuk sate ayam taichan gurih dengan sambal khas dan jeruk limau.', price: 23000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-10-nasi', name: 'Sate Taichan (10 tusuk) + Nasi Daun Jeruk', description: '10 tusuk sate taichan gurih disajikan lengkap dengan nasi daun jeruk harum dan sambal pedas segar.', price: 27000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-10-lontong', name: 'Sate Taichan (10 tusuk) + Lontong', description: '10 tusuk sate taichan gurih disajikan dengan lontong pulen dan sambal pedas segar.', price: 25000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-5', name: 'Sate Taichan (5 tusuk)', description: '5 tusuk sate ayam taichan gurih dengan sambal khas dan jeruk limau.', price: 12000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-5-nasi', name: 'Sate Taichan (5 tusuk) + Nasi Daun Jeruk', description: '5 tusuk sate taichan gurih disajikan lengkap dengan nasi daun jeruk harum dan sambal pedas segar.', price: 16000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-5-lontong', name: 'Sate Taichan (5 tusuk) + Lontong', description: '5 tusuk sate taichan gurih disajikan dengan lontong pulen dan sambal pedas segar.', price: 14000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-nasi', name: 'Nasi Daun Jeruk', description: 'Nasi hangat harum gurih dengan irisan daun jeruk segar.', price: 4000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-lontong', name: 'Lontong', description: 'Lontong potong pulen dan kenyal.', price: 2000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
+  { id: 'prod-st-sambal', name: 'Ekstra Sambal', description: 'Tambahan sambal taichan pedas gurih segar per cup.', price: 3000, category_id: 'cat-3', stock: 999, active: true, image_url: '/menu-images/sate-taichan.png' },
 
   // Ice Cream Nyemil
-  { id: 'prod-ic-small', name: 'Small Cup (1 Scoop)', description: '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', price: 3000, category_id: 'cat-2', stock: 100, active: true, image_url: '/menu-images/ice-cream.jpg' },
-  { id: 'prod-ic-medium', name: 'Medium Cup (2 Scoop)', description: '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', price: 5000, category_id: 'cat-2', stock: 100, active: true, image_url: '/menu-images/ice-cream.jpg' },
-  { id: 'prod-ic-large', name: 'Large Cup (3 Scoop)', description: '3 Scoop Es Krim + Roti + Susu + (Full Topping).', price: 10000, category_id: 'cat-2', stock: 80, active: true, image_url: '/menu-images/ice-cream.jpg' }
+  { id: 'prod-ic-small', name: 'Small Cup (1 Scoop)', description: '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', price: 3000, category_id: 'cat-2', stock: 999, active: true, image_url: '/menu-images/ice-cream.jpg' },
+  { id: 'prod-ic-medium', name: 'Medium Cup (2 Scoop)', description: '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', price: 5000, category_id: 'cat-2', stock: 999, active: true, image_url: '/menu-images/ice-cream.jpg' },
+  { id: 'prod-ic-large', name: 'Large Cup (3 Scoop)', description: '3 Scoop Es Krim + Roti + Susu + (Full Topping).', price: 10000, category_id: 'cat-2', stock: 999, active: true, image_url: '/menu-images/ice-cream.jpg' }
 ];
 
 // Helper inisialisasi localStorage
@@ -764,3 +764,4 @@ export function generateDynamicQRIS(staticQris, amount) {
   const crc = getCRC16(reconstructed);
   return reconstructed + crc;
 }
+

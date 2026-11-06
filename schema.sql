@@ -87,19 +87,19 @@ INSERT INTO categories (id, name, slug, icon, color) VALUES
 -- 8. Masukkan Data Produk Awal
 INSERT INTO products (id, name, description, price, category_id, stock, active, image_url) VALUES
 -- Dimsum Original
-('prod-ds-orig-1', 'Dimsum Original Satuan', '1 Pcs dimsum kukus original khas Kedai Dimsum AA.', 2000, 'cat-1', 150, TRUE, '/menu-images/dimsum-original.jpg'),
-('prod-ds-orig-5', 'Dimsum Original 1 Porsi (Isi 5)', '5 Pcs dimsum kukus original khas Kedai Dimsum AA.', 10000, 'cat-1', 60, TRUE, '/menu-images/dimsum-original.jpg'),
+('prod-ds-orig-1', 'Dimsum Original Satuan', '1 Pcs dimsum kukus original khas Kedai Dimsum AA.', 2000, 'cat-1', 999, TRUE, '/menu-images/dimsum-original.jpg'),
+('prod-ds-orig-5', 'Dimsum Original 1 Porsi (Isi 5)', '5 Pcs dimsum kukus original khas Kedai Dimsum AA.', 10000, 'cat-1', 999, TRUE, '/menu-images/dimsum-original.jpg'),
 -- Dimsum Mentai
-('prod-ds-mentai-4', 'Dimsum Mentai Isi 4', '4 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', 16000, 'cat-1', 40, TRUE, '/menu-images/dimsum-mentai.jpg'),
-('prod-ds-mentai-6', 'Dimsum Mentai Isi 6', '6 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', 23000, 'cat-1', 30, TRUE, '/menu-images/dimsum-mentai.jpg'),
+('prod-ds-mentai-4', 'Dimsum Mentai Isi 4', '4 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', 16000, 'cat-1', 999, TRUE, '/menu-images/dimsum-mentai.jpg'),
+('prod-ds-mentai-6', 'Dimsum Mentai Isi 6', '6 Pcs dimsum kukus dengan topping saus mentai bakar lezat khas AA.', 23000, 'cat-1', 999, TRUE, '/menu-images/dimsum-mentai.jpg'),
 -- Dimsum Goreng
-('prod-ds-goreng-keju-3', 'Dimsum Goreng Keju Lumer (Isi 3)', '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', 10000, 'cat-1', 45, TRUE, '/menu-images/dimsum-goreng.jpg'),
-('prod-ds-goreng-mentai-keju-4', 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', 18000, 'cat-1', 30, TRUE, '/menu-images/dimsum-goreng-mentai.jpg'),
+('prod-ds-goreng-keju-3', 'Dimsum Goreng Keju Lumer (Isi 3)', '3 Pcs dimsum goreng renyah dengan isian keju lumer di dalamnya.', 10000, 'cat-1', 999, TRUE, '/menu-images/dimsum-goreng.jpg'),
+('prod-ds-goreng-mentai-keju-4', 'Dimsum Goreng Mentai Keju Lumer (Isi 4)', '4 Pcs dimsum goreng isi keju lumer disiram saus mentai bakar.', 18000, 'cat-1', 999, TRUE, '/menu-images/dimsum-goreng-mentai.jpg'),
 -- Ice Cream
-('prod-ic-small', 'Small Cup (1 Scoop)', '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', 3000, 'cat-2', 100, TRUE, '/menu-images/ice-cream.jpg'),
-('prod-ic-medium', 'Medium Cup (2 Scoop)', '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', 5000, 'cat-2', 100, TRUE, '/menu-images/ice-cream.jpg'),
-('prod-ic-large', 'Large Cup (3 Scoop)', '3 Scoop Es Krim + Roti + Susu + (Full Topping).', 10000, 'cat-2', 80, TRUE, '/menu-images/ice-cream.jpg'),
-('prod-ds-esteh', 'Es Teh', 'Es teh manis segar pelepas dahaga.', 2500, 'cat-1', 200, TRUE, 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60');
+('prod-ic-small', 'Small Cup (1 Scoop)', '1 Scoop Es Krim + Roti + Susu + 2 Topping bebas pilih.', 3000, 'cat-2', 999, TRUE, '/menu-images/ice-cream.jpg'),
+('prod-ic-medium', 'Medium Cup (2 Scoop)', '2 Scoop Es Krim + Roti + Susu + 4 Topping bebas pilih.', 5000, 'cat-2', 999, TRUE, '/menu-images/ice-cream.jpg'),
+('prod-ic-large', 'Large Cup (3 Scoop)', '3 Scoop Es Krim + Roti + Susu + (Full Topping).', 10000, 'cat-2', 999, TRUE, '/menu-images/ice-cream.jpg'),
+('prod-ds-esteh', 'Es Teh', 'Es teh manis segar pelepas dahaga.', 2500, 'cat-1', 999, TRUE, 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60');
 
 -- 9. Nonaktifkan RLS (Row Level Security) agar client/Vite POS dapat membaca & menulis data secara bebas
 ALTER TABLE users DISABLE ROW LEVEL SECURITY;
@@ -107,3 +107,4 @@ ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
 ALTER TABLE order_items DISABLE ROW LEVEL SECURITY;
+

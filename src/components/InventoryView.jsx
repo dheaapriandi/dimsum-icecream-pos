@@ -132,6 +132,22 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
           <Plus size={16} />
           <span>Tambah Menu Baru</span>
         </button>
+        <button
+          type="button"
+          onClick={async () => {
+            if (!window.confirm('Set stok semua produk menjadi 999?')) return;
+            try {
+              await Promise.all(products.map(p => onUpdateProduct(p.id, { stock: 999 })));
+              alert('Stok semua produk berhasil di-set ke 999.');
+            } catch (err) {
+              alert('Gagal: ' + (err.message || err));
+            }
+          }}
+          className="btn-add-product"
+          style={{ background: '#0891b2', border: 'none', color: '#ffffff', cursor: 'pointer' }}
+        >
+          <span>Set Stok 999</span>
+        </button>
       </div>
 
       {/* FILTER & PENCARIAN */}
