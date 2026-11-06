@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lock, User, Shield, Info, Database, CheckCircle2, Clock, Key } from 'lucide-react';
 import { db, isSupabaseConfigured } from '../supabase';
 
-function parseDevice(ua) {
+// parseDevice helper v2
   if (!ua) return '-';
   let browser = 'Browser';
   if (/Edg\//.test(ua)) browser = 'Edge';
