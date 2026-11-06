@@ -9,6 +9,11 @@ const KitchenView = ({ orders, onUpdateOrderStatus }) => {
     return () => clearInterval(timer);
   }, []);
 
+  // Hanya tampilkan pesanan yang aktif (bukan yang dibatalkan)
+  const activeOrders = useMemo(() => {
+    return orders.filter(o => o.status !== 'CANCELLED');
+  }, [orders]);
+
   // Pesanan pending otomatis ditandai selesai setelah batas waktu (jika tidak diubah manual)
   const AUTO_COMPLETE_MINUTES = 15;
   const autoCompletedRef = useRef(new Set());
