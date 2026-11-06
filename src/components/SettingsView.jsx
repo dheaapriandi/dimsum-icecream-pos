@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lock, User, Shield, Info, Database, CheckCircle2, Clock, Key } from 'lucide-react';
 import { db, isSupabaseConfigured } from '../supabase';
 import confetti from 'canvas-confetti';
@@ -10,6 +10,25 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [auditLogs, setAuditLogs] = useState([]);
+  const isAdmin = currentUser && currentUser.role === 'admin';
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    let mounted = true;
+    const load = async () => {
+      try {
+        const logs = await db.getAuditLogs(50);
+        if (mounted) setAuditLogs(logs || []);
+      } catch (e) {
+        console.warn('Gagal memuat audit log:', e);
+      }
+    };
+    load();
+    const t = setInterval(load, 30000);
+    return () => { mounted = false; clearInterval(t); };
+  }, [isAdmin]);
 
   const [staticQris, setStaticQris] = useState(() => {
     return localStorage.getItem('pos_static_qris') || '';
@@ -288,6 +307,40 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
             </div>
           </div>
         </div>
+
+      {isAdmin && (
+        <div className="settings-card glass-panel audit-card">
+          <div className="card-header">
+            <Shield size={20} className="header-icon pink-icon" />
+            <h3>Audit Log (Aktivitas Sistem)</h3>
+          </div>
+          <div className="audit-log-list" style={{ maxHeight: '320px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {auditLogs.length === 0 && (
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Belum ada log aktivitas.</p>
+            )}
+            {auditLogs.map(log => (
+              <div key={log.id} style={{
+                padding: '10px 12px',
+                borderRadius: '8px',
+                background: 'rgba(0,0,0,0.02)',
+                border: '1px solid var(--border-color)',
+                fontSize: '12px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+                  <strong style={{ color: 'var(--primary)' }}>{log.action}</strong>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
+                    {log.created_at ? new Date(log.created_at).toLocaleString('id-ID') : ''}
+                  </span>
+                </div>
+                <div style={{ marginTop: '4px', color: 'var(--text-primary)' }}>{log.detail}</div>
+                <div style={{ marginTop: '4px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                  {log.user_name || '-'} ({log.user_role || '-'})
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <style>{`
         .settings-view-container {

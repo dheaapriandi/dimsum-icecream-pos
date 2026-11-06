@@ -687,6 +687,46 @@ export const db = {
     localStorage.setItem('pos_order_items', JSON.stringify(filteredItems));
     localStorage.setItem('pos_products', JSON.stringify(products));
     return true;
+  },
+
+  async addAuditLog(entry) {
+    const log = {
+      action: entry.action,
+      detail: entry.detail || '',
+      user_id: entry.user_id || '',
+      user_name: entry.user_name || '',
+      user_role: entry.user_role || ''
+    };
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase.from('audit_logs').insert([log]);
+        if (error) throw error;
+        return true;
+      } catch (e) {
+        console.warn('Gagal simpan audit log ke cloud:', e);
+      }
+    }
+    const logs = JSON.parse(localStorage.getItem('pos_audit_logs') || '[]');
+    logs.unshift({ ...log, id: 'log-' + Date.now(), created_at: new Date().toISOString() });
+    localStorage.setItem('pos_audit_logs', JSON.stringify(logs.slice(0, 500)));
+    return true;
+  },
+
+  async getAuditLogs(limit = 100) {
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('audit_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        if (!error && data) return data;
+      } catch (e) {
+        console.warn('Gagal ambil audit log dari cloud:', e);
+      }
+    }
+    const logs = JSON.parse(localStorage.getItem('pos_audit_logs') || '[]');
+    return logs.slice(0, limit);
   }
 };
 

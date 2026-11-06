@@ -35,12 +35,21 @@ function App() {
       const user = await db.login(username, password);
       localStorage.setItem('active_cashier', JSON.stringify(user));
       setCurrentUser(user);
+      if (db.addAuditLog) {
+        db.addAuditLog({ action: 'LOGIN', detail: `Login sebagai ${user.username}`, user_id: user.id, user_name: user.name, user_role: user.role });
+      }
     } catch (err) {
+      if (db.addAuditLog) {
+        db.addAuditLog({ action: 'LOGIN_FAILED', detail: `Gagal login username: ${username}`, user_name: username, user_role: '' });
+      }
       alert(err.message || 'Login gagal.');
     }
   };
 
   const handleLogout = () => {
+    if (currentUser && db.addAuditLog) {
+      db.addAuditLog({ action: 'LOGOUT', detail: 'Logout dari sistem', user_id: currentUser.id, user_name: currentUser.name, user_role: currentUser.role });
+    }
     localStorage.removeItem('active_cashier');
     setCurrentUser(null);
     setActiveView('cashier');
@@ -232,10 +241,12 @@ function App() {
     }
   };
 
-  // Callback Tambah Produk
   const handleAddProduct = async (product) => {
     try {
       await db.addProduct(product);
+      if (currentUser && db.addAuditLog) {
+        db.addAuditLog({ action: 'ADD_PRODUCT', detail: `Tambah produk: ${product.name}`, user_id: currentUser.id, user_name: currentUser.name, user_role: currentUser.role });
+      }
       await loadData(true);
     } catch (err) {
       console.error('Gagal menambah produk:', err);
@@ -247,6 +258,9 @@ function App() {
   const handleUpdateProduct = async (id, updates) => {
     try {
       await db.updateProduct(id, updates);
+      if (currentUser && db.addAuditLog) {
+        db.addAuditLog({ action: 'UPDATE_PRODUCT', detail: `Edit produk ${id}: ${JSON.stringify(updates)}`, user_id: currentUser.id, user_name: currentUser.name, user_role: currentUser.role });
+      }
       await loadData(true);
     } catch (err) {
       console.error('Gagal mengubah produk:', err);
@@ -258,6 +272,9 @@ function App() {
   const handleDeleteProduct = async (id) => {
     try {
       await db.deleteProduct(id);
+      if (currentUser && db.addAuditLog) {
+        db.addAuditLog({ action: 'DELETE_PRODUCT', detail: `Hapus produk: ${id}`, user_id: currentUser.id, user_name: currentUser.name, user_role: currentUser.role });
+      }
       await loadData(true);
     } catch (err) {
       console.error('Gagal menghapus produk:', err);
@@ -269,6 +286,9 @@ function App() {
   const handleUpdateOrder = async (id, updates) => {
     try {
       await db.updateOrder(id, updates);
+      if (currentUser && db.addAuditLog) {
+        db.addAuditLog({ action: 'UPDATE_ORDER', detail: `Edit transaksi ${id}: ${JSON.stringify(updates)}`, user_id: currentUser.id, user_name: currentUser.name, user_role: currentUser.role });
+      }
       await loadData(true);
     } catch (err) {
       console.error('Gagal memperbarui transaksi:', err);
@@ -280,6 +300,9 @@ function App() {
   const handleDeleteOrder = async (id) => {
     try {
       await db.deleteOrder(id);
+      if (currentUser && db.addAuditLog) {
+        db.addAuditLog({ action: 'DELETE_ORDER', detail: `Hapus transaksi: ${id}`, user_id: currentUser.id, user_name: currentUser.name, user_role: currentUser.role });
+      }
       await loadData(true);
     } catch (err) {
       console.error('Gagal menghapus transaksi:', err);
