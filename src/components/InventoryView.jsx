@@ -19,13 +19,23 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
 
   // Filter produk
   const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      const matchesCategory = selectedCategory === 'ALL' || product.category_id === selectedCategory;
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesCategory && matchesSearch;
-    });
-  }, [products, selectedCategory, searchQuery]);
+    const catIndex = (id) => {
+      const idx = categories.findIndex(c => c.id === id);
+      return idx === -1 ? 999 : idx;
+    };
+    return products
+      .filter(product => {
+        const matchesCategory = selectedCategory === 'ALL' || product.category_id === selectedCategory;
+        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => {
+        const ci = catIndex(a.category_id) - catIndex(b.category_id);
+        if (ci !== 0) return ci;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+  }, [products, selectedCategory, searchQuery, categories]);
 
   // Buka Modal Tambah Baru
   const handleOpenAdd = () => {
