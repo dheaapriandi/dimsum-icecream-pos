@@ -14,8 +14,8 @@ function App() {
   const [activeView, setActiveView] = useState('cashier');
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
-  // Web Access Gate State (Opsi 2: Kunci Total 100% Khusus Aplikasi Android APK)
-  const isWebAccessAllowed = Capacitor.isNativePlatform();
+  // Akses web dibuka: aplikasi dapat dijalankan langsung di browser.
+  const isWebAccessAllowed = true;
 
   // Auth States
   const [currentUser, setCurrentUser] = useState(() => {
