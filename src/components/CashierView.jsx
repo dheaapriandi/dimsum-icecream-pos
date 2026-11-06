@@ -56,6 +56,10 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
       .sort((a, b) => {
         const ci = catIndex(a.category_id) - catIndex(b.category_id);
         if (ci !== 0) return ci;
+        // Untuk kategori Sate Taichan: nasi/lontong/sambal (add-on) diletakkan di bawah
+        const isAddon = (name) => /nasi|lontong|sambal/i.test(name || '');
+        const addonDiff = (isAddon(a.name) ? 1 : 0) - (isAddon(b.name) ? 1 : 0);
+        if (addonDiff !== 0) return addonDiff;
         return (a.name || '').localeCompare(b.name || '');
       });
   }, [products, selectedCategory, searchQuery, categories]);
