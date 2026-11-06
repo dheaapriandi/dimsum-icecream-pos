@@ -31,16 +31,22 @@ function App() {
   };
 
   const handleLogin = async (username, password) => {
+    let ip = '';
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      ip = data.ip || '';
+    } catch (e) {}
     try {
       const user = await db.login(username, password);
       localStorage.setItem('active_cashier', JSON.stringify(user));
       setCurrentUser(user);
       if (db.addAuditLog) {
-        db.addAuditLog({ action: 'LOGIN', detail: `Login sebagai ${user.username}`, user_id: user.id, user_name: user.name, user_role: user.role });
+        db.addAuditLog({ action: 'LOGIN', detail: `Login sebagai ${user.username} (IP: ${ip}, UA: ${navigator.userAgent})`, user_id: user.id, user_name: user.name, user_role: user.role });
       }
     } catch (err) {
       if (db.addAuditLog) {
-        db.addAuditLog({ action: 'LOGIN_FAILED', detail: `Gagal login username: ${username}`, user_name: username, user_role: '' });
+        db.addAuditLog({ action: 'LOGIN_FAILED', detail: `Gagal login username: ${username} (IP: ${ip}, UA: ${navigator.userAgent})`, user_name: username, user_role: '' });
       }
       alert(err.message || 'Login gagal.');
     }
