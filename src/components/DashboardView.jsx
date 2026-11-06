@@ -855,7 +855,7 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
     const payments = orders.reduce((acc, o) => {
       acc[o.payment_method] = (acc[o.payment_method] || 0) + o.total_amount;
       return acc;
-    }, { CASH: 0, QRIS: 0, CARD: 0 });
+    }, { CASH: 0, QRIS: 0 });
 
     // Produk Terlaris (Top Selling Products)
     const productCounts = orders.reduce((acc, order) => {
@@ -923,12 +923,11 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
 
   // Persentase grafik metode pembayaran
   const paymentPercentages = useMemo(() => {
-    const total = stats.payments.CASH + stats.payments.QRIS + stats.payments.CARD;
-    if (total === 0) return { CASH: 0, QRIS: 0, CARD: 0 };
+    const total = stats.payments.CASH + stats.payments.QRIS;
+    if (total === 0) return { CASH: 0, QRIS: 0 };
     return {
       CASH: Math.round((stats.payments.CASH / total) * 100),
-      QRIS: Math.round((stats.payments.QRIS / total) * 100),
-      CARD: Math.round((stats.payments.CARD / total) * 100)
+      QRIS: Math.round((stats.payments.QRIS / total) * 100)
     };
   }, [stats]);
 
@@ -1205,7 +1204,6 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
             <div className="bar-chart-visual">
               <div className="chart-bar cash" style={{ width: `${paymentPercentages.CASH}%` }} />
               <div className="chart-bar qris" style={{ width: `${paymentPercentages.QRIS}%` }} />
-              <div className="chart-bar card" style={{ width: `${paymentPercentages.CARD}%` }} />
             </div>
             
             <div className="chart-legend">
@@ -1220,12 +1218,6 @@ const DashboardView = ({ orders, products, onReprintReceipt, onUpdateOrder, onDe
                 <span className="label">QRIS</span>
                 <span className="percent">{paymentPercentages.QRIS}%</span>
                 <span className="value">({formatRupiah(stats.payments.QRIS)})</span>
-              </div>
-              <div className="legend-item">
-                <span className="dot card" />
-                <span className="label">Kartu (CARD)</span>
-                <span className="percent">{paymentPercentages.CARD}%</span>
-                <span className="value">({formatRupiah(stats.payments.CARD)})</span>
               </div>
             </div>
           </div>
