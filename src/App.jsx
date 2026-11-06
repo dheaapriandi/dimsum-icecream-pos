@@ -195,8 +195,23 @@ function App() {
     };
   }, []);
 
-  // Jaga layar tetap menyala (web selalu aktif)
+  // Proteksi screenshot/printscreen di halaman sensitif
   useEffect(() => {
+    const preventContext = (e) => e.preventDefault();
+    const preventPrintScreen = (e) => {
+      if (e.key === 'PrintScreen') {
+        e.preventDefault();
+        try { navigator.clipboard.writeText(''); } catch (err) {}
+        alert('Screenshot dinonaktifkan untuk keamanan sistem POS.');
+      }
+    };
+    document.addEventListener('contextmenu', preventContext);
+    document.addEventListener('keydown', preventPrintScreen);
+    return () => {
+      document.removeEventListener('contextmenu', preventContext);
+      document.removeEventListener('keydown', preventPrintScreen);
+    };
+  }, []);
     let wakeLock = null;
     const requestWakeLock = async () => {
       try {
