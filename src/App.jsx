@@ -329,6 +329,9 @@ function App() {
           />
         );
       case 'inventory':
+        if (currentUser && currentUser.role !== 'admin') {
+          return <CashierView products={products} categories={categories} orders={orders} onCreateOrder={handleCreateOrder} currentUser={currentUser} />;
+        }
         return (
           <InventoryView 
             products={products}

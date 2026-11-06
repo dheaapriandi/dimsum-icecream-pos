@@ -8,13 +8,16 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout, onAvatarCli
     }
   };
 
-  const menuItems = [
+  const isAdmin = currentUser && currentUser.role === 'admin';
+
+  const allMenuItems = [
     { id: 'cashier', name: 'Kasir POS', icon: ShoppingBag },
     { id: 'kitchen', name: 'Antrean Dapur', icon: ChefHat },
     { id: 'dashboard', name: 'Laporan Penjualan', icon: BarChart2 },
-    { id: 'inventory', name: 'Kelola Menu', icon: Package },
-    { id: 'settings', name: 'Pengaturan', icon: Settings }
+    { id: 'inventory', name: 'Kelola Menu', icon: Package, adminOnly: true }
   ];
+
+  const menuItems = allMenuItems.filter(item => !item.adminOnly || isAdmin);
 
   return (
     <div className="sidebar-container">
