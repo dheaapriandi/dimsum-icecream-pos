@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, User, Shield, Info, Database, CheckCircle2, Clock, Key } from 'lucide-react';
 import { db, isSupabaseConfigured } from '../supabase';
+
+function parseDevice(ua) {
+  if (!ua) return '-';
+  let browser = 'Browser';
+  if (/Edg\//.test(ua)) browser = 'Edge';
+  else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//.test(ua)) browser = 'Firefox';
+  else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+  else if (/OPR\//.test(ua)) browser = 'Opera';
+
+  let os = 'Unknown OS';
+  if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Mac OS X/.test(ua)) os = 'macOS';
+  else if (/Android/.test(ua)) os = 'Android';
+  else if (/iPhone|iPad|iPod/.test(ua)) os = 'iOS';
+  else if (/Linux/.test(ua)) os = 'Linux';
+
+  let device = 'Desktop';
+  if (/Mobi|Android|iPhone/i.test(ua)) device = 'Mobile';
+
+  return `${browser} di ${os} (${device})`;
+}
 import confetti from 'canvas-confetti';
 
 const SettingsView = ({ currentUser, onUpdateUser }) => {
@@ -333,6 +355,19 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
                   </span>
                 </div>
                 <div style={{ marginTop: '4px', color: 'var(--text-primary)' }}>{log.detail}</div>
+                {(() => {
+                  const m = (log.detail || '').match(/IP:\s*([^,)]+)/);
+                  const u = (log.detail || '').match(/UA:\s*(.+)$/);
+                  const ip = m ? m[1].trim() : '';
+                  const ua = u ? u[1].trim() : '';
+                  if (!ip && !ua) return null;
+                  return (
+                    <div style={{ marginTop: '4px', fontSize: '11px', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {ip && <span>🌐 IP: {ip}</span>}
+                      {ua && <span>💻 Device: {parseDevice(ua)}</span>}
+                    </div>
+                  );
+                })()}
                 <div style={{ marginTop: '4px', fontSize: '11px', color: 'var(--text-muted)' }}>
                   {log.user_name || '-'} ({log.user_role || '-'})
                 </div>
