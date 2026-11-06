@@ -446,19 +446,21 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout, onAvatarCli
             padding: 0;
             width: calc(100% - 60px);
             gap: 0;
+            overflow-x: auto;
           }
           .sidebar-menu button:nth-child(4),
           .sidebar-menu button:nth-child(5) {
-            display: none !important;
+            display: flex !important;
           }
           .menu-item {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            font-size: 10px;
-            padding: 6px 0;
-            flex: 1;
+            gap: 2px;
+            font-size: 9px;
+            padding: 4px 2px;
+            flex: 1 0 auto;
+            min-width: 56px;
             border-radius: 0;
           }
           .menu-item.active {
