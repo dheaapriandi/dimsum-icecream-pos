@@ -248,6 +248,44 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
             </div>
 
             <div className="info-divider"></div>
+
+            <div className="cache-clear-section" style={{ marginTop: '8px' }}>
+              <button
+                type="button"
+                className="btn-clear-cache"
+                onClick={async () => {
+                  if (!window.confirm('Bersihkan semua cache dan data lokal? Aplikasi akan dimuat ulang.')) return;
+                  try {
+                    if ('serviceWorker' in navigator) {
+                      const regs = await navigator.serviceWorker.getRegistrations();
+                      for (const reg of regs) await reg.unregister();
+                    }
+                    if ('caches' in window) {
+                      const keys = await caches.keys();
+                      await Promise.all(keys.map(k => caches.delete(k)));
+                    }
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.reload();
+                  } catch (e) {
+                    alert('Gagal membersihkan cache: ' + (e.message || e));
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #fca5a5',
+                  background: '#fef2f2',
+                  color: '#ef4444',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                🧹 Bersihkan Cache & Muat Ulang
+              </button>
+            </div>
           </div>
         </div>
 
