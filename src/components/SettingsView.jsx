@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, User, Shield, Info, Database, CheckCircle2, Clock, Key } from 'lucide-react';
 import { db, isSupabaseConfigured } from '../supabase';
+import confetti from 'canvas-confetti';
 
-// parseDevice helper v2
+function parseDevice(ua) {
   if (!ua) return '-';
   let browser = 'Browser';
   if (/Edg\//.test(ua)) browser = 'Edge';
@@ -23,7 +24,6 @@ import { db, isSupabaseConfigured } from '../supabase';
 
   return `${browser} di ${os} (${device})`;
 }
-import confetti from 'canvas-confetti';
 
 const SettingsView = ({ currentUser, onUpdateUser }) => {
   const [oldPassword, setOldPassword] = useState('');
