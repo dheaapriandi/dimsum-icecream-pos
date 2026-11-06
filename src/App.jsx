@@ -218,6 +218,9 @@ function App() {
       document.removeEventListener('keydown', preventPrintScreen);
     };
   }, []);
+
+  // Jaga layar tetap menyala (web selalu aktif)
+  useEffect(() => {
     let wakeLock = null;
     const requestWakeLock = async () => {
       try {
