@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ChefHat, CheckCircle2, Clock, Inbox, AlertTriangle } from 'lucide-react';
 
 const KitchenView = ({ orders, onUpdateOrderStatus }) => {
@@ -9,10 +9,27 @@ const KitchenView = ({ orders, onUpdateOrderStatus }) => {
     return () => clearInterval(timer);
   }, []);
 
-  // Hanya tampilkan pesanan yang aktif (bukan yang dibatalkan)
-  const activeOrders = useMemo(() => {
-    return orders.filter(o => o.status !== 'CANCELLED');
-  }, [orders]);
+  // Pesanan pending otomatis ditandai selesai setelah batas waktu (jika tidak diubah manual)
+  const AUTO_COMPLETE_MINUTES = 15;
+  const autoCompletedRef = useRef(new Set());
+
+  useEffect(() => {
+    const now = new Date();
+    activeOrders
+      .filter(o => o.status === 'PENDING')
+      .forEach(order => {
+        const created = new Date(order.created_at);
+        const diffMins = (now - created) / 60000;
+        if (diffMins >= AUTO_COMPLETE_MINUTES && !autoCompletedRef.current.has(order.id)) {
+          autoCompletedRef.current.add(order.id);
+          if (onUpdateOrderStatus) {
+            onUpdateOrderStatus(order.id, { status: 'COMPLETED' }).catch(() => {
+              autoCompletedRef.current.delete(order.id);
+            });
+          }
+        }
+      });
+  }, [orders, currentTime, activeOrders, onUpdateOrderStatus]);
 
   const handleMarkReady = async (orderId) => {
     if (onUpdateOrderStatus) {
