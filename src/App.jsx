@@ -7,7 +7,7 @@ import InventoryView from './components/InventoryView';
 import SettingsView from './components/SettingsView';
 import ReceiptModal from './components/ReceiptModal';
 import { db, isSupabaseConfigured, supabase } from './supabase';
-import { Database, ShoppingBag, Package, Settings, WifiOff } from 'lucide-react';
+import { Database, ShoppingBag, Settings, WifiOff } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 
 function App() {
@@ -891,20 +891,6 @@ function App() {
                 <span>Buka Kasir POS</span>
               </button>
 
-              {currentUser && currentUser.role === 'admin' && (
-                <>
-                  <button 
-                    className={`account-menu-item-btn ${activeView === 'inventory' ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveView('inventory');
-                      setIsAccountMenuOpen(false);
-                    }}
-                  >
-                    <Package size={16} />
-                    <span>Kelola Menu (Inventory)</span>
-                  </button>
-                </>
-              )}
               
               <button 
                 className={`account-menu-item-btn ${activeView === 'settings' ? 'active' : ''}`}

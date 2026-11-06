@@ -447,7 +447,6 @@ const Sidebar = ({ activeView, setActiveView, currentUser, onLogout, onAvatarCli
             width: calc(100% - 60px);
             gap: 0;
           }
-          .sidebar-menu button:nth-child(4),
           .sidebar-menu button:nth-child(5) {
             display: none !important;
           }
