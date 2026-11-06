@@ -216,7 +216,7 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
             <Search className="search-icon" size={20} />
             <input
               type="text"
-              placeholder="Cari dim sum atau es krim favorit..."
+              placeholder="Cari dimsum atau es krim favorit..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
