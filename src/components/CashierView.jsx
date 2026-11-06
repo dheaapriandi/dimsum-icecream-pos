@@ -64,6 +64,24 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
       });
   }, [products, selectedCategory, searchQuery, categories]);
 
+  // Top 5 produk terlaris (berdasarkan jumlah terjual)
+  const topProductIds = useMemo(() => {
+    const counts = {};
+    orders.forEach(order => {
+      if (order.items) {
+        order.items.forEach(item => {
+          counts[item.product_id] = (counts[item.product_id] || 0) + (item.quantity || 0);
+        });
+      }
+    });
+    return new Set(
+      Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([id]) => id)
+    );
+  }, [orders]);
+
   // Aksi Keranjang
   const addToCart = (product) => {
     if (product.stock <= 0) return;
@@ -288,6 +306,23 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
                   <div className="card-badge" style={{ backgroundColor: cat?.color || '#f97316' }}>
                     {cat?.name}
                   </div>
+                  {topProductIds.has(prod.id) && (
+                    <div className="top-badge" style={{
+                      position: 'absolute',
+                      top: '8px',
+                      left: '8px',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      padding: '3px 8px',
+                      borderRadius: '20px',
+                      zIndex: 5,
+                      background: 'linear-gradient(135deg, #eab308, #f97316)',
+                      boxShadow: '0 2px 6px rgba(234, 179, 8, 0.4)'
+                    }}>
+                      🔥 Terlaris
+                    </div>
+                  )}
                 </div>
                 
                 <div className="product-details">
