@@ -4,6 +4,8 @@ import { Package, Plus, Edit, Trash2, CheckCircle2, XCircle, Search } from 'luci
 const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, onDeleteProduct }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+  const LOW_STOCK_THRESHOLD = 10;
   
   // State Modal (Add/Edit)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +30,8 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
         const matchesCategory = selectedCategory === 'ALL' || product.category_id === selectedCategory;
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                               (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
-        return matchesCategory && matchesSearch;
+        const matchesLowStock = !showLowStockOnly || (product.stock <= LOW_STOCK_THRESHOLD);
+        return matchesCategory && matchesSearch && matchesLowStock;
       })
       .sort((a, b) => {
         const ci = catIndex(a.category_id) - catIndex(b.category_id);
@@ -38,7 +41,7 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
         if (addonDiff !== 0) return addonDiff;
         return (a.name || '').localeCompare(b.name || '');
       });
-  }, [products, selectedCategory, searchQuery, categories]);
+  }, [products, selectedCategory, searchQuery, categories, showLowStockOnly]);
 
   // Buka Modal Tambah Baru
   const handleOpenAdd = () => {
@@ -155,7 +158,42 @@ const InventoryView = ({ products, categories, onAddProduct, onUpdateProduct, on
             ))}
           </select>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setShowLowStockOnly(v => !v)}
+          className={`btn-low-stock-toggle ${showLowStockOnly ? 'active' : ''}`}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: '1px solid var(--border-color)',
+            background: showLowStockOnly ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.02)',
+            color: showLowStockOnly ? '#ef4444' : 'var(--text-muted)',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          ⚠️ Stok Menipis ({products.filter(p => p.active && p.stock <= LOW_STOCK_THRESHOLD).length})
+        </button>
       </div>
+
+      {products.some(p => p.active && p.stock <= LOW_STOCK_THRESHOLD) && (
+        <div className="low-stock-alert glass-panel" style={{
+          padding: '12px 16px',
+          borderLeft: '4px solid #ef4444',
+          background: 'rgba(239, 68, 68, 0.06)',
+          color: '#f87171',
+          fontSize: '13px',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          ⚠️ Ada {products.filter(p => p.active && p.stock <= LOW_STOCK_THRESHOLD).length} produk dengan stok menipis (≤ {LOW_STOCK_THRESHOLD}).
+        </div>
+      )}
 
       {/* LIST PRODUK TABLE */}
       <div className="inventory-card glass-panel table-card">
