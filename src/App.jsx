@@ -630,34 +630,6 @@ function App() {
 
       {/* PANEL UTAMA */}
       <main className="main-content">
-        {/* BANNER STATUS KONEKSI DATABASE */}
-        <div className="connection-status-banner">
-          <div className="status-info">
-            <Database size={14} className={isSupabaseConfigured ? 'icon-connected' : 'icon-mock'} />
-            <span className="status-text">
-              Status Database: {isSupabaseConfigured ? (
-                <strong className="text-connected">Tersambung Supabase (Cloud)</strong>
-              ) : (
-                <strong className="text-mock">Local Storage (Mode Offline/Demo)</strong>
-              )}
-            </span>
-          </div>
-          {!isSupabaseConfigured && (
-            <div className="setup-tip">
-              Hubungkan Supabase Cloud dengan mengatur file <code>.env</code> di root proyek.
-            </div>
-          )}
-          {pendingSyncCount > 0 && (
-            <div
-              className="pending-sync-badge"
-              title="Transaksi offline akan dikirim otomatis saat koneksi tersedia"
-            >
-              <WifiOff size={13} />
-              <span>{pendingSyncCount} transaksi menunggu sinkronisasi</span>
-            </div>
-          )}
-        </div>
-
         {/* AREA TAMPILAN AKTIF */}
         {renderView()}
       </main>
