@@ -983,6 +983,70 @@ const DashboardView = ({ orders, products, isAdmin = false, onReprintReceipt, on
               <Printer size={16} />
               <span>Cetak Laporan Bulanan (EOM)</span>
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                const todayStr = new Date().toLocaleDateString('en-CA');
+                const todayOrders = orders.filter(o => o.created_at && new Date(o.created_at).toLocaleDateString('en-CA') === todayStr);
+                const rows = [];
+                rows.push(['No. Invoice','Tanggal','Kasir','Pelanggan','Metode','Total','Diskon','Item'].join(','));
+                todayOrders.forEach(o => {
+                  const items = (o.items || []).map(i => `${i.quantity}x ${i.product_name || i.product_id}`).join(' | ');
+                  const vals = [o.invoice_no||'', o.created_at ? new Date(o.created_at).toLocaleString('id-ID') : '', o.cashier_name||'', o.customer_name||'', o.payment_method||'', o.total_amount||0, o.discount_amount||0, '"' + items.replace(/"/g,'""') + '"'];
+                  rows.push(vals.map(v => (typeof v === 'string' && v.includes(',') ? '"' + v.replace(/"/g,'""') + '"' : v)).join(','));
+                });
+                const total = todayOrders.reduce((s,o) => s + (o.total_amount||0), 0);
+                rows.push('');
+                rows.push(`Total Transaksi,${todayOrders.length}`);
+                rows.push(`Total Pendapatan,${total}`);
+                const csv = rows.join('\n');
+                const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `laporan-harian-${todayStr}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              style={{ padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: '#10b981', borderColor: '#10b981', color: '#ffffff', border: 'none' }}
+            >
+              <Printer size={16} />
+              <span>Export Harian (CSV)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const ym = selectedEomMonth || getJakartaYM(new Date());
+                const monthOrders = orders.filter(o => o.created_at && getJakartaYM(new Date(o.created_at)) === ym);
+                const rows = [];
+                rows.push(['No. Invoice','Tanggal','Kasir','Pelanggan','Metode','Total','Diskon','Item'].join(','));
+                monthOrders.forEach(o => {
+                  const items = (o.items || []).map(i => `${i.quantity}x ${i.product_name || i.product_id}`).join(' | ');
+                  const vals = [o.invoice_no||'', o.created_at ? new Date(o.created_at).toLocaleString('id-ID') : '', o.cashier_name||'', o.customer_name||'', o.payment_method||'', o.total_amount||0, o.discount_amount||0, '"' + items.replace(/"/g,'""') + '"'];
+                  rows.push(vals.map(v => (typeof v === 'string' && v.includes(',') ? '"' + v.replace(/"/g,'""') + '"' : v)).join(','));
+                });
+                const total = monthOrders.reduce((s,o) => s + (o.total_amount||0), 0);
+                rows.push('');
+                rows.push(`Total Transaksi,${monthOrders.length}`);
+                rows.push(`Total Pendapatan,${total}`);
+                const csv = rows.join('\n');
+                const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `laporan-bulanan-${ym}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              style={{ padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: '#10b981', borderColor: '#10b981', color: '#ffffff', border: 'none' }}
+            >
+              <Printer size={16} />
+              <span>Export Bulanan (CSV)</span>
+            </button>
           </div>
         )}
       </div>
