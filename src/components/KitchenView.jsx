@@ -9,10 +9,15 @@ const KitchenView = ({ orders, onUpdateOrderStatus }) => {
     return () => clearInterval(timer);
   }, []);
 
-  // Hanya tampilkan pesanan yang aktif (bukan yang dibatalkan)
+  // Hanya tampilkan pesanan hari ini (bukan history total), dan yang aktif (bukan yang dibatalkan)
+  const todayStr = new Date().toLocaleDateString('en-CA');
   const activeOrders = useMemo(() => {
-    return orders.filter(o => o.status !== 'CANCELLED');
-  }, [orders]);
+    return orders.filter(o => {
+      if (o.status === 'CANCELLED') return false;
+      if (!o.created_at) return true;
+      return new Date(o.created_at).toLocaleDateString('en-CA') === todayStr;
+    });
+  }, [orders, todayStr]);
 
   // Pesanan pending otomatis ditandai selesai setelah batas waktu (jika tidak diubah manual)
   const AUTO_COMPLETE_MINUTES = 15;
