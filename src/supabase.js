@@ -290,12 +290,7 @@ export const db = {
         if (error && error.code !== 'PGRST116') {
           console.warn('Supabase offline/error saat login, mencoba data lokal:', error);
         } else if (error && error.code === 'PGRST116') {
-          // Cek juga data lokal barangkali akun lokal
-          const localUsers = JSON.parse(localStorage.getItem('pos_users') || '[]');
-          const localUser = localUsers.find(u => u.username === username.toLowerCase() && u.password === password);
-          if (localUser) {
-            return localUser;
-          }
+          // Password salah / akun tidak ditemukan di cloud; jangan pakai cache lama (bisa stale).
           throw new Error('Username atau password salah.');
         }
       } catch (err) {
@@ -344,6 +339,14 @@ export const db = {
         
       if (updateError) {
         throw new Error('Gagal memperbarui password di cloud database.');
+      }
+      
+      // Update cache lokal
+      const cachedUsers = JSON.parse(localStorage.getItem('pos_users') || '[]');
+      const idx = cachedUsers.findIndex(u => u.id === userId);
+      if (idx !== -1) {
+        cachedUsers[idx] = { ...cachedUsers[idx], password: newPassword };
+        localStorage.setItem('pos_users', JSON.stringify(cachedUsers));
       }
       
       return updatedUser;
