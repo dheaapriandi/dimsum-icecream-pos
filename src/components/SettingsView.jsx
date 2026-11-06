@@ -81,7 +81,7 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
         </div>
       </div>
 
-      <div className="settings-grid">
+      <div className="settings-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
         {/* PANEL KIRI: KEAMANAN & PASSWORD */}
         <div className="settings-card glass-panel security-card">
           <div className="card-header">
@@ -163,7 +163,7 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
         </div>
 
         {/* PANEL KIRI: KONFIGURASI QRIS */}
-        <div className="settings-card glass-panel qris-settings-card" style={{ marginTop: '24px' }}>
+        <div className="settings-card glass-panel qris-settings-card">
           <div className="card-header">
             <Database size={20} className="header-icon orange-icon" />
             <h3>Konfigurasi QRIS Dinamis</h3>
@@ -207,9 +207,10 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
             </button>
           </form>
         </div>
+      </div>
 
-        {/* PANEL KANAN: DETAIL SISTEM */}
-        <div className="settings-card glass-panel system-card">
+      {/* PANEL: DETAIL SISTEM */}
+      <div className="settings-card glass-panel system-card" style={{ marginTop: '24px' }}>
           <div className="card-header">
             <Info size={20} className="header-icon pink-icon" />
             <h3>Informasi Sistem & Database</h3>
@@ -249,7 +250,6 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
             <div className="info-divider"></div>
           </div>
         </div>
-      </div>
 
       <style>{`
         .settings-view-container {
@@ -281,8 +281,9 @@ const SettingsView = ({ currentUser, onUpdateUser }) => {
 
         .settings-grid {
           display: grid;
-          grid-template-columns: 1.2fr 1fr;
+          grid-template-columns: 1fr 1fr;
           gap: 24px;
+          align-items: stretch;
         }
 
         @media (max-width: 992px) {
