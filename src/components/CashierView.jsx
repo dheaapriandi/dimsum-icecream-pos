@@ -262,9 +262,14 @@ const CashierView = ({ products, categories, orders = [], onCreateOrder, current
                 {/* Gambar Produk */}
                 <div className="product-card-image-wrapper">
                   <img 
-                    src={prod.image_url ? (prod.image_url.startsWith('/') ? `${prod.image_url}?v=4` : prod.image_url) : 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&auto=format&fit=crop&q=60'} 
+                    src={prod.image_url ? (prod.image_url.startsWith('/') ? `${prod.image_url}?v=5` : prod.image_url) : 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&auto=format&fit=crop&q=60'} 
                     alt={prod.name} 
                     className="product-card-image" 
+                    onError={(e) => {
+                      if (e.currentTarget.dataset.fallback) return;
+                      e.currentTarget.dataset.fallback = '1';
+                      e.currentTarget.src = '/logo.png';
+                    }}
                   />
                   <div className="card-badge" style={{ backgroundColor: cat?.color || '#f97316' }}>
                     {cat?.name}

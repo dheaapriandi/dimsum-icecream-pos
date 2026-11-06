@@ -29,3 +29,11 @@ dist-ssr
 
 # Android local config
 android/local.properties
+
+# Hasil build APK
+*.apk
+*.aab
+Kedai-AA-POS.apk
+
+# Arsip server privat (tidak dipakai lagi; aplikasi memakai Supabase)
+arsip/

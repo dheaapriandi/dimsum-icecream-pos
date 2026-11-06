@@ -89,16 +89,179 @@ const initLocalDb = () => {
 
 initLocalDb();
 
+// ==========================================
+// OFFLINE SUPPORT
+// - Data terakhir dari Supabase di-cache ke localStorage.
+// - Transaksi saat offline masuk antrean dan dikirim otomatis saat online.
+// ==========================================
+
+const PENDING_ORDERS_KEY = 'pos_pending_orders';
+
+const readCache = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const writeCache = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (err) {
+    console.warn('Gagal menulis cache lokal:', err);
+  }
+};
+
+// Deteksi error jaringan (bukan error validasi dari Supabase).
+const isNetworkError = (err) => {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
+  const message = String(err?.message || '').toLowerCase();
+  const code = String(err?.code || '').toUpperCase();
+  if (code === 'PGRST116' || code === '23505') return false;
+  return (
+    err instanceof TypeError ||
+    message.includes('failed to fetch') ||
+    message.includes('networkerror') ||
+    message.includes('network error') ||
+    message.includes('load failed') ||
+    message.includes('timeout') ||
+    message.includes('fetch')
+  );
+};
+
+const makeLocalOrder = (orderData, items, invoiceNo) => {
+  const orders = readCache('pos_orders', []);
+  const allItems = readCache('pos_order_items', []);
+  const products = readCache('pos_products', []);
+
+  const orderId = 'order-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+  const newOrder = {
+    id: orderId,
+    invoice_no: invoiceNo,
+    total_amount: orderData.total_amount,
+    amount_paid: orderData.amount_paid || 0,
+    change_amount: orderData.change_amount || 0,
+    payment_method: orderData.payment_method,
+    cashier_name: orderData.cashier_name || 'Kasir Utama',
+    status: orderData.status || 'COMPLETED',
+    discount_amount: orderData.discount_amount || 0,
+    customer_name: orderData.customer_name || '',
+    created_at: new Date().toISOString()
+  };
+
+  const newItems = items.map((item) => {
+    // Kurangi stok di cache agar tampilan tetap akurat saat offline.
+    const prodIndex = products.findIndex((p) => p.id === item.product_id);
+    if (prodIndex !== -1) {
+      products[prodIndex].stock = Math.max(0, products[prodIndex].stock - item.quantity);
+    }
+
+    return {
+      id: 'item-' + Math.random().toString(36).slice(2, 11),
+      order_id: orderId,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      notes: item.notes || '',
+      created_at: new Date().toISOString()
+    };
+  });
+
+  orders.unshift(newOrder);
+  allItems.push(...newItems);
+
+  writeCache('pos_orders', orders);
+  writeCache('pos_order_items', allItems);
+  writeCache('pos_products', products);
+
+  return { ...newOrder, items: newItems };
+};
+
+const queuePendingOrder = (orderData, items, invoiceNo) => {
+  const pending = readCache(PENDING_ORDERS_KEY, []);
+  if (!pending.some((p) => p.invoice_no === invoiceNo)) {
+    pending.push({
+      invoice_no: invoiceNo,
+      order: { ...orderData, invoice_no: invoiceNo },
+      items,
+      attempts: 0,
+      created_at: new Date().toISOString()
+    });
+    writeCache(PENDING_ORDERS_KEY, pending);
+  }
+  return pending.length;
+};
+
+// Kirim satu transaksi ke Supabase. Dipakai saat online maupun saat sync antrean.
+const createOrderRemote = async (orderData, items, invoiceNo) => {
+  const { data: order, error: orderErr } = await supabase
+    .from('orders')
+    .insert([{ ...orderData, invoice_no: invoiceNo }])
+    .select();
+
+  if (orderErr) throw orderErr;
+  const createdOrder = order[0];
+
+  const itemsToInsert = items.map((item) => ({
+    order_id: createdOrder.id,
+    product_id: item.product_id,
+    quantity: item.quantity,
+    unit_price: item.unit_price,
+    notes: item.notes || ''
+  }));
+
+  const { error: itemsErr } = await supabase.from('order_items').insert(itemsToInsert);
+  if (itemsErr) throw itemsErr;
+
+  for (const item of items) {
+    const { data: prod } = await supabase
+      .from('products')
+      .select('stock')
+      .eq('id', item.product_id)
+      .single();
+    if (prod) {
+      const newStock = Math.max(0, prod.stock - item.quantity);
+      await supabase.from('products').update({ stock: newStock }).eq('id', item.product_id);
+    }
+  }
+
+  // Simpan ke cache agar tetap terlihat jika koneksi putus setelah transaksi.
+  const cachedOrders = readCache('pos_orders', []);
+  const cachedItems = readCache('pos_order_items', []);
+  if (!cachedOrders.some((o) => o.id === createdOrder.id)) {
+    cachedOrders.unshift(createdOrder);
+    cachedItems.push(...itemsToInsert.map((item, index) => ({
+      ...item,
+      id: item.id || `local-item-${createdOrder.id}-${index}`
+    })));
+    writeCache('pos_orders', cachedOrders);
+    writeCache('pos_order_items', cachedItems);
+  }
+
+  return { ...createdOrder, items: itemsToInsert };
+};
+
+const generateInvoiceNo = () => {
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  return `INV-${dateStr}-${randomSuffix}`;
+};
+
 // API Abstraksi Database
 export const db = {
   // --- Pengguna / Kasir ---
   async getUsers() {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('users').select('*').order('name');
-      if (!error) return data;
+      if (!error) {
+        writeCache('pos_users', data);
+        return data;
+      }
       console.error('Supabase error fetching users, falling back to localStorage:', error);
     }
-    return JSON.parse(localStorage.getItem('pos_users') || '[]');
+    return readCache('pos_users', []);
   },
 
   async login(username, password) {
@@ -112,6 +275,9 @@ export const db = {
           .single();
         
         if (!error && data) {
+          // Simpan user ke cache agar login tetap bisa saat offline.
+          const cachedUsers = readCache('pos_users', []);
+          writeCache('pos_users', [...cachedUsers.filter((u) => u.id !== data.id), data]);
           return data;
         }
 
@@ -195,10 +361,13 @@ export const db = {
   async getCategories() {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('categories').select('*').order('name');
-      if (!error) return data;
+      if (!error) {
+        writeCache('pos_categories', data);
+        return data;
+      }
       console.error('Supabase error fetching categories, falling back to localStorage:', error);
     }
-    return JSON.parse(localStorage.getItem('pos_categories'));
+    return readCache('pos_categories', []);
   },
 
   async addCategory(category) {
@@ -222,10 +391,13 @@ export const db = {
   async getProducts() {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('products').select('*').order('name');
-      if (!error) return data;
+      if (!error) {
+        writeCache('pos_products', data);
+        return data;
+      }
       console.error('Supabase error fetching products, falling back to localStorage:', error);
     }
-    return JSON.parse(localStorage.getItem('pos_products'));
+    return readCache('pos_products', []);
   },
 
   async addProduct(product) {
@@ -294,7 +466,7 @@ export const db = {
         .order('created_at', { ascending: false });
 
       if (!error) {
-        return data.map(order => ({
+        const mapped = data.map(order => ({
           ...order,
           items: (order.order_items || []).map(item => {
             const prod = products.find(p => p.id === item.product_id);
@@ -304,6 +476,17 @@ export const db = {
             };
           })
         }));
+
+        // Cache untuk mode offline (tanpa field items terpisah).
+        writeCache('pos_orders', mapped.map(({ items: _items, ...order }) => order));
+        writeCache(
+          'pos_order_items',
+          mapped.flatMap(order =>
+            (order.items || []).map(({ product_name: _productName, ...item }) => item)
+          )
+        );
+
+        return mapped;
       }
       console.error('Supabase error fetching orders, falling back to localStorage:', error);
     }
@@ -374,91 +557,76 @@ export const db = {
   },
 
   async createOrder(orderData, items) {
-    // Buat nomor invoice unik (format: INV-YYYYMMDD-XXXX)
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const invoiceNo = `INV-${dateStr}-${randomSuffix}`;
+    const invoiceNo = generateInvoiceNo();
 
     if (isSupabaseConfigured) {
-      // 1. Insert order
-      const { data: order, error: orderErr } = await supabase
-        .from('orders')
-        .insert([{ ...orderData, invoice_no: invoiceNo }])
-        .select();
-
-      if (orderErr) throw orderErr;
-      const createdOrder = order[0];
-
-      // 2. Insert order items
-      const itemsToInsert = items.map(item => ({
-        order_id: createdOrder.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        notes: item.notes || ''
-      }));
-
-      const { error: itemsErr } = await supabase.from('order_items').insert(itemsToInsert);
-      if (itemsErr) throw itemsErr;
-
-      // 3. Update stock
-      for (const item of items) {
-        const { data: prod } = await supabase.from('products').select('stock').eq('id', item.product_id).single();
-        if (prod) {
-          const newStock = Math.max(0, prod.stock - item.quantity);
-          await supabase.from('products').update({ stock: newStock }).eq('id', item.product_id);
-        }
+      try {
+        return await createOrderRemote(orderData, items, invoiceNo);
+      } catch (err) {
+        if (!isNetworkError(err)) throw err;
+        // Koneksi putus: simpan transaksi lokal + masukkan antrean sinkronisasi.
+        console.warn('Supabase tidak terjangkau, transaksi disimpan offline:', err);
+        queuePendingOrder(orderData, items, invoiceNo);
       }
-
-      return { ...createdOrder, items: itemsToInsert };
     }
 
-    // LocalStorage Fallback
-    const orders = JSON.parse(localStorage.getItem('pos_orders'));
-    const allItems = JSON.parse(localStorage.getItem('pos_order_items'));
-    const products = JSON.parse(localStorage.getItem('pos_products'));
+    return makeLocalOrder(orderData, items, invoiceNo);
+  },
 
-    const orderId = 'order-' + Date.now();
-    const newOrder = {
-      id: orderId,
-      invoice_no: invoiceNo,
-      total_amount: orderData.total_amount,
-      amount_paid: orderData.amount_paid || 0,
-      change_amount: orderData.change_amount || 0,
-      payment_method: orderData.payment_method,
-      cashier_name: orderData.cashier_name || 'Kasir Utama',
-      status: orderData.status || 'COMPLETED',
-      discount_amount: orderData.discount_amount || 0,
-      customer_name: orderData.customer_name || '',
-      created_at: new Date().toISOString()
-    };
+  // Jumlah transaksi offline yang belum terkirim ke Supabase.
+  getPendingCount() {
+    return readCache(PENDING_ORDERS_KEY, []).length;
+  },
 
-    const newItems = items.map(item => {
-      // Update stock locally
-      const prodIndex = products.findIndex(p => p.id === item.product_id);
-      if (prodIndex !== -1) {
-        products[prodIndex].stock = Math.max(0, products[prodIndex].stock - item.quantity);
+  // Kirim transaksi offline ke Supabase. Dipanggil otomatis oleh App.
+  async syncPendingOrders() {
+    if (!isSupabaseConfigured) return 0;
+
+    const pending = readCache(PENDING_ORDERS_KEY, []);
+    if (pending.length === 0) return 0;
+
+    let synced = 0;
+    let networkDown = false;
+    const remaining = [];
+
+    for (const entry of pending) {
+      if (networkDown) {
+        remaining.push(entry);
+        continue;
       }
 
-      return {
-        id: 'item-' + Math.random().toString(36).substr(2, 9),
-        order_id: orderId,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        notes: item.notes || '',
-        created_at: new Date().toISOString()
-      };
-    });
+      try {
+        // Cegah duplikasi jika percobaan sebelumnya sudah masuk sebagian.
+        const { data: existing, error: checkErr } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('invoice_no', entry.invoice_no)
+          .maybeSingle();
+        if (checkErr) throw checkErr;
 
-    orders.unshift(newOrder); // Transaksi terbaru di atas
-    allItems.push(...newItems);
+        if (!existing) {
+          await createOrderRemote(entry.order, entry.items, entry.invoice_no);
+        }
+        synced++;
+      } catch (err) {
+        if (isNetworkError(err)) {
+          networkDown = true;
+          remaining.push(entry);
+          continue;
+        }
 
-    localStorage.setItem('pos_orders', JSON.stringify(orders));
-    localStorage.setItem('pos_order_items', JSON.stringify(allItems));
-    localStorage.setItem('pos_products', JSON.stringify(products));
+        const attempts = (entry.attempts || 0) + 1;
+        console.warn(
+          `Transaksi offline ${entry.invoice_no} ditolak server (percobaan ${attempts}):`,
+          err
+        );
+        // Simpan maksimal 3 percobaan agar antrean tidak macet selamanya.
+        if (attempts < 3) remaining.push({ ...entry, attempts });
+      }
+    }
 
-    return { ...newOrder, items: newItems };
+    writeCache(PENDING_ORDERS_KEY, remaining);
+    return synced;
   },
 
   async updateOrder(orderId, updates) {

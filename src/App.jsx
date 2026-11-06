@@ -394,6 +394,7 @@ function App() {
             <span>🔒 Akses browser publik ditutup untuk menjamin keamanan & integritas data kasir.</span>
           </div>
 
+          <div className="private-footer" style={{ marginTop: '24px', fontSize: '11px', color: '#64748b' }}>
             &copy; {new Date().getFullYear()} Kedai Dimsum AA & Ice Cream Nyemil
           </div>
         </div>

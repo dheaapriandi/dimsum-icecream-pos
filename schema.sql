@@ -6,6 +6,19 @@ DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS users;
+
+-- 0. Tabel Pengguna (Users) - dipakai untuk login aplikasi
+-- CATATAN: password disimpan apa adanya agar kompatibel dengan aplikasi.
+-- Lindungi project Supabase Anda: jangan bagikan anon key ke pihak lain.
+CREATE TABLE users (
+  id VARCHAR(50) DEFAULT gen_random_uuid()::text PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password VARCHAR(100) NOT NULL,
+  role VARCHAR(20) DEFAULT 'cashier', -- 'admin' atau 'cashier'
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
 
 -- 1. Tabel Kategori (Categories)
 CREATE TABLE categories (
@@ -41,6 +54,7 @@ CREATE TABLE orders (
   cashier_name VARCHAR(50) DEFAULT 'Kasir Utama',
   status VARCHAR(20) DEFAULT 'COMPLETED', -- 'PENDING', 'COMPLETED', 'CANCELLED'
   discount_amount NUMERIC(10, 2) DEFAULT 0,
+  customer_name VARCHAR(100) DEFAULT '',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -60,12 +74,17 @@ CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
 CREATE INDEX idx_order_items_order ON order_items(order_id);
 
--- 6. Masukkan Data Kategori Awal
+-- 6. Masukkan Data Pengguna Awal (ganti password setelah login pertama)
+INSERT INTO users (id, name, username, password, role) VALUES
+('user-1', 'Cindy Apriandi', 'cindy', '123', 'admin'),
+('user-2', 'Staff Kasir', 'kasir', '123', 'cashier');
+
+-- 7. Masukkan Data Kategori Awal
 INSERT INTO categories (id, name, slug, icon, color) VALUES
 ('cat-1', 'Dimsum AA', 'dimsum-aa', 'Utensils', '#f97316'),
 ('cat-2', 'Ice Cream Nyemil', 'ice-cream-nyemil', 'IceCream', '#ec4899');
 
--- 7. Masukkan Data Produk Awal
+-- 8. Masukkan Data Produk Awal
 INSERT INTO products (id, name, description, price, category_id, stock, active, image_url) VALUES
 -- Dimsum Original
 ('prod-ds-orig-1', 'Dimsum Original Satuan', '1 Pcs dimsum kukus original khas Kedai Dimsum AA.', 2000, 'cat-1', 150, TRUE, '/menu-images/dimsum-original.jpg'),
@@ -82,7 +101,8 @@ INSERT INTO products (id, name, description, price, category_id, stock, active, 
 ('prod-ic-large', 'Large Cup (3 Scoop)', '3 Scoop Es Krim + Roti + Susu + (Full Topping).', 10000, 'cat-2', 80, TRUE, '/menu-images/ice-cream.jpg'),
 ('prod-ds-esteh', 'Es Teh', 'Es teh manis segar pelepas dahaga.', 2500, 'cat-1', 200, TRUE, 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=60');
 
--- 8. Nonaktifkan RLS (Row Level Security) agar client/Vite POS dapat membaca & menulis data secara bebas
+-- 9. Nonaktifkan RLS (Row Level Security) agar client/Vite POS dapat membaca & menulis data secara bebas
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
