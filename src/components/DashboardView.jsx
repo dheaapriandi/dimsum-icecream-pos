@@ -938,54 +938,58 @@ const DashboardView = ({ orders, products, isAdmin = false, onReprintReceipt, on
           <TrendingUp className="header-icon" size={24} />
           <h2>Laporan Analisis Penjualan</h2>
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <button 
-            onClick={handlePrintEod} 
-            className="btn-action-print"
-            style={{
-              padding: '10px 16px',
-              borderRadius: '10px',
-              fontSize: '13px',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              background: 'var(--primary)',
-              borderColor: 'var(--primary)',
-              color: '#ffffff'
-            }}
-          >
-            <Printer size={16} />
-            <span>Cetak Laporan Harian (EOD)</span>
-          </button>
-          <button 
-            onClick={() => {
-              setSelectedEomMonth(getJakartaYM(new Date()));
-              setIsEomModalOpen(true);
-            }} 
-            className="btn-action-print"
-            style={{
-              padding: '10px 16px',
-              borderRadius: '10px',
-              fontSize: '13px',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              background: 'var(--primary)',
-              borderColor: 'var(--primary)',
-              color: '#ffffff'
-            }}
-          >
-            <Printer size={16} />
-            <span>Cetak Laporan Bulanan (EOM)</span>
-          </button>
-        </div>
+        {isAdmin && (
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={handlePrintEod} 
+              className="btn-action-print"
+              style={{
+                padding: '10px 16px',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                background: 'var(--primary)',
+                borderColor: 'var(--primary)',
+                color: '#ffffff'
+              }}
+            >
+              <Printer size={16} />
+              <span>Cetak Laporan Harian (EOD)</span>
+            </button>
+            <button 
+              onClick={() => {
+                setSelectedEomMonth(getJakartaYM(new Date()));
+                setIsEomModalOpen(true);
+              }} 
+              className="btn-action-print"
+              style={{
+                padding: '10px 16px',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                background: 'var(--primary)',
+                borderColor: 'var(--primary)',
+                color: '#ffffff'
+              }}
+            >
+              <Printer size={16} />
+              <span>Cetak Laporan Bulanan (EOM)</span>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* METRIK KARTU RINGKASAN */}
+      {isAdmin && (
+        <>
+          {/* METRIK KARTU RINGKASAN */}
       <div className="stats-cards-grid">
         <div className="stat-card glass-panel">
           <div className="stat-icon rev">
@@ -1223,6 +1227,8 @@ const DashboardView = ({ orders, products, isAdmin = false, onReprintReceipt, on
           </div>
         </div>
       </div>
+        </>
+      )}
 
       {/* RIWAYAT TRANSAKSI TABEL */}
       <div className="dashboard-card glass-panel table-card">
